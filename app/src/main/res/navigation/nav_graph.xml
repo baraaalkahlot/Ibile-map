@@ -9,5 +9,5 @@
         android:id="@+id/mainFragment"
         android:name="com.ibile.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/view_holder_fragment_main" />
+        tools:layout="@layout/fragment_main" />
 </navigation>

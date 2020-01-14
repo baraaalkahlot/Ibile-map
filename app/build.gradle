@@ -96,4 +96,11 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
     implementation "org.koin:koin-androidx-fragment:2.1.0-alpha-8"
 
+    implementation "com.google.android.gms:play-services-basement:17.1.1"
+    implementation "com.google.android.gms:play-services-base:17.1.0"
+    implementation "com.google.android.gms:play-services-gcm:17.0.0"
+    implementation "com.google.android.gms:play-services-location:17.0.0"
+    implementation name:'maps-sdk-3.0.0-beta', ext:'aar'
+    implementation name:'places-maps-sdk-3.0.0-beta', ext:'aar'
+
 }
