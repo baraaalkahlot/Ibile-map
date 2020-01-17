@@ -61,7 +61,7 @@ dependencies {
     def rxjava_version = "3.0.0-RC7"
     def mvrx_version = "2.0.0-alpha2"
     def epoxy_version = "3.9.0"
-    def koin_version = "2.0.1"
+    def koin_version = "2.1.0-alpha-8"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -94,7 +94,7 @@ dependencies {
 
     implementation "org.koin:koin-androidx-scope:$koin_version"
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
-    implementation "org.koin:koin-androidx-fragment:2.1.0-alpha-8"
+    implementation "org.koin:koin-androidx-fragment:$koin_version"
 
     implementation "com.google.android.gms:play-services-basement:17.1.1"
     implementation "com.google.android.gms:play-services-base:17.1.0"
@@ -102,5 +102,8 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:17.0.0"
     implementation name:'maps-sdk-3.0.0-beta', ext:'aar'
     implementation name:'places-maps-sdk-3.0.0-beta', ext:'aar'
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
+
+    implementation 'com.github.androidseb:android-google-maps-floating-marker-titles:master'
 
 }

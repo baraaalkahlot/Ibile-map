@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="marker"
+            type="com.ibile.data.database.entities.Marker" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#dd000000">
+
+        <ScrollView
+            android:id="@+id/sv_marker_details"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/spacing_1"
+            app:layout_constraintBottom_toBottomOf="@id/btn_navigate_marker_container"
+            app:layout_constraintEnd_toStartOf="@id/btn_edit_marker_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btn_edit_marker_container">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{marker.title}"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    tools:text="Marker 18" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    tools:text="A new marker" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{marker.formattedCreatedAt}"
+                    android:textColor="@android:color/white"
+                    tools:text="Thursday, January 16, 2020 09:19:08" />
+            </LinearLayout>
+        </ScrollView>
+
+
+        <View
+            android:id="@+id/view_divider"
+            android:layout_width="0.5dp"
+            android:layout_height="0dp"
+            android:background="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/btn_navigate_marker_container"
+            app:layout_constraintStart_toEndOf="@id/sv_marker_details"
+            app:layout_constraintTop_toTopOf="@id/btn_edit_marker_container" />
+
+        <LinearLayout
+            android:id="@+id/btn_edit_marker_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/btn_copy_marker_details_container"
+            app:layout_constraintStart_toEndOf="@id/sv_marker_details"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_edit_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_btn_edit_marker"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_edit_24" />
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/white" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/btn_copy_marker_details_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btn_edit_marker_container"
+            app:layout_constraintTop_toTopOf="@id/btn_edit_marker_container">
+
+            <ImageButton
+                android:id="@+id/btn_copy_marker_details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_btn_copy_marker_details"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_copy_24" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@android:color/white" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/btn_navigate_marker_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="@+id/btn_edit_marker_container"
+            app:layout_constraintTop_toBottomOf="@id/btn_edit_marker_container">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/btn_navigate_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_btn_navigate_marker"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_navigate_24" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/btn_copy_marker_details_container"
+            app:layout_constraintTop_toBottomOf="@id/btn_copy_marker_details_container">
+
+            <View
+                android:layout_width="0.5dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/white" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_btn_call_marker"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_call_24" />
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="uiStateHandler"
+            type="com.ibile.UIStateHandler" />
+
+        <variable
+            name="fragment"
+            type="com.ibile.MainFragment" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_add_marker_help"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_place_single_marker"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_new_marker_dummy"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/cd_add_new_marker_dummy"
+            android:src="@drawable/ic_location_marker_dummy"
+            app:layout_constraintBottom_toTopOf="@id/iv_new_marker_target"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_new_marker_target"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/cd_add_new_marker_target"
+            android:src="@drawable/ic_new_marker_target"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btn_add_marker_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_3"
+            android:background="@color/transparent_black"
+            android:onClick="@{() ->  fragment.handleConfirmAddMarkerBtnClick()}"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_btn_ok"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/btn_lat_lng"
+            app:layout_constraintEnd_toStartOf="@id/btn_add_marker_cancel"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/btn_add_marker_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_2"
+            android:background="@color/transparent_black"
+            android:onClick="@{() -> uiStateHandler.handleCancelAddMarkerBtnClick()}"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_btn_cancel"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/btn_add_marker_ok"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_add_marker_ok" />
+
+        <Button
+            android:id="@+id/btn_lat_lng"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_3"
+            android:background="@color/transparent_black"
+            android:padding="@dimen/spacing_1"
+            android:text="@{@string/fmt_add_marker_coords(uiStateHandler.newMarkerCoordsValues.lat, uiStateHandler.newMarkerCoordsValues.lat)}"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

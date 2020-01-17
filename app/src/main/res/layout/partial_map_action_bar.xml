@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="com.ibile.UIStateHandler" />
+
+        <import type="com.ibile.UIStateHandler.MapActionBarBtns" />
+
+        <variable
+            name="actionBarUIHandler"
+            type="com.ibile.UIStateHandler" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/ll_map_action_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/bg_action_btns"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/btn_open_drawer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_drawer_btn"
+                android:gravity="center"
+                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.DRAWER)}"
+                android:padding="@dimen/spacing_0_5"
+                android:src="@drawable/ic_menu_24"
+                app:isVisible="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.NONE || actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.SHARE}" />
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_back_btn"
+                android:gravity="center"
+                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.NONE)}"
+                android:padding="@dimen/spacing_0_5"
+                android:src="@drawable/ic_arrow_back_24"
+                app:isVisible="@{actionBarUIHandler.activeActionBarBtn != MapActionBarBtns.NONE &amp;&amp; actionBarUIHandler.activeActionBarBtn != MapActionBarBtns.SHARE}" />
+
+        </FrameLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/transparent_white" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_browse_action_btn_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.BROWSE_MARKERS ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
+
+            <ImageButton
+                android:id="@+id/btn_browse_markers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_browse_markers_btn"
+                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.BROWSE_MARKERS)}"
+                android:padding="@dimen/spacing_0_5"
+                android:src="@drawable/ic_filter_list_24" />
+
+            <EditText
+                android:id="@+id/et_browse_markers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="180dp"
+                android:autofillHints="Browse"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:hint="Browse"
+                android:inputType="text"
+                android:paddingVertical="@dimen/spacing_1"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:textColor="@android:color/darker_gray"
+                android:textColorHint="@android:color/darker_gray"
+                app:isVisible="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.BROWSE_MARKERS}" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ll_organize_markers_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.ORGANIZE_MARKERS ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
+
+            <ImageButton
+                android:id="@+id/btn_organize_markers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_organize_markers_button"
+                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.ORGANIZE_MARKERS)}"
+                android:padding="@dimen/spacing_0_5"
+                android:src="@drawable/ic_format_list_bullet_24" />
+
+            <EditText
+                android:id="@+id/et_organize_markers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="180dp"
+                android:autofillHints="Organize"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:hint="Organize"
+                android:inputType="text"
+                android:paddingVertical="@dimen/spacing_1"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:textColor="@android:color/darker_gray"
+                android:textColorHint="@android:color/darker_gray"
+                app:isVisible="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.ORGANIZE_MARKERS}" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_search_location_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.SEARCH_LOCATION ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
+
+            <ImageButton
+                android:id="@+id/btn_search_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_search_location_btn"
+                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.SEARCH_LOCATION)}"
+                android:padding="@dimen/spacing_0_5"
+                android:src="@drawable/ic_search_24" />
+
+            <EditText
+                android:id="@+id/et_search_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="180dp"
+                android:autofillHints="Search"
+                android:background="@android:color/transparent"
+                android:focusable="true"
+                android:hint="Search"
+                android:imeOptions="actionSearch|flagNoExtractUi"
+                android:inputType="text"
+                android:paddingVertical="@dimen/spacing_1"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white"
+                app:isVisible="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.SEARCH_LOCATION}" />
+        </LinearLayout>
+
+
+        <ImageButton
+            android:id="@+id/btn_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="#00000000"
+            android:contentDescription="@string/cd_share_button"
+            android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.SHARE)}"
+            android:padding="@dimen/spacing_0_5"
+            android:src="@drawable/ic_share_24" />
+    </LinearLayout>
+</layout>

@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Ibile</string>
+    <string name="cd_drawer_btn">drawer button</string>
+    <string name="cd_browse_markers_btn">browse markers button</string>
+    <string name="cd_organize_markers_button">organize markers button</string>
+    <string name="cd_search_location_btn">search location button</string>
+    <string name="cd_share_button">share button</string>
+    <string name="cd_my_location_button">my location button</string>
+    <string name="cd_back_btn">action bar  back button</string>
+    <string name="cd_add_marker_button">add marker button</string>
+    <string name="text_btn_cancel">Cancel</string>
+    <string name="text_btn_ok">OK</string>
+    <string name="text_place_single_marker">Move the map around to place your marker where you want and click OK to place it</string>
+    <string name="cd_add_new_marker_dummy">add new marker dummy</string>
+    <string name="cd_add_new_marker_target">add new marker target</string>
+    <string name="fmt_add_marker_coords">Lat: %1$s\nLng: %2$s</string>
+    <string name="cd_btn_edit_marker">edit marker button</string>
+    <string name="cd_btn_copy_marker_details">copy marker details button</string>
+    <string name="cd_btn_navigate_marker">navigate marker button</string>
+    <string name="cd_btn_call_marker">call marker phone number</string>
 </resources>

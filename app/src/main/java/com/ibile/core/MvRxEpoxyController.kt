@@ -36,7 +36,7 @@ fun BaseFragment.simpleController(
  * Create a [MvRxEpoxyController] that builds models with the given callback.
  * When models are built the current state of the viewmodel will be provided.
  */
-fun <S : MvRxState, A : MvRxViewModel<S>> BaseFragment.simpleController(
+fun <S : MvRxState, A : BaseMvRxViewModel<S>> BaseFragment.simpleController(
     viewModel: A,
     buildModels: EpoxyController.(state: S) -> Unit
 ) = MvRxEpoxyController {
