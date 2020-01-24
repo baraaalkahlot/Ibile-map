@@ -10,51 +10,74 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.BaseMvRxFragment
-import com.airbnb.mvrx.fragmentViewModel
+import com.airbnb.mvrx.activityViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.OnMapReadyCallback
+import com.google.android.libraries.maps.model.CameraPosition
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Marker
 import com.google.android.libraries.maps.model.MarkerOptions
-import com.google.maps.android.ui.IconGenerator
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.ibile.UIStateHandler.MapActionBarBtns
+import com.ibile.core.addTo
+import com.ibile.core.toObservable
 import com.ibile.databinding.FragmentMainBinding
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import org.koin.androidx.scope.lifecycleScope
 import org.koin.core.parameter.parametersOf
 import com.airbnb.mvrx.withState as withViewModelsState
+
+class ViewStatePreSelectSearchResult(val cameraPosition: CameraPosition)
 
 class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallback,
     GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraMoveListener,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
 
     private var pendingLocationPermissionAction: () -> Unit = {}
-    lateinit var mapView: MapView
-    lateinit var map: GoogleMap
-    private lateinit var binding: FragmentMainBinding
+
+    private lateinit var mapView: MapView
+    private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val locationSearchHandler: LocationSearchHandler by lazy {
+        requireActivity().lifecycleScope.get<LocationSearchHandler>()
+    }
+
+    private lateinit var binding: FragmentMainBinding
     private val uiStateHandler: UIStateHandler by lifecycleScope.inject { parametersOf(binding) }
-    private val markersViewModel: MarkersViewModel by fragmentViewModel()
-    private val iconGenerator: IconGenerator by lazy { IconGenerator(requireContext()) }
+    private val markersViewModel: MarkersViewModel by activityViewModel()
+
+    private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
+    private var viewStatePreSelectSearchResult: ViewStatePreSelectSearchResult? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        markersViewModel.init()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        initializeMapView(binding, savedInstanceState)
+        initializeMapView(binding.mapView, savedInstanceState)
         binding.fragment = this
         binding.uiStateHandler = uiStateHandler
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        binding.locationSearchHandler = locationSearchHandler
 
         return binding.root
     }
 
-    private fun initializeMapView(binding: FragmentMainBinding, savedInstanceState: Bundle?) {
-        mapView = binding.mapView
+    private fun initializeMapView(mv: MapView, savedInstanceState: Bundle?) {
+        mapView = mv
         val mapViewBundle = savedInstanceState?.getBundle(BUNDLE_KEY_MAP_VIEW)
         mapView.onCreate(mapViewBundle)
         mapView.getMapAsync(this)
@@ -62,20 +85,48 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
         uiStateHandler.repositionLocationCompass(mapView)
     }
 
+    private val handleLocationSearchResultItemClick = { clickedItemResult: AutocompletePrediction ->
+        viewStatePreSelectSearchResult = ViewStatePreSelectSearchResult(map.cameraPosition)
+        val action =
+            MainFragmentDirections
+                .actionMainFragmentToLocationSearchSelectedResultFragment(clickedItemResult.placeId)
+        findNavController().navigate(action)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        uiStateHandler.updateBinding(binding)
+        initializeLocationSearch()
         with(markersViewModel) {
-            init()
             asyncSubscribe(MarkersViewModelState::markersAsync) {
                 addMarkersToMap(it)
-                // since after adding a new marker, the markers list is updated and there is a need
-                // to show the new marker info
-                toggleMarkerInfoView()
+                val newMarkerId = withViewModelsState(this) { state ->
+                    val newMarkedId = state.addMarkerAsync()
+                    resetAddMarkerAsync()
+                    newMarkedId
+                }
+                restoreViewStatePreSelectSearchResult(newMarkerId)
+                markersViewModel.setActiveMarkerId(newMarkerId)
             }
-            selectSubscribe(MarkersViewModelState::activeMarkerId) {
-                toggleMarkerInfoView()
-            }
+            selectSubscribe(MarkersViewModelState::activeMarkerId) { toggleMarkerInfoView() }
         }
+    }
+
+    private fun initializeLocationSearch() {
+        with(binding.searchLocationsView.rvSearchPlacesResults) {
+            adapter =
+                LocationSearchResultsAdapter(itemClickListener = handleLocationSearchResultItemClick)
+        }
+
+        locationSearchHandler.searchLocationsResponseObservable
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val adapter = binding.searchLocationsView.rvSearchPlacesResults.adapter
+                (adapter as LocationSearchResultsAdapter).updateSearchResults(it)
+            }, {
+                it.printStackTrace()
+            })
+            .addTo(compositeDisposable)
     }
 
     private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>) {
@@ -88,10 +139,25 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
         }
     }
 
+    private fun restoreViewStatePreSelectSearchResult(newMarkedId: Long?) {
+        if (viewStatePreSelectSearchResult == null) return
+        if (newMarkedId != null) {
+            uiStateHandler.updateActiveActionBarBtn(MapActionBarBtns.NONE)
+            binding.mapActionBar.etSearchLocation.setText("")
+        } else {
+            map.moveCamera(CameraUpdateFactory.newLatLng(viewStatePreSelectSearchResult?.cameraPosition?.target))
+        }
+        viewStatePreSelectSearchResult = null
+    }
+
     private fun toggleMarkerInfoView() {
         val activeMarker = withViewModelsState(markersViewModel) { state ->
             val (markersAsync, activeMarkerId) = state
             activeMarkerId?.let { markersAsync()?.find { it.id == activeMarkerId } }
+        }
+        activeMarker?.let {
+            val markerLocation = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude))
+            map.animateCamera(markerLocation, 500, null)
         }
         uiStateHandler.toggleMarkerInfoView(activeMarker)
     }
@@ -102,7 +168,8 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
-        enableLocation()
+        runWithLocationPermission { map.isMyLocationEnabled = true }
+        if (viewStatePreSelectSearchResult == null) moveToDeviceLocation()
         with(this.map) {
             // using custom location button in layout
             uiSettings.isMyLocationButtonEnabled = false
@@ -114,15 +181,17 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
     }
 
     @SuppressLint("MissingPermission")
-    private fun enableLocation() {
+    private fun moveToDeviceLocation() {
         runWithLocationPermission {
-            map.isMyLocationEnabled = true
-            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                location?.let {
-                    val locationLatLng = LatLng(it.latitude, it.longitude)
-                    map.moveCamera(CameraUpdateFactory.newLatLng(locationLatLng))
+            fusedLocationClient.lastLocation
+                .toObservable()
+                .subscribe { location: Location? ->
+                    location?.let {
+                        val locationLatLng = LatLng(it.latitude, it.longitude)
+                        map.moveCamera(CameraUpdateFactory.newLatLng(locationLatLng))
+                    }
                 }
-            }
+                .addTo(compositeDisposable)
         }
     }
 
@@ -134,11 +203,9 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
         uiStateHandler.updateUILatLngCoords(map.cameraPosition.target)
     }
 
-    override fun onMarkerClick(marker: Marker?): Boolean {
-        map.animateCamera(CameraUpdateFactory.newLatLng(marker?.position), 500, null)
-
+    override fun onMarkerClick(marker: Marker): Boolean {
         if (!uiStateHandler.addNewMarkerIsActive.get()) {
-            val activeMarkerId = marker?.tag as Long
+            val activeMarkerId = marker.tag as Long
             markersViewModel.setActiveMarkerId(activeMarkerId)
         }
         return true
@@ -180,15 +247,25 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
         uiStateHandler.updateAddMarkerIsActive(true)
     }
 
+    fun handleActionBarSearchBtnClick() {
+        if (uiStateHandler.activeActionBarBtn.get() == MapActionBarBtns.SEARCH_LOCATION) return
+        markersViewModel.setActiveMarkerId(null)
+        locationSearchHandler.setCurrentSessionToken(AutocompleteSessionToken.newInstance())
+        uiStateHandler.updateActiveActionBarBtn(MapActionBarBtns.SEARCH_LOCATION)
+    }
+
     @SuppressLint("MissingPermission")
     fun handleMyLocationBtnClick() {
         runWithLocationPermission {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                location?.let {
-                    val locationLatLng = LatLng(it.latitude, it.longitude)
-                    map.animateCamera(CameraUpdateFactory.newLatLng(locationLatLng), 500, null)
+            fusedLocationClient.lastLocation
+                .toObservable()
+                .subscribe { location: Location? ->
+                    location?.let {
+                        val locationLatLng = LatLng(it.latitude, it.longitude)
+                        map.animateCamera(CameraUpdateFactory.newLatLng(locationLatLng), 500, null)
+                    }
                 }
-            }
+                .addTo(compositeDisposable)
         }
     }
 
@@ -232,6 +309,7 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+        compositeDisposable.clear()
     }
 
     override fun onPause() {
@@ -243,11 +321,17 @@ class MainFragment : BaseMvRxFragment(R.layout.fragment_main), OnMapReadyCallbac
     override fun onDestroy() {
         mapView.onDestroy()
         super.onDestroy()
+        compositeDisposable.dispose()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
         mapView.onLowMemory()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        uiStateHandler.updateBinding(null)
     }
 
     companion object {

@@ -9,5 +9,19 @@
         android:id="@+id/mainFragment"
         android:name="com.ibile.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_locationSearchSelectedResultFragment"
+            app:destination="@id/locationSearchSelectedResultFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/locationSearchSelectedResultFragment"
+        android:name="com.ibile.LocationSearchSelectedResultFragment"
+        android:label="LocationSearchSelectedResultFragment"
+        tools:layout="@layout/fragment_location_search_selected_result">
+        <argument
+            android:name="arg_selected_search_place_id"
+            app:argType="string" />
+    </fragment>
 </navigation>

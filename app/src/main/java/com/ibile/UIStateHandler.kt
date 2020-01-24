@@ -12,7 +12,7 @@ import com.ibile.core.animateSlideVertical
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 
-class UIStateHandler(private val binding: FragmentMainBinding) {
+class UIStateHandler(private var binding: FragmentMainBinding?) {
     val activeActionBarBtn =
         ObservableField<MapActionBarBtns>(MapActionBarBtns.NONE)
     val addNewMarkerIsActive = ObservableBoolean(false)
@@ -31,6 +31,10 @@ class UIStateHandler(private val binding: FragmentMainBinding) {
         addNewMarkerIsActive.set(false)
     }
 
+    fun updateActiveActionBarBtn(activeBtn: MapActionBarBtns) {
+        activeActionBarBtn.set(activeBtn)
+    }
+
 
     fun updateAddMarkerIsActive(isActive: Boolean) {
         addNewMarkerIsActive.set(isActive)
@@ -45,9 +49,9 @@ class UIStateHandler(private val binding: FragmentMainBinding) {
     }
 
     fun toggleMarkerInfoView(marker: Marker?) {
+        if (marker == null && activeMarker.get() != null) hideActiveMarkerInfoView()
+        if (marker != null && activeMarker.get() == null) showActiveMarkerInfo()
         activeMarker.set(marker)
-        if (marker == null) return hideActiveMarkerInfoView()
-        showActiveMarkerInfo()
     }
 
     fun repositionLocationCompass(mapView: MapView) {
@@ -59,26 +63,35 @@ class UIStateHandler(private val binding: FragmentMainBinding) {
     }
 
     private fun showActiveMarkerInfo() {
-        with(binding.markerInfoView.root) {
-            val markerBtnToInfoMargin = 16
-            val addMarkerBtn = binding.btnAddMarker
-            val slideDistance =
-                addMarkerBtn.marginBottom - (height.toFloat() + markerBtnToInfoMargin)
+        binding?.let {
+            with(it.markerInfoView.root) {
+                val addBtnToInfoMargin = 16
+                val addMarkerBtn = it.btnAddMarker
+                val slideDistance =
+                    addMarkerBtn.marginBottom - ((height.toFloat()) + addBtnToInfoMargin)
 
-            this.animateSlideVertical(-height.toFloat(), 150)
-            addMarkerBtn.animateSlideVertical(slideDistance, 150)
+                this.animateSlideVertical(-height.toFloat(), 150)
+                addMarkerBtn.animateSlideVertical(slideDistance, 150)
+            }
         }
     }
 
     private fun hideActiveMarkerInfoView() {
-        with(binding.markerInfoView.root) {
-            val markerBtnToInfoMargin = 16
-            val addMarkerBtn = binding.btnAddMarker
-            val slideDistance = height.toFloat() + markerBtnToInfoMargin - addMarkerBtn.marginBottom
+        binding?.let {
+            with(it.markerInfoView.root) {
+                val markerBtnToInfoMargin = 16
+                val addMarkerBtn = it.btnAddMarker
+                val slideDistance =
+                    height.toFloat() + markerBtnToInfoMargin - addMarkerBtn.marginBottom
 
-            this.animateSlideVertical(height.toFloat(), 150)
-            addMarkerBtn.animateSlideVertical(slideDistance, 150)
+                this.animateSlideVertical(height.toFloat(), 150)
+                addMarkerBtn.animateSlideVertical(slideDistance, 150)
+            }
         }
+    }
+
+    fun updateBinding(binding: FragmentMainBinding?) {
+        this.binding = binding
     }
 
     enum class MapActionBarBtns { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS }

@@ -31,11 +31,15 @@ class MarkersViewModel(
             .insertMarker(newMarker)
             .toObservable()
             .subscribeOn(Schedulers.io())
-            .execute { copy(activeMarkerId = it()) }
+            .execute { copy(addMarkerAsync = it) }
     }
 
     fun setActiveMarkerId(activeMarkerId: Long?) {
         setState { copy(activeMarkerId = activeMarkerId) }
+    }
+
+    fun resetAddMarkerAsync() {
+        setState { copy(addMarkerAsync = Uninitialized) }
     }
 
     companion object : MvRxViewModelFactory<MarkersViewModel, MarkersViewModelState> {
@@ -43,8 +47,8 @@ class MarkersViewModel(
         override fun create(
             viewModelContext: ViewModelContext, state: MarkersViewModelState
         ): MarkersViewModel {
-            val repo by (viewModelContext as FragmentViewModelContext)
-                .fragment.inject<MarkersRepository>()
+            val repo by (viewModelContext as ActivityViewModelContext)
+                .activity.inject<MarkersRepository>()
             return MarkersViewModel(state, repo)
         }
     }

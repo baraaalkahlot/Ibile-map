@@ -28,7 +28,7 @@ android {
                         "room.expandProjection": "true"]
             }
         }
-
+        resValue "string", "google_maps_api_key", (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
     }
 
     buildTypes {
@@ -86,6 +86,7 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     implementation "io.reactivex.rxjava3:rxjava:$rxjava_version"
+    implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.1'
 
     implementation "com.airbnb.android:mvrx:$mvrx_version"
     implementation "com.airbnb.android:epoxy:$epoxy_version"
@@ -100,9 +101,14 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:17.1.0"
     implementation "com.google.android.gms:play-services-gcm:17.0.0"
     implementation "com.google.android.gms:play-services-location:17.0.0"
-    implementation name:'maps-sdk-3.0.0-beta', ext:'aar'
-    implementation name:'places-maps-sdk-3.0.0-beta', ext:'aar'
-    implementation 'com.google.maps.android:android-maps-utils:0.5'
+    implementation name: 'maps-sdk-3.0.0-beta', ext: 'aar'
+    implementation name: 'places-maps-sdk-3.0.0-beta', ext: 'aar'
+    implementation 'com.google.maps.android:android-maps-utils-sdk-v3-compat:0.1'
+    // for some weird reasons, all these have to be pulled in for the places-sdk to work
+    implementation 'com.google.android.gms:play-services-clearcut:17.0.0'
+    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
 
     implementation 'com.github.androidseb:android-google-maps-floating-marker-titles:master'
 

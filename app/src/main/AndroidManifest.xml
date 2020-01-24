@@ -3,6 +3,7 @@
     package="com.ibile">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".core.Application"
@@ -21,7 +22,7 @@
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBTsj7vd6y3IYvQPeqqLMYS0UcCefk7iO8" />
+            android:value="@string/google_maps_api_key" />
     </application>
 
 </manifest>

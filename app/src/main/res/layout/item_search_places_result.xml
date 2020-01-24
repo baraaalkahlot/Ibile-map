@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="result"
+            type="com.ibile.LocationSearchResultsAdapter.LocationSearchResultsViewHolder.ResultViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/spacing_1">
+
+        <View
+            android:id="@+id/view_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintBottom_toTopOf="@id/tv_result_primary_text"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_result_primary_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:text="@{result.primaryText}"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/view_divider" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:text="@{result.secondaryText}"
+            android:textColor="@android:color/white"
+            app:layout_constraintTop_toBottomOf="@id/tv_result_primary_text" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

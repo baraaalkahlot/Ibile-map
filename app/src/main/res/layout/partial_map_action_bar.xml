@@ -11,6 +11,14 @@
         <variable
             name="actionBarUIHandler"
             type="com.ibile.UIStateHandler" />
+
+        <variable
+            name="fragment"
+            type="com.ibile.MainFragment" />
+
+        <variable
+            name="locationSearchHandler"
+            type="com.ibile.LocationSearchHandler" />
     </data>
 
     <LinearLayout
@@ -20,7 +28,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:animateLayoutChanges="true"
-        android:background="@drawable/bg_action_btns"
+        android:background="@drawable/bg_action_bar"
         android:orientation="horizontal"
         android:padding="4dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -148,7 +156,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_search_location_btn"
-                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(MapActionBarBtns.SEARCH_LOCATION)}"
+                android:onClick="@{() -> fragment.handleActionBarSearchBtnClick()}"
                 android:padding="@dimen/spacing_0_5"
                 android:src="@drawable/ic_search_24" />
 
@@ -157,10 +165,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:width="180dp"
+                android:afterTextChanged="@{(text) -> locationSearchHandler.setSearchQuery(text.toString())}"
                 android:autofillHints="Search"
                 android:background="@android:color/transparent"
                 android:focusable="true"
-                android:hint="Search"
+                android:hint="@string/hint_et_search"
                 android:imeOptions="actionSearch|flagNoExtractUi"
                 android:inputType="text"
                 android:paddingVertical="@dimen/spacing_1"
@@ -168,6 +177,7 @@
                 android:paddingEnd="0dp"
                 android:textColor="@android:color/white"
                 android:textColorHint="@android:color/white"
+                android:textCursorDrawable="@drawable/text_cursor_white"
                 app:isVisible="@{actionBarUIHandler.activeActionBarBtn == MapActionBarBtns.SEARCH_LOCATION}" />
         </LinearLayout>
 

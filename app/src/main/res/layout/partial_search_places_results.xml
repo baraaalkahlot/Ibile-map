@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.ibile.utils.Status" />
+
+        <variable
+            name="locationsSearchHandler"
+            type="com.ibile.LocationSearchHandler" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_action_bar"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <TextView
+            android:id="@+id/tv_search_error_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_generic_async_error_msg"
+            android:textAlignment="center"
+            android:textColor="@color/red"
+            app:isVisible="@{locationsSearchHandler.locationsSearchApiResource.status == Status.ERROR}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_search_in_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_searching"
+            android:textColor="@android:color/white"
+            app:isVisible="@{locationsSearchHandler.locationsSearchApiResource.status == Status.LOADING}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_search_places_results"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:hasFixedSize="@{true}"
+            app:isVisible="@{locationsSearchHandler.locationsSearchApiResource.status == Status.SUCCESS}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/iv_google_attribution"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/item_search_places_result" />
+
+        <ImageView
+            android:id="@+id/iv_google_attribution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:layout_marginBottom="@dimen/spacing_1"
+            android:contentDescription="@string/cd_image_powered_by_google"
+            android:src="@drawable/places_powered_by_google_dark"
+            app:isVisible="@{locationsSearchHandler.locationsSearchApiResource.status == Status.SUCCESS &amp;&amp; locationsSearchHandler.locationsSearchApiResource.data.size() > 0}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rv_search_places_results" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

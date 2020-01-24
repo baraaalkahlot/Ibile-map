@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.ibile.utils.Status" />
+
+        <variable
+            name="locationSearchHandler"
+            type="com.ibile.LocationSearchHandler" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.libraries.maps.MapView
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            map:cameraZoom="15" />
+
+        <LinearLayout
+            android:id="@+id/ll_action_bar_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:layout_marginEnd="@dimen/spacing_1"
+            android:background="@drawable/bg_action_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_back_btn"
+                android:gravity="center"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_arrow_back_24" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/transparent_white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_1_5"
+                android:text="@string/text_title_new_marker"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                tools:text="New Marker" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="@dimen/spacing_1"
+            android:background="@drawable/bg_transparent_large_stroke_rounded_top"
+            app:layout_constraintBottom_toTopOf="@id/ll_result_details_container"
+            app:layout_constraintTop_toBottomOf="@id/ll_action_bar_container" />
+
+        <LinearLayout
+            android:id="@+id/ll_result_details_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginEnd="@dimen/spacing_1"
+            android:layout_marginBottom="@dimen/spacing_1"
+            android:background="@drawable/bg_black_rounded_bottom"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/spacing_1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/spacing_1"
+                android:text="@string/text_generic_async_error_msg"
+                android:textAlignment="center"
+                android:textColor="@color/red"
+                app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.ERROR}" />
+
+
+            <TextView
+                android:id="@+id/tv_location_primary_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{locationSearchHandler.getSelectedPlaceResource.data.name}"
+                android:textColor="@android:color/white"
+                tools:text="Oshodi/Isolo" />
+
+            <TextView
+                android:id="@+id/tv_location_secondary_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{locationSearchHandler.getSelectedPlaceResource.data.address}"
+                android:textColor="@android:color/white"
+                tools:text="Oshodi/Isolo, Lagos, Nigeria" />
+
+            <Button
+                android:id="@+id/btn_create_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_1"
+                android:background="@drawable/bg_action_btn_container"
+                android:text="@string/text_btn_create"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.SUCCESS}" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_2"
+                android:contentDescription="@string/cd_image_powered_by_google"
+                android:src="@drawable/places_powered_by_google_dark"
+                app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.SUCCESS}" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_get_location_async_in_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@android:color/black"
+            app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.LOADING}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

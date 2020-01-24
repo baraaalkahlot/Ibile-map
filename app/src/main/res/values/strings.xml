@@ -18,4 +18,11 @@
     <string name="cd_btn_copy_marker_details">copy marker details button</string>
     <string name="cd_btn_navigate_marker">navigate marker button</string>
     <string name="cd_btn_call_marker">call marker phone number</string>
+    <string name="text_btn_create">Create</string>
+    <string name="cd_image_powered_by_google">powered by google attribution</string>
+    <string name="text_title_new_marker">New Marker</string>
+    <string name="text_location_retrieval_error">An error occurred while retrieving location</string>
+    <string name="hint_et_search">Search</string>
+    <string name="text_generic_async_error_msg">An error occurred, check your connectivity or contact us if error persists</string>
+    <string name="text_searching">Searching…</string>
 </resources>
