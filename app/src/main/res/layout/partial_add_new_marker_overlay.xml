@@ -89,7 +89,7 @@
             android:layout_marginBottom="@dimen/spacing_3"
             android:background="@color/transparent_black"
             android:padding="@dimen/spacing_1"
-            android:text="@{@string/fmt_add_marker_coords(uiStateHandler.newMarkerCoordsValues.lat, uiStateHandler.newMarkerCoordsValues.lat)}"
+            android:text="@{@string/fmt_add_marker_coords(uiStateHandler.newMarkerCoordsValues.lat, uiStateHandler.newMarkerCoordsValues.lng)}"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="12sp"
