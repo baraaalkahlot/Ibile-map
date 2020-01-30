@@ -4,7 +4,6 @@ import android.view.View
 import android.widget.RelativeLayout
 import androidx.core.view.marginBottom
 import androidx.databinding.ObservableArrayMap
-import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
@@ -13,35 +12,31 @@ import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 
 class UIStateHandler(private var binding: FragmentMainBinding?) {
-    val activeActionBarBtn =
-        ObservableField<MapActionBarBtns>(MapActionBarBtns.NONE)
-    val addNewMarkerIsActive = ObservableBoolean(false)
+    val activeOverlay = ObservableField<Overlay>(Overlay.NONE)
+    val activeMarker = ObservableField<Marker>()
     val newMarkerCoordsValues = ObservableArrayMap<String, Float>()
         .apply {
             put("lat", 0f)
             put("lng", 0f)
         }
-    val activeMarker = ObservableField<Marker>()
 
-    fun handleActionBarBtnClick(identifier: MapActionBarBtns) {
-        activeActionBarBtn.set(identifier)
+    fun handleActionBarBtnClick(overlay: Overlay) {
+        updateActiveOverlay(overlay)
+    }
+
+    fun updateActiveOverlay(overlay: Overlay) {
+        activeOverlay.set(overlay)
     }
 
     fun handleCancelAddMarkerBtnClick() {
-        addNewMarkerIsActive.set(false)
+        activeOverlay.set(Overlay.NONE)
     }
 
-    fun updateActiveActionBarBtn(activeBtn: MapActionBarBtns) {
-        activeActionBarBtn.set(activeBtn)
-    }
-
-
-    fun updateAddMarkerIsActive(isActive: Boolean) {
-        addNewMarkerIsActive.set(isActive)
-    }
+    fun actionBarIsVisible(activeOverlay: Overlay) =
+        !arrayListOf(Overlay.ADD_POLYLINE_MARKER, Overlay.ADD_MARKER).contains(activeOverlay)
 
     fun updateUILatLngCoords(cameraPositionCoords: LatLng) {
-        if (!addNewMarkerIsActive.get()) return
+        if (activeOverlay.get() != Overlay.ADD_MARKER) return
         with(newMarkerCoordsValues) {
             replace("lat", cameraPositionCoords.latitude.toFloat())
             replace("lng", cameraPositionCoords.longitude.toFloat())
@@ -94,5 +89,5 @@ class UIStateHandler(private var binding: FragmentMainBinding?) {
         this.binding = binding
     }
 
-    enum class MapActionBarBtns { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS }
+    enum class Overlay { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS, ADD_MARKER, ADD_POLYLINE_MARKER }
 }

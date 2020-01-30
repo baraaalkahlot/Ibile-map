@@ -66,7 +66,7 @@ class LocationSearchSelectedResultFragment :
     }
 
     private fun handleCreateMarkerBtnClick() {
-        locationCoords?.let { markersViewModel.addMarker(it) }
+        locationCoords?.let { markersViewModel.addPointMarker(it) }
         findNavController().navigateUp()
     }
 

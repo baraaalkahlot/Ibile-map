@@ -25,4 +25,7 @@
     <string name="hint_et_search">Search</string>
     <string name="text_generic_async_error_msg">An error occurred, check your connectivity or contact us if error persists</string>
     <string name="text_searching">Searching…</string>
+    <string name="text_polyline_marker_instruction">Move the map around to place the points, click \'+\' to add a point, click \'-\' to remove a point and switch points with previous/next buttons. Finally click save to save the shape.</string>
+    <string name="cd_btn_add_polyline_marker">add polyline marker button</string>
+    <string name="fmt_polyline_marker_distance">Distance: %1$s</string>
 </resources>

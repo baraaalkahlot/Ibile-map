@@ -1,6 +1,9 @@
 package com.ibile.core
 
 import android.animation.ObjectAnimator
+import android.graphics.*
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.view.View
 import com.google.android.gms.tasks.Task
 import io.reactivex.Observable
@@ -14,6 +17,20 @@ fun View.animateSlideVertical(distance: Float, duration: Long) {
         this.duration = duration
         start()
     }
+}
+
+fun Drawable.setColorFilter(color: Int) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        colorFilter = BlendModeColorFilter(color, BlendMode.SRC_IN)
+    } else {
+        @Suppress("DEPRECATION")
+        setColorFilter(color, PorterDuff.Mode.SRC_IN)
+    }
+}
+
+fun Drawable.toGrayScale(): Drawable? {
+    val drawable = constantState?.newDrawable()?.mutate()
+    return drawable?.apply { setColorFilter(Color.GRAY)  }
 }
 
 fun getCurrentDateTime(): Date {

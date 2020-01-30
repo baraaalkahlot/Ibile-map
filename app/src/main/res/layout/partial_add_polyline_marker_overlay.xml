@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="handler"
+            type="com.ibile.AddPolylineMarkerHandler" />
+
+        <variable
+            name="fragment"
+            type="com.ibile.MainFragment" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_add_marker_help"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:paddingVertical="@dimen/spacing_2"
+            android:text="@string/text_polyline_marker_instruction"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:isVisible="@{!handler.distanceIsVisible(handler.points, handler.activePointIndexObservable)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_polyline_path_distance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:paddingVertical="@dimen/spacing_2"
+            android:text="@{@string/fmt_polyline_marker_distance(handler.polylinePathDistance)}"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:isVisible="@{handler.distanceIsVisible(handler.points, handler.activePointIndexObservable)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_poly_marker_target"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="@string/cd_add_new_marker_target"
+            android:src="@drawable/ic_new_poly_marker_point_target"
+            app:isVisible="@{!handler.activePointIndexIsValid(handler.activePointIndexObservable)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_3"
+            android:background="@drawable/bg_action_bar"
+            app:layout_constraintBottom_toTopOf="@id/btn_lat_lng"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageButton
+                imageButtonEnabled="@{handler.activePointIndexObservable > -1}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.handlePrevBtnClick()}"
+                android:padding="10dp"
+                android:src="@drawable/ic_arrow_back_ios_24" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.addPoint()}"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_add_24" />
+
+            <ImageButton
+                imageButtonEnabled="@{handler.activePointIndexIsValid(handler.activePointIndexObservable)}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.deletePoint()}"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_remove_24" />
+
+            <ImageButton
+                imageButtonEnabled="@{handler.activePointIndexObservable &lt; handler.points.size() &amp;&amp; handler.points.size() > 0}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.handleNextBtnClick()}"
+                android:padding="10dp"
+                android:src="@drawable/ic_arrow_forward_ios_24" />
+
+            <ImageButton
+                imageButtonEnabled="@{handler.points.size() > 1}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> fragment.handleSavePolylineMarkerBtnClick()}"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_save_24" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_lat_lng"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_3"
+            android:background="@color/transparent_black"
+            android:padding="@dimen/spacing_1"
+            android:text="@{@string/fmt_add_marker_coords((float) handler.currentPointCoords.latitude, (float) handler.currentPointCoords.longitude)}"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

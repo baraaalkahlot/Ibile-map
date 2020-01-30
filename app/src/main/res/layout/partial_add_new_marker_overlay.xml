@@ -97,5 +97,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <ImageButton
+            android:id="@+id/btn_add_poly_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:background="@drawable/bg_circle"
+            android:contentDescription="@string/cd_btn_add_polyline_marker"
+            android:onClick="@{() -> fragment.handleAddPolylineMarkerBtnClick()}"
+            android:src="@drawable/ic_polyline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,11 +1,9 @@
 package com.ibile.core
 
+import android.content.Context
 import androidx.room.Room
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.ibile.LocationSearchHandler
-import com.ibile.MainActivity
-import com.ibile.MainFragment
-import com.ibile.UIStateHandler
+import com.ibile.*
 import com.ibile.data.database.Database
 import com.ibile.data.repositiories.MarkersRepository
 import com.ibile.databinding.FragmentMainBinding
@@ -21,4 +19,5 @@ val appModule = module {
     }
     single { Room.databaseBuilder(androidContext(), Database::class.java, "ibile-markers").build() }
     single { MarkersRepository(get<Database>().markerDao()) }
+    scope<MainFragment> { scoped { (context: Context) -> AddPolylineMarkerHandler(context) } }
 }
