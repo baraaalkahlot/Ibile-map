@@ -22,7 +22,7 @@
 
         <variable
             name="addPolylineMarkerHandler"
-            type="com.ibile.AddPolylineMarkerHandler" />
+            type="com.ibile.AddShapeViewModel" />
 
     </data>
 
@@ -121,10 +121,10 @@
 
         <include
             android:id="@+id/add_polyline_marker_view"
-            layout="@layout/partial_add_polyline_marker_overlay"
+            layout="@layout/partial_add_poly_shape_overlay"
             app:fragment="@{fragment}"
             app:handler="@{addPolylineMarkerHandler}"
-            app:isVisible="@{uiStateHandler.activeOverlay == Overlay.ADD_POLYLINE_MARKER}" />
+            app:isVisible="@{uiStateHandler.activeOverlay == Overlay.ADD_POLY_SHAPE}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

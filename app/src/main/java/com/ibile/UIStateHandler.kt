@@ -33,7 +33,7 @@ class UIStateHandler(private var binding: FragmentMainBinding?) {
     }
 
     fun actionBarIsVisible(activeOverlay: Overlay) =
-        !arrayListOf(Overlay.ADD_POLYLINE_MARKER, Overlay.ADD_MARKER).contains(activeOverlay)
+        !arrayListOf(Overlay.ADD_POLY_SHAPE, Overlay.ADD_MARKER).contains(activeOverlay)
 
     fun updateUILatLngCoords(cameraPositionCoords: LatLng) {
         if (activeOverlay.get() != Overlay.ADD_MARKER) return
@@ -89,5 +89,5 @@ class UIStateHandler(private var binding: FragmentMainBinding?) {
         this.binding = binding
     }
 
-    enum class Overlay { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS, ADD_MARKER, ADD_POLYLINE_MARKER }
+    enum class Overlay { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS, ADD_MARKER, ADD_POLY_SHAPE }
 }

@@ -3,7 +3,6 @@ package com.ibile
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,14 +12,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.activityViewModel
-import com.airbnb.mvrx.withState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.OnMapReadyCallback
-import com.google.android.libraries.maps.model.*
+import com.google.android.libraries.maps.model.LatLng
+import com.google.android.libraries.maps.model.Marker
+import com.google.android.libraries.maps.model.Polygon
+import com.google.android.libraries.maps.model.Polyline
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.ibile.UIStateHandler.Overlay
@@ -29,6 +30,7 @@ import com.ibile.databinding.FragmentMainBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import org.koin.androidx.scope.lifecycleScope
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class ViewStatePreSelectSearchResult
@@ -36,7 +38,7 @@ class ViewStatePreSelectSearchResult
 class MainFragment : BaseFragment(), OnMapReadyCallback,
     GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraMoveListener,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
-    GoogleMap.OnPolylineClickListener {
+    GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener {
 
     private var pendingLocationPermissionAction: () -> Unit = {}
 
@@ -50,14 +52,12 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     private val locationSearchHandler: LocationSearchHandler by lazy {
         requireActivity().lifecycleScope.get<LocationSearchHandler>()
     }
-    private val polylineMarkerHandler: AddPolylineMarkerHandler by lifecycleScope.inject {
-        parametersOf(requireContext())
-    }
+    private val addShapeViewModel: AddShapeViewModel by viewModel()
 
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
     private var viewStatePreSelectSearchResult: ViewStatePreSelectSearchResult? = null
 
-    private var activeMapPolyline: Polyline? = null
+    private var mapController: MapController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +75,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         binding.fragment = this
         binding.uiStateHandler = uiStateHandler
         binding.locationSearchHandler = locationSearchHandler
-        binding.addPolylineMarkerHandler = polylineMarkerHandler
+        binding.addPolylineMarkerHandler = addShapeViewModel
 
         return binding.root
     }
@@ -94,7 +94,6 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         uiStateHandler.updateBinding(binding)
         initializeLocationSearch()
         with(markersViewModel) {
-            //            asyncSubscribe(MarkersViewModelState::markersAsync) { addMarkersToMap(it) }
             selectSubscribe(MarkersViewModelState::activeMarkerId) {
                 toggleMarkerInfoView()
                 restoreViewStatePreSelectSearchResult(it)
@@ -127,30 +126,6 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         findNavController().navigate(action)
     }
 
-    private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>) {
-        map.clear()
-        val activeMarkerId = withState(markersViewModel) { it.activeMarkerId }
-        markers.forEach {
-            if (it.isPointMarker) {
-                val markerOptions = MarkerOptions().position(it.position)
-                val marker = map.addMarker(markerOptions)
-                marker.tag = it.id
-            }
-            if (it.isPolylineMarker) {
-                val DEFAULT_COLOR = Color.rgb(204, 54, 43)
-                val options = PolylineOptions()
-                    .addAll(it.points).color(DEFAULT_COLOR).width(3f).clickable(true)
-                val polyline = map.addPolyline(options)
-                if (it.id == activeMarkerId) {
-                    activeMapPolyline?.width = 3f
-                    polyline.width = 5f
-                    activeMapPolyline = polyline
-                }
-                polyline.tag = it.id
-            }
-        }
-    }
-
     private fun restoreViewStatePreSelectSearchResult(newMarkedId: Long?) {
         if (viewStatePreSelectSearchResult == null) return
         if (newMarkedId != null) {
@@ -161,36 +136,21 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     }
 
     private fun toggleMarkerInfoView() {
-        val activeMarker = markersViewModel.getActiveMarker()?.apply {
-            map.animateCamera(this.cameraUpdate, 500, null)
-        }
-
-        toggleActiveMarkerIndication(activeMarker)
+        val activeMarker = markersViewModel.getActiveMarker()
+        mapController?.toggleActiveMarkerIndication(activeMarker)
         uiStateHandler.toggleMarkerInfoView(activeMarker)
     }
 
-    private fun toggleActiveMarkerIndication(marker: com.ibile.data.database.entities.Marker?) {
-        if (marker == null) {
-            activeMapPolyline?.width = 3f
-            activeMapPolyline = null
-        } else {
-            activeMapPolyline?.width = 6f
-        }
+    override fun epoxyController(): MvRxEpoxyController = simpleController {
+        mapController?.buildModels(epoxyController)
     }
-
-    override fun epoxyController(): MvRxEpoxyController =
-        simpleController(markersViewModel) { markersViewModelState ->
-            markerListPropertyObserverView {
-                id(MarkerListPropertyObserverView.id)
-                markersViewModelState.markersAsync()?.let { data(it) }
-                dataCallback { addMarkersToMap(it) }
-            }
-        }
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
-        if (uiStateHandler.activeOverlay.get() == Overlay.ADD_POLYLINE_MARKER)
-            polylineMarkerHandler.setMap(map)
+        mapController = MapController(markersViewModel, map)
+        if (uiStateHandler.activeOverlay.get() == Overlay.ADD_POLY_SHAPE) {
+            addShapeViewModel.setMap(map)
+        }
 
         runWithLocationPermission { map.isMyLocationEnabled = true }
         if (viewStatePreSelectSearchResult == null) moveToDeviceLocation()
@@ -202,6 +162,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
             setOnMarkerClickListener(this@MainFragment)
             setOnMapClickListener(this@MainFragment)
             setOnPolylineClickListener(this@MainFragment)
+            setOnPolygonClickListener(this@MainFragment)
         }
     }
 
@@ -229,33 +190,25 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     override fun onCameraMove() {
         with(map.cameraPosition.target) {
             uiStateHandler.updateUILatLngCoords(this)
-            if (uiStateHandler.activeOverlay.get() == Overlay.ADD_POLYLINE_MARKER)
-                polylineMarkerHandler.onMapMove(this)
+            if (uiStateHandler.activeOverlay.get() == Overlay.ADD_POLY_SHAPE)
+                addShapeViewModel.onMapMove(this)
         }
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
         if (uiStateHandler.activeOverlay.get() != Overlay.NONE) return true
-
-        // remove indication on active polyline marker if it is showing
-        activeMapPolyline?.width = 3f
-        activeMapPolyline = null
-
-        val activeMarkerId = marker.tag as Long
-        markersViewModel.setActiveMarkerId(activeMarkerId)
-
+        mapController?.onMarkerClick(marker)
         return true
     }
 
     override fun onPolylineClick(polyline: Polyline) {
         if (uiStateHandler.activeOverlay.get() != Overlay.NONE) return
+        mapController?.onPolylineClick(polyline)
+    }
 
-        // remove indication on active polyline marker if it is showing
-        activeMapPolyline?.width = 3f
-        activeMapPolyline = polyline
-
-        val activeMarkerId = polyline.tag as Long
-        markersViewModel.setActiveMarkerId(activeMarkerId)
+    override fun onPolygonClick(polygon: Polygon) {
+        if (uiStateHandler.activeOverlay.get() != Overlay.NONE) return
+        mapController?.onPolygonClick(polygon)
     }
 
     override fun onMapClick(position: LatLng?) {
@@ -285,15 +238,18 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     fun handleConfirmAddMarkerBtnClick() {
         val cameraPosition = map.cameraPosition.target
-        markersViewModel.addPointMarker(cameraPosition)
+        markersViewModel.addMarker(cameraPosition)
         uiStateHandler.updateActiveOverlay(Overlay.NONE)
     }
 
-    fun handleSavePolylineMarkerBtnClick() {
-        val points = polylineMarkerHandler.points.map { it?.position }
-        markersViewModel.addPolylineMarker(points)
+    fun handleSaveShapeBtnClick() {
+        val points = addShapeViewModel.points.map { it?.position }
+        when (addShapeViewModel.polyType) {
+            AddShapeViewModel.PolyType.POLYLINE -> markersViewModel.addPolyline(points)
+            AddShapeViewModel.PolyType.POLYGON -> markersViewModel.addPolygon(points)
+        }
         uiStateHandler.updateActiveOverlay(Overlay.NONE)
-        polylineMarkerHandler.reset()
+        addShapeViewModel.reset()
     }
 
     fun handleAddMarkerBtnClick() {
@@ -309,8 +265,13 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     }
 
     fun handleAddPolylineMarkerBtnClick() {
-        polylineMarkerHandler.setMap(map)
-        uiStateHandler.updateActiveOverlay(Overlay.ADD_POLYLINE_MARKER)
+        addShapeViewModel.init(map, AddShapeViewModel.PolyType.POLYLINE)
+        uiStateHandler.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
+    }
+
+    fun handleAddPolygonMarkerBtnClick() {
+        addShapeViewModel.init(map, AddShapeViewModel.PolyType.POLYGON)
+        uiStateHandler.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
     }
 
     @SuppressLint("MissingPermission")
@@ -368,7 +329,6 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     override fun onStop() {
         super.onStop()
         mapView.onStop()
-        compositeDisposable.clear()
     }
 
     override fun onPause() {
@@ -380,7 +340,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     override fun onDestroy() {
         mapView.onDestroy()
         super.onDestroy()
-        compositeDisposable.dispose()
+        compositeDisposable.clear()
     }
 
     override fun onLowMemory() {
@@ -391,7 +351,8 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     override fun onDestroyView() {
         super.onDestroyView()
         uiStateHandler.updateBinding(null)
-        polylineMarkerHandler.setMap(null)
+        mapController = null
+        addShapeViewModel.setMap(null)
     }
 
     companion object {

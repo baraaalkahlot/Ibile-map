@@ -5,7 +5,6 @@ import com.google.android.libraries.maps.CameraUpdate
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.LatLngBounds
-import com.google.android.libraries.maps.model.Polyline
 import com.google.maps.android.PolyUtil
 import com.ibile.core.getCurrentDateTime
 import java.text.DateFormat
@@ -30,24 +29,27 @@ data class Marker(
             .getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM)
             .format(createdAt)
 
-    val isPointMarker
-        get() = type == Type.POINT
+    val isMarker
+        get() = type == Type.MARKER
 
-    val isPolylineMarker
+    val isPolyline
         get() = type == Type.POLYLINE
+
+    val isPolygon
+        get() = type == Type.POLYGON
 
     val position: LatLng?
         get() = points[0]
 
     val cameraUpdate: CameraUpdate
-        get() = if (isPointMarker) CameraUpdateFactory.newLatLng(position) else {
+        get() = if (isMarker) CameraUpdateFactory.newLatLng(position) else {
             val boundsBuilder = LatLngBounds.builder()
             points.forEach { boundsBuilder.include(it) }
             val bounds = boundsBuilder.build()
             CameraUpdateFactory.newLatLngBounds(bounds, 100)
         }
 
-    enum class Type { POINT, POLYLINE }
+    enum class Type { MARKER, POLYLINE, POLYGON }
 
     object PointsTypeConverter {
         @TypeConverter
@@ -70,7 +72,8 @@ data class Marker(
     }
 
     companion object {
-        fun point(position: LatLng) = Marker(arrayListOf(position), Type.POINT)
+        fun point(position: LatLng) = Marker(arrayListOf(position), Type.MARKER)
         fun polyline(points: List<LatLng?>) = Marker(points, Type.POLYLINE)
+        fun polygon(points: List<LatLng?>) = Marker(points, Type.POLYGON)
     }
 }

@@ -8,6 +8,7 @@ import com.ibile.data.database.Database
 import com.ibile.data.repositiories.MarkersRepository
 import com.ibile.databinding.FragmentMainBinding
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
@@ -19,5 +20,6 @@ val appModule = module {
     }
     single { Room.databaseBuilder(androidContext(), Database::class.java, "ibile-markers").build() }
     single { MarkersRepository(get<Database>().markerDao()) }
-    scope<MainFragment> { scoped { (context: Context) -> AddPolylineMarkerHandler(context) } }
+    scope<MainFragment> { scoped { (context: Context) -> AddShapeViewModel(context) } }
+    viewModel { AddShapeViewModel(androidContext()) }
 }

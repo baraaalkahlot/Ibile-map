@@ -4,9 +4,11 @@
 
     <data>
 
+        <import type="com.ibile.AddShapeViewModel.PolyType" />
+
         <variable
             name="handler"
-            type="com.ibile.AddPolylineMarkerHandler" />
+            type="com.ibile.AddShapeViewModel" />
 
         <variable
             name="fragment"
@@ -28,7 +30,7 @@
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:isVisible="@{!handler.distanceIsVisible(handler.points, handler.activePointIndexObservable)}"
+            app:isVisible="@{!handler.showPolylineDistanceText(handler.points, handler.activePointIndexObservable) &amp;&amp; !handler.showPolygonPathDistanceText(handler.points, handler.activePointIndexObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -44,7 +46,23 @@
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:isVisible="@{handler.distanceIsVisible(handler.points, handler.activePointIndexObservable)}"
+            app:isVisible="@{handler.showPolylineDistanceText(handler.points, handler.activePointIndexObservable)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_polygon_area"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:paddingVertical="@dimen/spacing_2"
+            android:text="@{@string/fmt_polygon_marker_area(handler.polygonPathPerimeter, handler.polygonPathArea)}"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:isVisible="@{handler.showPolygonPathDistanceText(handler.points, handler.activePointIndexObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -107,11 +125,11 @@
                 android:src="@drawable/ic_arrow_forward_ios_24" />
 
             <ImageButton
-                imageButtonEnabled="@{handler.points.size() > 1}"
+                imageButtonEnabled="@{handler.saveBtnIsEnabled(handler.points, handler.polyTypeObservable)}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:onClick="@{() -> fragment.handleSavePolylineMarkerBtnClick()}"
+                android:onClick="@{() -> fragment.handleSaveShapeBtnClick()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_save_24" />
         </LinearLayout>
