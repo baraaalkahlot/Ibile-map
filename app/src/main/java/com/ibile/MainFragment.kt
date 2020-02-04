@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.*
@@ -33,8 +32,6 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraMoveListener,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener {
-
-    private var pendingLocationPermissionAction: () -> Unit = {}
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
@@ -180,12 +177,14 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         runWithLocationPermission {
             fusedLocationClient.lastLocation
                 .toObservable()
-                .subscribe { location: Location? ->
+                .subscribe({ location: Location? ->
                     location?.let {
                         val locationLatLng = LatLng(it.latitude, it.longitude)
                         map.moveCamera(CameraUpdateFactory.newLatLng(locationLatLng))
                     }
-                }
+                }, {
+                    it.printStackTrace()
+                })
                 .addTo(compositeDisposable)
         }
     }
@@ -235,11 +234,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
             // val showRequestRationale =
             // ActivityCompat.shouldShowRequestPermissionRationale(activity, ACCESS_FINE_LOCATION)
             // if (showRequestRationale) { return }
-            ActivityCompat.requestPermissions(
-                activity, arrayOf(ACCESS_FINE_LOCATION), RC_ACCESS_FINE_LOCATION
-            )
-            // Assigned to run in [onRequestPermissionsResult] after user grants location permission.
-            pendingLocationPermissionAction = block
+            requestPermissions(arrayOf(ACCESS_FINE_LOCATION), RC_ACCESS_FINE_LOCATION)
             return
         }
         block()
@@ -294,26 +289,31 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         runWithLocationPermission {
             fusedLocationClient.lastLocation
                 .toObservable()
-                .subscribe { location: Location? ->
+                .subscribe({ location: Location? ->
                     location?.let {
                         val update =
                             CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude))
-                        map.animateCamera(update, 500, object : GoogleMap.CancelableCallback {
-                            override fun onFinish() {
-                                uiStateViewModel.locationButtonIsActive.set(true)
-                            }
-
-                            override fun onCancel() {}
-                        })
+                        map.animateCamera(update, 500, handleAnimateToLocationFinish)
                     }
-                }
+                }, {
+                    it.printStackTrace()
+                })
                 .addTo(compositeDisposable)
         }
+    }
+
+    private val handleAnimateToLocationFinish = object : GoogleMap.CancelableCallback {
+        override fun onFinish() {
+            uiStateViewModel.locationButtonIsActive.set(true)
+        }
+
+        override fun onCancel() {}
     }
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             RC_ACCESS_FINE_LOCATION -> {
                 val hasGrantedLocationPermission = permissions.size == 1 &&
@@ -323,7 +323,8 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
                     // TODO: show error because permission is not granted
                     return
                 }
-                pendingLocationPermissionAction()
+                map.isMyLocationEnabled = true
+                moveToLastKnownLocation()
             }
         }
     }
