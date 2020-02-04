@@ -69,7 +69,8 @@
             android:src="@drawable/ic_btn_my_location"
             app:isVisible="@{!uiStateHandler.epoxyRvIsVisible(uiStateHandler.activeOverlayObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:selected="@{uiStateHandler.locationButtonIsActive}" />
 
 
         <ImageButton

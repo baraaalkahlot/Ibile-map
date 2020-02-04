@@ -174,8 +174,8 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     @SuppressLint("MissingPermission")
     private fun moveToLastKnownLocation() {
         if (withState(markersViewModel) { it.activeMarkerId } != null) return
-        if (uiStateViewModel.lastKnownCameraPosition != null)
-            return map.moveCamera(CameraUpdateFactory.newLatLng(uiStateViewModel.lastKnownCameraPosition))
+        if (uiStateViewModel.cameraPosition != null)
+            return map.moveCamera(CameraUpdateFactory.newLatLng(uiStateViewModel.cameraPosition))
 
         runWithLocationPermission {
             fusedLocationClient.lastLocation
@@ -192,13 +192,13 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onCameraMoveStarted(reason: Int) {
         with(map.cameraPosition.target) {
-            uiStateViewModel.updateUILatLngCoords(this)
+            uiStateViewModel.onCameraMove(this)
         }
     }
 
     override fun onCameraMove() {
         with(map.cameraPosition.target) {
-            uiStateViewModel.updateUILatLngCoords(this)
+            uiStateViewModel.onCameraMove(this)
             if (uiStateViewModel.activeOverlay == Overlay.ADD_POLY_SHAPE)
                 addShapeViewModel.onMapMove(this)
         }
@@ -296,8 +296,15 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
                 .toObservable()
                 .subscribe { location: Location? ->
                     location?.let {
-                        val locationLatLng = LatLng(it.latitude, it.longitude)
-                        map.animateCamera(CameraUpdateFactory.newLatLng(locationLatLng), 500, null)
+                        val update =
+                            CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude))
+                        map.animateCamera(update, 500, object : GoogleMap.CancelableCallback {
+                            override fun onFinish() {
+                                uiStateViewModel.locationButtonIsActive.set(true)
+                            }
+
+                            override fun onCancel() {}
+                        })
                     }
                 }
                 .addTo(compositeDisposable)
@@ -365,7 +372,6 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onDestroyView() {
         super.onDestroyView()
-        uiStateViewModel.lastKnownCameraPosition = map.cameraPosition.target
         mapController = null
         addShapeViewModel.setMap(null)
     }

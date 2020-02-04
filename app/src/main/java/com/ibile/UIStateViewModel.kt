@@ -7,7 +7,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.marginBottom
 import androidx.databinding.BindingAdapter
-import androidx.databinding.ObservableArrayMap
+import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.BaseMvRxViewModel
@@ -23,6 +23,10 @@ data class UIStateViewModelState(val activeListView: UIStateViewModel.ListView =
 
 class UIStateViewModel(initialState: UIStateViewModelState) :
     BaseMvRxViewModel<UIStateViewModelState>(initialState) {
+
+    val activeMarker = ObservableField<Marker>()
+    val locationButtonIsActive = ObservableBoolean()
+
     val activeOverlayObservable = ObservableField<Overlay>(Overlay.NONE)
     var activeOverlay
         get() = activeOverlayObservable.get()
@@ -36,13 +40,14 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
             setState { copy(activeListView = activeListView) }
             activeOverlayObservable.set(value)
         }
-    val activeMarker = ObservableField<Marker>()
-    val newMarkerCoordsValues = ObservableArrayMap<String, Float>()
-        .apply {
-            put("lat", 0f)
-            put("lng", 0f)
+
+    val cameraPositionObservable: ObservableField<LatLng> = ObservableField()
+    var cameraPosition
+        get() = cameraPositionObservable.get()
+        set(value) {
+            cameraPositionObservable.set(value)
         }
-    var lastKnownCameraPosition: LatLng? = null
+
 
     fun handleActionBarBtnClick(overlay: Overlay) {
         updateActiveOverlay(overlay)
@@ -59,11 +64,10 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
     fun actionBarIsVisible(activeOverlay: Overlay) =
         !arrayListOf(Overlay.ADD_POLY_SHAPE, Overlay.ADD_MARKER).contains(activeOverlay)
 
-    fun updateUILatLngCoords(cameraPositionCoords: LatLng) {
-        if (activeOverlay != Overlay.ADD_MARKER) return
-        with(newMarkerCoordsValues) {
-            replace("lat", cameraPositionCoords.latitude.toFloat())
-            replace("lng", cameraPositionCoords.longitude.toFloat())
+    fun onCameraMove(cameraPositionCoords: LatLng) {
+        cameraPosition = cameraPositionCoords
+        if (locationButtonIsActive.get()) {
+            locationButtonIsActive.set(false)
         }
     }
 
