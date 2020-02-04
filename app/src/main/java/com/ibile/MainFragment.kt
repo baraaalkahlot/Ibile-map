@@ -152,7 +152,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
-        mapController = MapController(markersViewModel, map)
+        mapController = MapController(map, requireContext(), markersViewModel)
         if (uiStateViewModel.activeOverlay == Overlay.ADD_POLY_SHAPE) {
             addShapeViewModel.setMap(map)
         }

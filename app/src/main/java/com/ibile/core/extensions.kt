@@ -1,12 +1,12 @@
 package com.ibile.core
 
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
-import com.airbnb.mvrx.BaseMvRxViewModel
-import com.airbnb.mvrx.MvRxState
+import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
@@ -32,7 +32,26 @@ fun Drawable.setColorFilter(color: Int) {
 
 fun Drawable.toGrayScale(): Drawable? {
     val drawable = constantState?.newDrawable()?.mutate()
-    return drawable?.apply { setColorFilter(Color.GRAY)  }
+    return drawable?.apply { setColorFilter(Color.GRAY) }
+}
+
+fun Context.bitmapFromVectorDrawable(vectorResId: Int): Bitmap? {
+    return ContextCompat.getDrawable(this, vectorResId)?.run {
+        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+        val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        draw(Canvas(bitmap))
+        return bitmap
+    }
+}
+
+fun Context.bitmapFromVectorDrawable(vectorResId: Int, color: Int): Bitmap? {
+    return ContextCompat.getDrawable(this, vectorResId)?.run {
+        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+        setColorFilter(color)
+        val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        draw(Canvas(bitmap))
+        return bitmap
+    }
 }
 
 fun getCurrentDateTime(): Date {

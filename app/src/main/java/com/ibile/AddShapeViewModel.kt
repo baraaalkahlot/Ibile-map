@@ -10,7 +10,7 @@ import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
 import com.google.maps.android.SphericalUtil
-import com.ibile.utils.bitmapFromVectorDrawable
+import com.ibile.core.bitmapFromVectorDrawable
 
 open class AddShapeViewModel(private val context: Context) : ViewModel() {
     private var map: GoogleMap? = null
@@ -246,12 +246,12 @@ open class AddShapeViewModel(private val context: Context) : ViewModel() {
 
     private val newPointIcon: BitmapDescriptor?
         get() = BitmapDescriptorFactory.fromBitmap(
-            bitmapFromVectorDrawable(context, R.drawable.ic_new_poly_marker_point)
+            context.bitmapFromVectorDrawable(R.drawable.ic_new_poly_marker_point)
         )
 
     private val activePointIcon: BitmapDescriptor?
         get() = BitmapDescriptorFactory.fromBitmap(
-            bitmapFromVectorDrawable(context, R.drawable.ic_active_poly_marker_point)
+            context.bitmapFromVectorDrawable(R.drawable.ic_active_poly_marker_point)
         )
 
     fun setMap(map: GoogleMap?) {

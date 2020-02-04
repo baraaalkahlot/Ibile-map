@@ -80,7 +80,7 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
             (mapView.findViewById<View>("1".toInt()).parent as View).findViewById<View>("5".toInt())
         val layoutParams = (locationCompass.layoutParams as RelativeLayout.LayoutParams)
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE)
-        layoutParams.setMargins(0, 160, 30, 0)
+        layoutParams.setMargins(0, 200, 30, 0)
     }
 
     fun epoxyRvIsVisible(_activeOverlay: Overlay): Boolean =

@@ -1,10 +1,15 @@
 package com.ibile
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Paint
+import androidx.core.graphics.applyCanvas
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.mvrx.withState
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
+import com.ibile.core.bitmapFromVectorDrawable
 
 /**
  * Wraps over the GoogleMap for some few isolated controls. Tied to the lifecycle of the map.
@@ -12,7 +17,11 @@ import com.google.android.libraries.maps.model.*
  * @property markersViewModel
  * @property map
  */
-class MapController(private val markersViewModel: MarkersViewModel, private var map: GoogleMap) {
+class MapController(
+    private var map: GoogleMap,
+    private val context: Context,
+    private val markersViewModel: MarkersViewModel
+) {
     private val mapMarkers = mutableListOf<Marker>()
     private val mapPolylines = mutableListOf<Polyline>()
     private val mapPolygons = mutableListOf<Polygon>()
@@ -42,7 +51,7 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
                 activeMapPolyline = null
                 activeMapPolygon = null
             }
-            // TODO: reset to default before assigning
+            field?.setIcon(BitmapDescriptorFactory.defaultMarker())
             field = value
         }
 
@@ -102,7 +111,7 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
             }
             it.isPolyline -> {
                 val options = PolylineOptions().addAll(it.points)
-                    .color(POLYLINE_COLOR)
+                    .color(DEFAULT_COLOR)
                     .width(POLYLINE_WIDTH)
                     .clickable(true)
                 val polyline = map.addPolyline(options)
@@ -156,14 +165,14 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
                 }
                 marker.isMarker -> {
                     activeMapMarker = mapMarkers.find { it.tag as Long == marker.id }
-                    // TODO: show indication
+                    activeMapMarker?.setIcon(getActiveMarkerIcon(context))
                 }
             }
         }
     }
 
     companion object {
-        val POLYLINE_COLOR = Color.rgb(204, 54, 43)
+        val DEFAULT_COLOR = Color.rgb(204, 54, 43)
         const val POLYLINE_WIDTH = 3F
         const val ACTIVE_POLYLINE_WIDTH = 6F
 
@@ -171,5 +180,21 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
         const val POLYGON_WIDTH = 3F
         const val ACTIVE_POLYGON_WIDTH = 5F
         val ACTIVE_POLYGON_FILL_COLOR = Color.argb(150, 204, 54, 43)
+
+        fun getActiveMarkerIcon(context: Context): Bitmap? {
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = Color.DKGRAY
+                this.style = Paint.Style.FILL
+            }
+            return context.bitmapFromVectorDrawable(
+                R.drawable.map_icon_map_pin, Color.rgb(222, 44, 41)
+            )?.applyCanvas {
+                drawCircle(42f, 24f, 12f, paint)
+            }
+        }
+
+        fun Marker?.setIcon(bitmap: Bitmap?) {
+            this?.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap))
+        }
     }
 }
