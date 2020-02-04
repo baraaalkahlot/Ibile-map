@@ -67,7 +67,7 @@
             android:elevation="8dp"
             android:onClick="@{() -> fragment.handleMyLocationBtnClick()}"
             android:src="@drawable/ic_btn_my_location"
-            app:isVisible="@{uiStateHandler.activeOverlayObservable != Overlay.SEARCH_LOCATION}"
+            app:isVisible="@{!uiStateHandler.epoxyRvIsVisible(uiStateHandler.activeOverlayObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

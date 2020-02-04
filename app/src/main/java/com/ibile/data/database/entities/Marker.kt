@@ -1,11 +1,14 @@
 package com.ibile.data.database.entities
 
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.google.android.libraries.maps.CameraUpdate
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.LatLngBounds
 import com.google.maps.android.PolyUtil
+import com.ibile.R
 import com.ibile.core.getCurrentDateTime
 import java.text.DateFormat
 import java.util.*
@@ -75,5 +78,17 @@ data class Marker(
         fun point(position: LatLng) = Marker(arrayListOf(position), Type.MARKER)
         fun polyline(points: List<LatLng?>) = Marker(points, Type.POLYLINE)
         fun polygon(points: List<LatLng?>) = Marker(points, Type.POLYGON)
+
+        @BindingAdapter("markerIcon")
+        @JvmStatic
+        fun markerIcon(view: ImageView, marker: Marker) {
+            val drawableId = when (marker.type) {
+                Type.MARKER -> R.drawable.map_icon_map_pin
+                Type.POLYLINE -> R.drawable.ic_polyline
+                Type.POLYGON -> R.drawable.ic_polygon
+            }
+            val drawable = view.context.resources.getDrawable(drawableId, null)
+            view.setImageDrawable(drawable)
+        }
     }
 }

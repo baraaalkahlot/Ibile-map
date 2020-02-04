@@ -13,13 +13,9 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    scope<MainFragment> {
-        scoped { UIStateViewModel() }
-    }
     single { Room.databaseBuilder(androidContext(), Database::class.java, "ibile-markers").build() }
     single { MarkersRepository(get<Database>().markerDao()) }
     viewModel { AddShapeViewModel(androidContext()) }
-    viewModel { UIStateViewModel() }
     single { Places.createClient(androidContext()) }
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
 }

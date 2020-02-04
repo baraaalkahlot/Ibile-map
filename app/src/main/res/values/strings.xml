@@ -29,4 +29,5 @@
     <string name="cd_btn_add_polyline_marker">add polyline marker button</string>
     <string name="fmt_polyline_marker_distance">Distance: %1$s</string>
     <string name="fmt_polygon_marker_area">Perimeter: %1$s Km\nArea: %2$s</string>
+    <string name="text_marker_folder_title_default_folder">Default folder</string>
 </resources>

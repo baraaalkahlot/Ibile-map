@@ -13,6 +13,10 @@ import com.google.android.libraries.maps.model.*
  * @property map
  */
 class MapController(private val markersViewModel: MarkersViewModel, private var map: GoogleMap) {
+    private val mapMarkers = mutableListOf<Marker>()
+    private val mapPolylines = mutableListOf<Polyline>()
+    private val mapPolygons = mutableListOf<Polygon>()
+
     private var activeMapPolyline: Polyline? = null
         set(value) {
             if (value != null) {
@@ -93,7 +97,8 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
             it.isMarker -> {
                 val markerOptions = MarkerOptions().position(it.position)
                 val marker = map.addMarker(markerOptions)
-                marker?.tag = it.id
+                marker.tag = it.id
+                mapMarkers.add(marker)
             }
             it.isPolyline -> {
                 val options = PolylineOptions().addAll(it.points)
@@ -102,9 +107,7 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
                     .clickable(true)
                 val polyline = map.addPolyline(options)
                 polyline.tag = it.id
-                if (it.id == state.activeMarkerId) {
-                    activeMapPolyline = polyline
-                }
+                mapPolylines.add(polyline)
             }
             it.isPolygon -> {
                 val options = PolygonOptions().addAll(it.points)
@@ -114,49 +117,45 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
                     .clickable(true)
                 val polygon = map.addPolygon(options)
                 polygon.tag = it.id
-                if (it.id == state.activeMarkerId) {
-                    activeMapPolygon = polygon
-                }
+                mapPolygons.add(polygon)
             }
         }
     }
 
     fun onPolylineClick(polyline: Polyline) {
-        activeMapPolyline = polyline
-
         val activeMarkerId = polyline.tag as Long
         markersViewModel.setActiveMarkerId(activeMarkerId)
     }
 
     fun onMarkerClick(marker: Marker) {
-        activeMapMarker = marker
-
         val activeMarkerId = marker.tag as Long
         markersViewModel.setActiveMarkerId(activeMarkerId)
     }
 
     fun onPolygonClick(polygon: Polygon) {
-        activeMapPolygon = polygon
-
         val activeMarkerId = polygon.tag as Long
         markersViewModel.setActiveMarkerId(activeMarkerId)
     }
 
     fun toggleActiveMarkerIndication(marker: com.ibile.data.database.entities.Marker?) {
         if (marker == null) {
+            activeMapMarker = null
             activeMapPolyline = null
             activeMapPolygon = null
         } else {
             map.animateCamera(marker.cameraUpdate, 500, null)
             when {
                 marker.isPolyline -> {
+                    activeMapPolyline = mapPolylines.find { it.tag as Long == marker.id }
                     activeMapPolyline?.width = ACTIVE_POLYLINE_WIDTH
                 }
                 marker.isPolygon -> {
+                    activeMapPolygon = mapPolygons.find { it.tag as Long == marker.id }
                     activeMapPolygon?.strokeWidth = ACTIVE_POLYGON_WIDTH
                     activeMapPolygon?.fillColor = ACTIVE_POLYGON_FILL_COLOR
                 }
                 marker.isMarker -> {
+                    activeMapMarker = mapMarkers.find { it.tag as Long == marker.id }
                     // TODO: show indication
                 }
             }

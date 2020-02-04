@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_browse_markers_btn"
-                android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(Overlay.BROWSE_MARKERS)}"
+                android:onClick="@{() -> fragment.handleActionBarBrowseBtnClick()}"
                 android:padding="@dimen/spacing_0_5"
                 android:src="@drawable/ic_filter_list_24" />
 

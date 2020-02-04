@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="marker"
+            type="com.ibile.data.database.entities.Marker" />
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{onClick}"
+        android:paddingTop="@dimen/spacing_1"
+        tools:background="@color/transparent_black">
+
+        <ImageView
+            android:id="@+id/iv_marker_type_icon"
+            markerIcon="@{marker}"
+            android:layout_width="@dimen/size_3"
+            android:layout_height="@dimen/size_3"
+            android:layout_marginStart="@dimen/spacing_2"
+            app:layout_constraintBottom_toTopOf="@id/view_marker_color"
+            app:layout_constraintEnd_toStartOf="@id/tv_marker_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/map_icon_map_pin" />
+
+        <View
+            android:id="@+id/view_marker_color"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_1"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_marker_color"
+            app:layout_constraintBottom_toTopOf="@id/view_divider"
+            app:layout_constraintEnd_toEndOf="@id/iv_marker_type_icon"
+            app:layout_constraintStart_toStartOf="@id/iv_marker_type_icon"
+            app:layout_constraintTop_toBottomOf="@id/iv_marker_type_icon" />
+
+        <TextView
+            android:id="@+id/tv_marker_name"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_2"
+            android:text="@{marker.title}"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/tv_marker_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_marker_type_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Ilamose Street" />
+
+        <TextView
+            android:id="@+id/tv_marker_description"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="@dimen/size_1"
+            android:text="@{marker.formattedCreatedAt}"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/view_divider"
+            app:layout_constraintEnd_toEndOf="@id/tv_marker_name"
+            app:layout_constraintStart_toStartOf="@id/tv_marker_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_name"
+            tools:text="Ilamose St, Lagos, Nigeria" />
+
+        <View
+            android:id="@+id/view_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_description" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

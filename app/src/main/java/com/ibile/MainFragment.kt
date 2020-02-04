@@ -11,10 +11,7 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
-import com.airbnb.mvrx.Loading
-import com.airbnb.mvrx.Success
-import com.airbnb.mvrx.activityViewModel
-import com.airbnb.mvrx.withState
+import com.airbnb.mvrx.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
@@ -47,7 +44,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     private val markersViewModel: MarkersViewModel by activityViewModel()
     private val locationSearchViewModel: LocationSearchViewModel by activityViewModel()
     private val addShapeViewModel: AddShapeViewModel by viewModel()
-    private val uiStateViewModel: UIStateViewModel by viewModel()
+    private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
 
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
 
@@ -102,27 +99,53 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     }
 
     override fun epoxyController(): MvRxEpoxyController =
-        simpleController(locationSearchViewModel) { locationSearchState ->
+        simpleController(
+            locationSearchViewModel,
+            markersViewModel,
+            uiStateViewModel
+        ) { locationSearchState, markersState, uiState ->
             mapController?.buildModels(epoxyController)
-
-            if (uiStateViewModel.activeOverlay == Overlay.SEARCH_LOCATION) {
-                val (_, searchPlacesAsync) = locationSearchState
-                searchPlacesResultsState {
-                    id("PlacesResultView")
-                    isLoading(searchPlacesAsync is Loading)
-                    isSuccess(searchPlacesAsync is Success && searchPlacesAsync().isNotEmpty())
-                    searchPlacesResultAsync(searchPlacesAsync)
-                }
-                locationSearchState.searchPlacesResultAsync()?.forEach {
-                    placesResultItem {
-                        id(it.placeId)
-                        prediction(it)
-                        onClick { _ ->
-                            val action = MainFragmentDirections
-                                .actionMainFragmentToLocationSearchSelectedResultFragment(it.placeId)
-                            findNavController().navigate(action)
+            when (uiState.activeListView) {
+                UIStateViewModel.ListView.SEARCH_LOCATION -> {
+                    val (_, searchPlacesResultAsync) = locationSearchState
+                    searchPlacesResultsState {
+                        id("PlacesResultView")
+                        isLoading(searchPlacesResultAsync is Loading)
+                        isSuccess(searchPlacesResultAsync is Success && searchPlacesResultAsync().isNotEmpty())
+                        searchPlacesResultAsync(searchPlacesResultAsync)
+                    }
+                    searchPlacesResultAsync()?.forEach {
+                        placesResultItem {
+                            id(it.placeId)
+                            prediction(it)
+                            onClick { _ ->
+                                val action = MainFragmentDirections
+                                    .actionMainFragmentToLocationSearchSelectedResultFragment(it.placeId)
+                                findNavController().navigate(action)
+                            }
                         }
                     }
+                }
+                UIStateViewModel.ListView.BROWSE_MARKERS -> {
+                    if (uiStateViewModel.activeOverlay == Overlay.BROWSE_MARKERS) {
+                        val (markersAsync) = markersState
+                        markerFolderTitle {
+                            id("Default Folder")
+                            text("Default folder")
+                        }
+                        markersAsync()?.forEach { marker ->
+                            markerItem {
+                                id(marker.id)
+                                marker(marker)
+                                onClick { _ ->
+                                    markersViewModel.setActiveMarkerId(marker.id)
+                                    uiStateViewModel.activeOverlay = Overlay.NONE
+                                }
+                            }
+                        }
+                    }
+                }
+                else -> {
                 }
             }
         }
@@ -248,6 +271,12 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         markersViewModel.setActiveMarkerId(null)
         locationSearchViewModel.setCurrentSessionToken(AutocompleteSessionToken.newInstance())
         uiStateViewModel.updateActiveOverlay(Overlay.SEARCH_LOCATION)
+    }
+
+    fun handleActionBarBrowseBtnClick() {
+        if (uiStateViewModel.activeOverlay == Overlay.BROWSE_MARKERS) return
+        markersViewModel.setActiveMarkerId(null)
+        uiStateViewModel.updateActiveOverlay(Overlay.BROWSE_MARKERS)
     }
 
     fun handleAddPolylineMarkerBtnClick() {

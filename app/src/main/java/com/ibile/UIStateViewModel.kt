@@ -9,18 +9,31 @@ import androidx.core.view.marginBottom
 import androidx.databinding.BindingAdapter
 import androidx.databinding.ObservableArrayMap
 import androidx.databinding.ObservableField
-import androidx.lifecycle.ViewModel
 import com.airbnb.epoxy.EpoxyRecyclerView
+import com.airbnb.mvrx.BaseMvRxViewModel
+import com.airbnb.mvrx.MvRxState
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.core.animateSlideVertical
 import com.ibile.data.database.entities.Marker
 
-class UIStateViewModel : ViewModel() {
+
+data class UIStateViewModelState(val activeListView: UIStateViewModel.ListView = UIStateViewModel.ListView.NONE) :
+    MvRxState
+
+class UIStateViewModel(initialState: UIStateViewModelState) :
+    BaseMvRxViewModel<UIStateViewModelState>(initialState) {
     val activeOverlayObservable = ObservableField<Overlay>(Overlay.NONE)
     var activeOverlay
         get() = activeOverlayObservable.get()
         set(value) {
+            val activeListView = when (value) {
+                Overlay.BROWSE_MARKERS -> ListView.BROWSE_MARKERS
+                Overlay.SEARCH_LOCATION -> ListView.SEARCH_LOCATION
+                Overlay.ORGANIZE_MARKERS -> ListView.ORGANIZE_MARKERS
+                else -> ListView.NONE
+            }
+            setState { copy(activeListView = activeListView) }
             activeOverlayObservable.set(value)
         }
     val activeMarker = ObservableField<Marker>()
@@ -67,9 +80,10 @@ class UIStateViewModel : ViewModel() {
     }
 
     fun epoxyRvIsVisible(_activeOverlay: Overlay): Boolean =
-        mutableListOf(Overlay.SEARCH_LOCATION).contains(_activeOverlay)
+        arrayListOf(Overlay.SEARCH_LOCATION, Overlay.BROWSE_MARKERS).contains(_activeOverlay)
 
     enum class Overlay { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS, ADD_MARKER, ADD_POLY_SHAPE }
+    enum class ListView { NONE, SEARCH_LOCATION, BROWSE_MARKERS, ORGANIZE_MARKERS }
 
     companion object {
         private fun showActiveMarkerInfo(view: View, addMarkerBtn: ImageButton) {
