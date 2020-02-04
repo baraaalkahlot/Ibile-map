@@ -54,7 +54,10 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
             epoxyController.markerListPropertyObserverView {
                 id(MarkerListPropertyObserverView.id)
                 markersAsync()?.let { data(it) }
-                dataCallback { addNewMarkerToMap(it) }
+                dataCallback {
+                    addNewMarkerToMap(it)
+                    addNewMarkerFromLocationSearchToMap(it)
+                }
             }
         }
     }
@@ -66,6 +69,17 @@ class MapController(private val markersViewModel: MarkersViewModel, private var 
                 markersViewModel.setActiveMarkerId(it.id)
                 addMarkerToMap(it)
                 markersViewModel.resetAddMarkerAsync()
+            }
+        }
+    }
+
+    private fun addNewMarkerFromLocationSearchToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+        state.addMarkerFromLocationSearchAsync()?.let {
+            val newMarker = markers.find { marker -> marker.id == it }
+            newMarker?.let {
+                markersViewModel.setActiveMarkerId(it.id)
+                addMarkerToMap(it)
+                markersViewModel.resetAddMarkerFromLocationSearchAsync()
             }
         }
     }

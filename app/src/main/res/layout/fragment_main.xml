@@ -6,11 +6,11 @@
 
     <data>
 
-        <import type="com.ibile.UIStateHandler.Overlay" />
+        <import type="com.ibile.UIStateViewModel.Overlay" />
 
         <variable
             name="uiStateHandler"
-            type="com.ibile.UIStateHandler" />
+            type="com.ibile.UIStateViewModel" />
 
         <variable
             name="fragment"
@@ -18,7 +18,7 @@
 
         <variable
             name="locationSearchHandler"
-            type="com.ibile.LocationSearchHandler" />
+            type="com.ibile.LocationSearchViewModel" />
 
         <variable
             name="addPolylineMarkerHandler"
@@ -29,16 +29,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:marker="@{uiStateHandler.activeMarker}"
         tools:context=".MainFragment">
-
-        <com.airbnb.epoxy.EpoxyRecyclerView
-            android:id="@+id/recyclerview"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.libraries.maps.MapView
             android:id="@+id/map_view"
@@ -51,6 +43,19 @@
             map:cameraZoom="13"
             map:uiCompass="true" />
 
+        <com.airbnb.epoxy.EpoxyRecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/spacing_1"
+            android:layout_marginBottom="@dimen/spacing_1"
+            android:background="@drawable/bg_action_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/map_action_bar"
+            app:overlayViewIsVisible="@{uiStateHandler.epoxyRvIsVisible(uiStateHandler.activeOverlayObservable)}" />
+
         <ImageButton
             android:id="@+id/btn_my_location"
             android:layout_width="0dp"
@@ -62,7 +67,7 @@
             android:elevation="8dp"
             android:onClick="@{() -> fragment.handleMyLocationBtnClick()}"
             android:src="@drawable/ic_btn_my_location"
-            app:isVisible="@{uiStateHandler.activeOverlay != Overlay.SEARCH_LOCATION}"
+            app:isVisible="@{uiStateHandler.activeOverlayObservable != Overlay.SEARCH_LOCATION}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -78,7 +83,7 @@
             android:elevation="8dp"
             android:onClick="@{() -> fragment.handleAddMarkerBtnClick()}"
             android:src="@drawable/ic_add_new_marker"
-            app:isVisible="@{uiStateHandler.activeOverlay == Overlay.NONE}"
+            app:isVisible="@{uiStateHandler.activeOverlayObservable == Overlay.NONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -87,7 +92,7 @@
             layout="@layout/partial_map_action_bar"
             app:actionBarUIHandler="@{uiStateHandler}"
             app:fragment="@{fragment}"
-            app:isVisible="@{uiStateHandler.actionBarIsVisible(uiStateHandler.activeOverlay)}"
+            app:isVisible="@{uiStateHandler.actionBarIsVisible(uiStateHandler.activeOverlayObservable)}"
             app:locationSearchHandler="@{locationSearchHandler}" />
 
         <include
@@ -99,32 +104,18 @@
             app:marker="@{uiStateHandler.activeMarker}" />
 
         <include
-            android:id="@+id/add_marker_group"
+            android:id="@+id/add_marker_view"
             layout="@layout/partial_add_new_marker_overlay"
             app:fragment="@{fragment}"
-            app:isVisible="@{uiStateHandler.activeOverlay == Overlay.ADD_MARKER}"
+            app:isVisible="@{uiStateHandler.activeOverlayObservable == Overlay.ADD_MARKER}"
             app:uiStateHandler="@{uiStateHandler}" />
-
-        <include
-            android:id="@+id/search_locations_view"
-            layout="@layout/partial_search_places_results"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="@dimen/spacing_1"
-            android:layout_marginBottom="@dimen/spacing_1"
-            app:isVisible="@{uiStateHandler.activeOverlay == Overlay.SEARCH_LOCATION}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/map_action_bar"
-            app:locationsSearchHandler="@{locationSearchHandler}" />
 
         <include
             android:id="@+id/add_polyline_marker_view"
             layout="@layout/partial_add_poly_shape_overlay"
             app:fragment="@{fragment}"
             app:handler="@{addPolylineMarkerHandler}"
-            app:isVisible="@{uiStateHandler.activeOverlay == Overlay.ADD_POLY_SHAPE}" />
+            app:isVisible="@{uiStateHandler.activeOverlayObservable == Overlay.ADD_POLY_SHAPE}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

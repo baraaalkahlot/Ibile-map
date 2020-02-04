@@ -4,13 +4,13 @@
 
     <data>
 
-        <import type="com.ibile.UIStateHandler" />
+        <import type="com.ibile.UIStateViewModel" />
 
-        <import type="com.ibile.UIStateHandler.Overlay" />
+        <import type="com.ibile.UIStateViewModel.Overlay" />
 
         <variable
             name="actionBarUIHandler"
-            type="com.ibile.UIStateHandler" />
+            type="com.ibile.UIStateViewModel" />
 
         <variable
             name="fragment"
@@ -18,7 +18,7 @@
 
         <variable
             name="locationSearchHandler"
-            type="com.ibile.LocationSearchHandler" />
+            type="com.ibile.LocationSearchViewModel" />
     </data>
 
     <LinearLayout
@@ -49,7 +49,7 @@
                 android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(Overlay.DRAWER)}"
                 android:padding="@dimen/spacing_0_5"
                 android:src="@drawable/ic_menu_24"
-                app:isVisible="@{actionBarUIHandler.activeOverlay == Overlay.NONE || actionBarUIHandler.activeOverlay == Overlay.SHARE}" />
+                app:isVisible="@{actionBarUIHandler.activeOverlayObservable == Overlay.NONE || actionBarUIHandler.activeOverlayObservable == Overlay.SHARE}" />
 
             <ImageButton
                 android:id="@+id/btn_back"
@@ -62,7 +62,7 @@
                 android:onClick="@{() -> actionBarUIHandler.handleActionBarBtnClick(Overlay.NONE)}"
                 android:padding="@dimen/spacing_0_5"
                 android:src="@drawable/ic_arrow_back_24"
-                app:isVisible="@{actionBarUIHandler.activeOverlay != Overlay.NONE &amp;&amp; actionBarUIHandler.activeOverlay != Overlay.SHARE}" />
+                app:isVisible="@{actionBarUIHandler.activeOverlayObservable != Overlay.NONE &amp;&amp; actionBarUIHandler.activeOverlayObservable != Overlay.SHARE}" />
 
         </FrameLayout>
 
@@ -77,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:background="@{actionBarUIHandler.activeOverlay == Overlay.BROWSE_MARKERS ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
+            android:background="@{actionBarUIHandler.activeOverlayObservable == Overlay.BROWSE_MARKERS ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
 
             <ImageButton
                 android:id="@+id/btn_browse_markers"
@@ -104,7 +104,7 @@
                 android:paddingEnd="0dp"
                 android:textColor="@android:color/darker_gray"
                 android:textColorHint="@android:color/darker_gray"
-                app:isVisible="@{actionBarUIHandler.activeOverlay == Overlay.BROWSE_MARKERS}" />
+                app:isVisible="@{actionBarUIHandler.activeOverlayObservable == Overlay.BROWSE_MARKERS}" />
         </LinearLayout>
 
 
@@ -113,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:background="@{actionBarUIHandler.activeOverlay == Overlay.ORGANIZE_MARKERS ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
+            android:background="@{actionBarUIHandler.activeOverlayObservable == Overlay.ORGANIZE_MARKERS ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
 
             <ImageButton
                 android:id="@+id/btn_organize_markers"
@@ -140,7 +140,7 @@
                 android:paddingEnd="0dp"
                 android:textColor="@android:color/darker_gray"
                 android:textColorHint="@android:color/darker_gray"
-                app:isVisible="@{actionBarUIHandler.activeOverlay == Overlay.ORGANIZE_MARKERS}" />
+                app:isVisible="@{actionBarUIHandler.activeOverlayObservable == Overlay.ORGANIZE_MARKERS}" />
         </LinearLayout>
 
         <LinearLayout
@@ -148,7 +148,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:background="@{actionBarUIHandler.activeOverlay == Overlay.SEARCH_LOCATION ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
+            android:background="@{actionBarUIHandler.activeOverlayObservable == Overlay.SEARCH_LOCATION ? @drawable/bg_action_btn_container : @drawable/bg_transparent}">
 
             <ImageButton
                 android:id="@+id/btn_search_location"
@@ -178,7 +178,7 @@
                 android:textColor="@android:color/white"
                 android:textColorHint="@android:color/white"
                 android:textCursorDrawable="@drawable/text_cursor_white"
-                app:isVisible="@{actionBarUIHandler.activeOverlay == Overlay.SEARCH_LOCATION}" />
+                app:isVisible="@{actionBarUIHandler.activeOverlayObservable == Overlay.SEARCH_LOCATION}" />
         </LinearLayout>
 
 

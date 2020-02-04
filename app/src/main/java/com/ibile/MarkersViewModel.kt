@@ -10,7 +10,8 @@ import org.koin.android.ext.android.inject
 data class MarkersViewModelState(
     val markersAsync: Async<List<Marker>> = Uninitialized,
     val activeMarkerId: Long? = null,
-    val addMarkerAsync: Async<Long> = Uninitialized
+    val addMarkerAsync: Async<Long> = Uninitialized,
+    val addMarkerFromLocationSearchAsync: Async<Long> = Uninitialized
 ) : MvRxState
 
 class MarkersViewModel(
@@ -52,6 +53,15 @@ class MarkersViewModel(
             .execute { copy(addMarkerAsync = it) }
     }
 
+    fun addMarkerFromLocationSearchResult(markerCoords: LatLng) {
+        val newMarker = Marker.point(markerCoords)
+        markersRepository
+            .insertMarker(newMarker)
+            .toObservable()
+            .subscribeOn(Schedulers.io())
+            .execute { copy(addMarkerFromLocationSearchAsync = it) }
+    }
+
     fun setActiveMarkerId(activeMarkerId: Long?) {
         setState { copy(activeMarkerId = activeMarkerId) }
     }
@@ -64,6 +74,9 @@ class MarkersViewModel(
     }
 
     fun resetAddMarkerAsync() = setState { copy(addMarkerAsync = Uninitialized) }
+
+    fun resetAddMarkerFromLocationSearchAsync() =
+        setState { copy(addMarkerFromLocationSearchAsync = Uninitialized) }
 
     companion object : MvRxViewModelFactory<MarkersViewModel, MarkersViewModelState> {
         @JvmStatic

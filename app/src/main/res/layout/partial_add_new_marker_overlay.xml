@@ -6,7 +6,7 @@
 
         <variable
             name="uiStateHandler"
-            type="com.ibile.UIStateHandler" />
+            type="com.ibile.UIStateViewModel" />
 
         <variable
             name="fragment"

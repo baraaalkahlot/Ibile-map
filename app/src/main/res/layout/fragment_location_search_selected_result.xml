@@ -10,7 +10,7 @@
 
         <variable
             name="locationSearchHandler"
-            type="com.ibile.LocationSearchHandler" />
+            type="com.ibile.LocationSearchViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

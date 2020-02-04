@@ -5,6 +5,8 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.View
+import com.airbnb.mvrx.BaseMvRxViewModel
+import com.airbnb.mvrx.MvRxState
 import com.google.android.gms.tasks.Task
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter

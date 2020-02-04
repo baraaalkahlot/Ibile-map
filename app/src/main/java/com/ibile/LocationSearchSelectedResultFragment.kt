@@ -17,20 +17,20 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.ibile.core.addTo
 import com.ibile.databinding.FragmentLocationSearchSelectedResultBinding
 import io.reactivex.disposables.CompositeDisposable
-import org.koin.androidx.scope.lifecycleScope
 
 class LocationSearchSelectedResultFragment :
     BaseMvRxFragment(R.layout.fragment_location_search_selected_result), OnMapReadyCallback {
 
     private val args: LocationSearchSelectedResultFragmentArgs by navArgs()
+
     private lateinit var binding: FragmentLocationSearchSelectedResultBinding
     private lateinit var mapView: MapView
-    private val locationSearchHandler: LocationSearchHandler by lazy {
-        requireActivity().lifecycleScope.get<LocationSearchHandler>()
-    }
-    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+
     private val markersViewModel: MarkersViewModel by activityViewModel()
+    private val locationSearchViewModel: LocationSearchViewModel by activityViewModel()
+
     private var locationCoords: LatLng? = null
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,19 +41,26 @@ class LocationSearchSelectedResultFragment :
             FragmentLocationSearchSelectedResultBinding.inflate(inflater, container, false)
         binding.btnCreateMarker.setOnClickListener { handleCreateMarkerBtnClick() }
         binding.btnBack.setOnClickListener { findNavController().navigateUp() }
-        binding.locationSearchHandler = locationSearchHandler
+        binding.locationSearchHandler = locationSearchViewModel
 
         mapView = binding.mapView
-        val mapViewBundle = savedInstanceState?.getBundle(MainFragment.BUNDLE_KEY_MAP_VIEW)
+        val mapViewBundle = savedInstanceState?.getBundle(MainFragment.BUNDLE_MAP_VIEW_KEY)
         mapView.onCreate(mapViewBundle)
         mapView.getMapAsync(this)
 
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        markersViewModel.asyncSubscribe(MarkersViewModelState::addMarkerFromLocationSearchAsync) {
+            findNavController().popBackStack(R.id.mainFragment, false)
+        }
+    }
+
     override fun onMapReady(map: GoogleMap) {
         val placeId = args.argSelectedSearchPlaceId
-        locationSearchHandler.fetchPlace(placeId)
+        locationSearchViewModel.fetchPlace(placeId)
             .subscribe({ it ->
                 it.data?.let {
                     locationCoords = it.latLng
@@ -66,8 +73,7 @@ class LocationSearchSelectedResultFragment :
     }
 
     private fun handleCreateMarkerBtnClick() {
-        locationCoords?.let { markersViewModel.addMarker(it) }
-        findNavController().navigateUp()
+        locationCoords?.let { markersViewModel.addMarkerFromLocationSearchResult(it) }
     }
 
     override fun invalidate() {
@@ -81,10 +87,10 @@ class LocationSearchSelectedResultFragment :
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        var mapViewBundle = outState.getBundle(MainFragment.BUNDLE_KEY_MAP_VIEW)
+        var mapViewBundle = outState.getBundle(MainFragment.BUNDLE_MAP_VIEW_KEY)
         if (mapViewBundle == null) {
             mapViewBundle = Bundle()
-            outState.putBundle(MainFragment.BUNDLE_KEY_MAP_VIEW, mapViewBundle)
+            outState.putBundle(MainFragment.BUNDLE_MAP_VIEW_KEY, mapViewBundle)
         }
         mapView.onSaveInstanceState(mapViewBundle)
     }

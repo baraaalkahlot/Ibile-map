@@ -1,4 +1,4 @@
-@EpoxyDataBindingPattern(rClass = R.class, layoutPrefix = "view_holder")
+@EpoxyDataBindingPattern(rClass = R.class, layoutPrefix = "epoxy_view")
 package com.ibile.core;
 
 import com.airbnb.epoxy.EpoxyDataBindingPattern;

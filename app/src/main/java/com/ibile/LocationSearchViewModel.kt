@@ -1,6 +1,7 @@
 package com.ibile
 
 import androidx.databinding.ObservableField
+import com.airbnb.mvrx.*
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
@@ -11,33 +12,35 @@ import com.ibile.core.toObservable
 import com.ibile.utils.Resource
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
+import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
-class LocationSearchHandler(private val placesClient: PlacesClient) {
+data class LocationSearchState(
+    val searchQuery: String? = "",
+    val searchPlacesResultAsync: Async<List<AutocompletePrediction>> = Uninitialized
+) : MvRxState
+
+class LocationSearchViewModel(
+    initialState: LocationSearchState,
+    private val placesClient: PlacesClient
+) : BaseMvRxViewModel<LocationSearchState>(initialState) {
 
     private val searchQuerySubject: PublishRelay<String> = PublishRelay.create()
     var currentSearchSessionToken: AutocompleteSessionToken? = null
-    val searchLocationsResponseObservable: Observable<List<AutocompletePrediction>>
-    val locationsSearchApiResource = ObservableField<Resource<List<AutocompletePrediction>>>()
     val getSelectedPlaceResource = ObservableField<Resource<Place>>()
 
-    // not doing anything for now, called in [MainActivity] so koin does not wait till dependency
-    // is required in fragment before creating it
-    fun init() {
-
-    }
-
     init {
-        searchLocationsResponseObservable = searchQuerySubject
+        searchQuerySubject
+            .startWith("")
             .distinctUntilChanged()
-            .doOnNext { locationsSearchApiResource.set(Resource.loading()) }
+            .doOnNext { setState { copy(searchPlacesResultAsync = Loading()) } }
             .debounce(1000, TimeUnit.MILLISECONDS)
-            .switchMap { query: String -> searchPlaces(query) }
+            .switchMap { query -> searchPlaces(query) }
+            .execute { copy(searchPlacesResultAsync = it) }
     }
 
-    private fun searchPlaces(query: String): Observable<List<AutocompletePrediction>> {
-        if (query.isBlank()) return Observable.just<List<AutocompletePrediction>>(arrayListOf())
-            .doOnNext { locationsSearchApiResource.set(Resource.success(it)) }
+    private fun searchPlaces(query: String?): Observable<List<AutocompletePrediction>> {
+        if (query.isNullOrBlank()) return Observable.just<List<AutocompletePrediction>>(arrayListOf())
 
         val request = FindAutocompletePredictionsRequest.builder()
             .setQuery(query)
@@ -46,8 +49,6 @@ class LocationSearchHandler(private val placesClient: PlacesClient) {
         return placesClient.findAutocompletePredictions(request)
             .toObservable()
             .map { it.autocompletePredictions }
-            .doOnNext { locationsSearchApiResource.set(Resource.success(it)) }
-            .doOnError { locationsSearchApiResource.set(Resource.error("", null)) }
     }
 
     fun setSearchQuery(query: String) {
@@ -74,5 +75,16 @@ class LocationSearchHandler(private val placesClient: PlacesClient) {
             .startWith(Resource.loading())
             .doOnNext { getSelectedPlaceResource.set(it) }
             .doOnError { getSelectedPlaceResource.set(Resource.error("", null)) }
+    }
+
+    companion object : MvRxViewModelFactory<LocationSearchViewModel, LocationSearchState> {
+        @JvmStatic
+        override fun create(
+            viewModelContext: ViewModelContext, state: LocationSearchState
+        ): LocationSearchViewModel {
+            val placesClient by (viewModelContext as ActivityViewModelContext)
+                .activity.inject<PlacesClient>()
+            return LocationSearchViewModel(state, placesClient)
+        }
     }
 }

@@ -11,9 +11,11 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
+import com.airbnb.mvrx.Loading
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.activityViewModel
+import com.airbnb.mvrx.withState
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
@@ -22,18 +24,13 @@ import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Marker
 import com.google.android.libraries.maps.model.Polygon
 import com.google.android.libraries.maps.model.Polyline
-import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.ibile.UIStateHandler.Overlay
+import com.ibile.UIStateViewModel.Overlay
 import com.ibile.core.*
 import com.ibile.databinding.FragmentMainBinding
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import org.koin.androidx.scope.lifecycleScope
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.parametersOf
-
-class ViewStatePreSelectSearchResult
 
 class MainFragment : BaseFragment(), OnMapReadyCallback,
     GoogleMap.OnCameraMoveStartedListener, GoogleMap.OnCameraMoveListener,
@@ -45,24 +42,20 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
     private lateinit var map: GoogleMap
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val fusedLocationClient: FusedLocationProviderClient by inject()
 
     private val markersViewModel: MarkersViewModel by activityViewModel()
-    private val uiStateHandler: UIStateHandler by lifecycleScope.inject { parametersOf(binding) }
-    private val locationSearchHandler: LocationSearchHandler by lazy {
-        requireActivity().lifecycleScope.get<LocationSearchHandler>()
-    }
+    private val locationSearchViewModel: LocationSearchViewModel by activityViewModel()
     private val addShapeViewModel: AddShapeViewModel by viewModel()
+    private val uiStateViewModel: UIStateViewModel by viewModel()
 
     private val compositeDisposable: CompositeDisposable by lazy { CompositeDisposable() }
-    private var viewStatePreSelectSearchResult: ViewStatePreSelectSearchResult? = null
 
     private var mapController: MapController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        markersViewModel.init()
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        if (savedInstanceState == null) markersViewModel.init()
     }
 
     override fun onCreateView(
@@ -73,8 +66,8 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         initializeMapView(binding.mapView, savedInstanceState)
 
         binding.fragment = this
-        binding.uiStateHandler = uiStateHandler
-        binding.locationSearchHandler = locationSearchHandler
+        binding.uiStateHandler = uiStateViewModel
+        binding.locationSearchHandler = locationSearchViewModel
         binding.addPolylineMarkerHandler = addShapeViewModel
 
         return binding.root
@@ -82,78 +75,67 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     private fun initializeMapView(mv: MapView, savedInstanceState: Bundle?) {
         mapView = mv
-        val mapViewBundle = savedInstanceState?.getBundle(BUNDLE_KEY_MAP_VIEW)
+        val mapViewBundle = savedInstanceState?.getBundle(BUNDLE_MAP_VIEW_KEY)
         mapView.onCreate(mapViewBundle)
         mapView.getMapAsync(this)
 
-        uiStateHandler.repositionLocationCompass(mapView)
+        uiStateViewModel.repositionLocationCompass(mapView)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        uiStateHandler.updateBinding(binding)
-        initializeLocationSearch()
         with(markersViewModel) {
-            selectSubscribe(MarkersViewModelState::activeMarkerId) {
-                toggleMarkerInfoView()
-                restoreViewStatePreSelectSearchResult(it)
+            selectSubscribe(MarkersViewModelState::activeMarkerId) { toggleMarkerInfoView() }
+            asyncSubscribe(MarkersViewModelState::addMarkerFromLocationSearchAsync) {
+                if (uiStateViewModel.activeOverlay == Overlay.SEARCH_LOCATION) {
+                    uiStateViewModel.updateActiveOverlay(Overlay.NONE)
+                    locationSearchViewModel.setSearchQuery("")
+                }
             }
-        }
-    }
-
-    private fun initializeLocationSearch() {
-        with(binding.searchLocationsView.rvSearchPlacesResults) {
-            adapter =
-                LocationSearchResultsAdapter(itemClickListener = handleLocationSearchResultItemClick)
-        }
-
-        locationSearchHandler.searchLocationsResponseObservable
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                val adapter = binding.searchLocationsView.rvSearchPlacesResults.adapter
-                (adapter as LocationSearchResultsAdapter).updateSearchResults(it)
-            }, {
-                it.printStackTrace()
-            })
-            .addTo(compositeDisposable)
-    }
-
-    private val handleLocationSearchResultItemClick = { clickedItemResult: AutocompletePrediction ->
-        viewStatePreSelectSearchResult = ViewStatePreSelectSearchResult()
-        val action =
-            MainFragmentDirections
-                .actionMainFragmentToLocationSearchSelectedResultFragment(clickedItemResult.placeId)
-        findNavController().navigate(action)
-    }
-
-    private fun restoreViewStatePreSelectSearchResult(newMarkedId: Long?) {
-        if (viewStatePreSelectSearchResult == null) return
-        if (newMarkedId != null) {
-            uiStateHandler.updateActiveOverlay(Overlay.NONE)
-            binding.mapActionBar.etSearchLocation.setText("")
-            viewStatePreSelectSearchResult = null
         }
     }
 
     private fun toggleMarkerInfoView() {
         val activeMarker = markersViewModel.getActiveMarker()
         mapController?.toggleActiveMarkerIndication(activeMarker)
-        uiStateHandler.toggleMarkerInfoView(activeMarker)
+        uiStateViewModel.setActiveMarker(activeMarker)
     }
 
-    override fun epoxyController(): MvRxEpoxyController = simpleController {
-        mapController?.buildModels(epoxyController)
-    }
+    override fun epoxyController(): MvRxEpoxyController =
+        simpleController(locationSearchViewModel) { locationSearchState ->
+            mapController?.buildModels(epoxyController)
+
+            if (uiStateViewModel.activeOverlay == Overlay.SEARCH_LOCATION) {
+                val (_, searchPlacesAsync) = locationSearchState
+                searchPlacesResultsState {
+                    id("PlacesResultView")
+                    isLoading(searchPlacesAsync is Loading)
+                    isSuccess(searchPlacesAsync is Success && searchPlacesAsync().isNotEmpty())
+                    searchPlacesResultAsync(searchPlacesAsync)
+                }
+                locationSearchState.searchPlacesResultAsync()?.forEach {
+                    placesResultItem {
+                        id(it.placeId)
+                        prediction(it)
+                        onClick { _ ->
+                            val action = MainFragmentDirections
+                                .actionMainFragmentToLocationSearchSelectedResultFragment(it.placeId)
+                            findNavController().navigate(action)
+                        }
+                    }
+                }
+            }
+        }
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
         mapController = MapController(markersViewModel, map)
-        if (uiStateHandler.activeOverlay.get() == Overlay.ADD_POLY_SHAPE) {
+        if (uiStateViewModel.activeOverlay == Overlay.ADD_POLY_SHAPE) {
             addShapeViewModel.setMap(map)
         }
 
         runWithLocationPermission { map.isMyLocationEnabled = true }
-        if (viewStatePreSelectSearchResult == null) moveToDeviceLocation()
+        moveToLastKnownLocation()
         with(this.map) {
             // using custom location button in layout
             uiSettings.isMyLocationButtonEnabled = false
@@ -167,7 +149,11 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     }
 
     @SuppressLint("MissingPermission")
-    private fun moveToDeviceLocation() {
+    private fun moveToLastKnownLocation() {
+        if (withState(markersViewModel) { it.activeMarkerId } != null) return
+        if (uiStateViewModel.lastKnownCameraPosition != null)
+            return map.moveCamera(CameraUpdateFactory.newLatLng(uiStateViewModel.lastKnownCameraPosition))
+
         runWithLocationPermission {
             fusedLocationClient.lastLocation
                 .toObservable()
@@ -183,31 +169,31 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onCameraMoveStarted(reason: Int) {
         with(map.cameraPosition.target) {
-            uiStateHandler.updateUILatLngCoords(this)
+            uiStateViewModel.updateUILatLngCoords(this)
         }
     }
 
     override fun onCameraMove() {
         with(map.cameraPosition.target) {
-            uiStateHandler.updateUILatLngCoords(this)
-            if (uiStateHandler.activeOverlay.get() == Overlay.ADD_POLY_SHAPE)
+            uiStateViewModel.updateUILatLngCoords(this)
+            if (uiStateViewModel.activeOverlay == Overlay.ADD_POLY_SHAPE)
                 addShapeViewModel.onMapMove(this)
         }
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        if (uiStateHandler.activeOverlay.get() != Overlay.NONE) return true
+        if (uiStateViewModel.activeOverlay != Overlay.NONE) return true
         mapController?.onMarkerClick(marker)
         return true
     }
 
     override fun onPolylineClick(polyline: Polyline) {
-        if (uiStateHandler.activeOverlay.get() != Overlay.NONE) return
+        if (uiStateViewModel.activeOverlay != Overlay.NONE) return
         mapController?.onPolylineClick(polyline)
     }
 
     override fun onPolygonClick(polygon: Polygon) {
-        if (uiStateHandler.activeOverlay.get() != Overlay.NONE) return
+        if (uiStateViewModel.activeOverlay != Overlay.NONE) return
         mapController?.onPolygonClick(polygon)
     }
 
@@ -239,7 +225,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     fun handleConfirmAddMarkerBtnClick() {
         val cameraPosition = map.cameraPosition.target
         markersViewModel.addMarker(cameraPosition)
-        uiStateHandler.updateActiveOverlay(Overlay.NONE)
+        uiStateViewModel.updateActiveOverlay(Overlay.NONE)
     }
 
     fun handleSaveShapeBtnClick() {
@@ -248,30 +234,30 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
             AddShapeViewModel.PolyType.POLYLINE -> markersViewModel.addPolyline(points)
             AddShapeViewModel.PolyType.POLYGON -> markersViewModel.addPolygon(points)
         }
-        uiStateHandler.updateActiveOverlay(Overlay.NONE)
+        uiStateViewModel.updateActiveOverlay(Overlay.NONE)
         addShapeViewModel.reset()
     }
 
     fun handleAddMarkerBtnClick() {
         markersViewModel.setActiveMarkerId(null)
-        uiStateHandler.updateActiveOverlay(Overlay.ADD_MARKER)
+        uiStateViewModel.updateActiveOverlay(Overlay.ADD_MARKER)
     }
 
     fun handleActionBarSearchBtnClick() {
-        if (uiStateHandler.activeOverlay.get() == Overlay.SEARCH_LOCATION) return
+        if (uiStateViewModel.activeOverlay == Overlay.SEARCH_LOCATION) return
         markersViewModel.setActiveMarkerId(null)
-        locationSearchHandler.setCurrentSessionToken(AutocompleteSessionToken.newInstance())
-        uiStateHandler.updateActiveOverlay(Overlay.SEARCH_LOCATION)
+        locationSearchViewModel.setCurrentSessionToken(AutocompleteSessionToken.newInstance())
+        uiStateViewModel.updateActiveOverlay(Overlay.SEARCH_LOCATION)
     }
 
     fun handleAddPolylineMarkerBtnClick() {
         addShapeViewModel.init(map, AddShapeViewModel.PolyType.POLYLINE)
-        uiStateHandler.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
+        uiStateViewModel.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
     }
 
     fun handleAddPolygonMarkerBtnClick() {
         addShapeViewModel.init(map, AddShapeViewModel.PolyType.POLYGON)
-        uiStateHandler.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
+        uiStateViewModel.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
     }
 
     @SuppressLint("MissingPermission")
@@ -313,10 +299,10 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        var mapViewBundle = outState.getBundle(BUNDLE_KEY_MAP_VIEW)
+        var mapViewBundle = outState.getBundle(BUNDLE_MAP_VIEW_KEY)
         if (mapViewBundle == null) {
             mapViewBundle = Bundle()
-            outState.putBundle(BUNDLE_KEY_MAP_VIEW, mapViewBundle)
+            outState.putBundle(BUNDLE_MAP_VIEW_KEY, mapViewBundle)
         }
         mapView.onSaveInstanceState(mapViewBundle)
     }
@@ -350,13 +336,13 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onDestroyView() {
         super.onDestroyView()
-        uiStateHandler.updateBinding(null)
+        uiStateViewModel.lastKnownCameraPosition = map.cameraPosition.target
         mapController = null
         addShapeViewModel.setMap(null)
     }
 
     companion object {
-        const val BUNDLE_KEY_MAP_VIEW = "MapViewBundleKey"
+        const val BUNDLE_MAP_VIEW_KEY = "BUNDLE_MAP_VIEW_KEY"
         const val RC_ACCESS_FINE_LOCATION = 1001
     }
 }
