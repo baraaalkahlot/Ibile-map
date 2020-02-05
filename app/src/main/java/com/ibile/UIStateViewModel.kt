@@ -117,11 +117,10 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
         @BindingAdapter("app:marker")
         @JvmStatic
         fun setMarker(view: ConstraintLayout, oldMarker: Marker?, marker: Marker?) {
-            if (oldMarker == marker) return
+            if (oldMarker == null && marker == null) return
 
             val markerInfoWindow = view.findViewById<ConstraintLayout>(R.id.marker_info_view)
             val addMarkerBtn = view.findViewById<ImageButton>(R.id.btn_add_marker)
-
 
             if (marker == null) {
                 hideActiveMarkerInfoView(markerInfoWindow, addMarkerBtn)

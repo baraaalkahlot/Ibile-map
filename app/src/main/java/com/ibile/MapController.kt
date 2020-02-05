@@ -1,7 +1,6 @@
 package com.ibile
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
 import androidx.core.graphics.applyCanvas
@@ -51,7 +50,7 @@ class MapController(
                 activeMapPolyline = null
                 activeMapPolygon = null
             }
-            field?.setIcon(BitmapDescriptorFactory.defaultMarker())
+            field?.setIcon(defaultMarkerIcon)
             field = value
         }
 
@@ -104,7 +103,7 @@ class MapController(
     private fun addMarkerToMap(it: com.ibile.data.database.entities.Marker) {
         when {
             it.isMarker -> {
-                val markerOptions = MarkerOptions().position(it.position)
+                val markerOptions = MarkerOptions().position(it.position).icon(defaultMarkerIcon)
                 val marker = map.addMarker(markerOptions)
                 marker.tag = it.id
                 mapMarkers.add(marker)
@@ -165,11 +164,29 @@ class MapController(
                 }
                 marker.isMarker -> {
                     activeMapMarker = mapMarkers.find { it.tag as Long == marker.id }
-                    activeMapMarker?.setIcon(getActiveMarkerIcon(context))
+                    activeMapMarker?.setIcon(activeMarkerIcon)
                 }
             }
         }
     }
+
+    private val defaultMarkerIcon: BitmapDescriptor?
+        get() = BitmapDescriptorFactory.fromBitmap(context.bitmapFromVectorDrawable(R.drawable.ic_default_marker_icon))
+
+    private val paint by lazy {
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = Color.DKGRAY
+            this.style = Paint.Style.FILL
+        }
+    }
+    private val activeMarkerIcon: BitmapDescriptor?
+        get() {
+            val bitmap = context.bitmapFromVectorDrawable(R.drawable.ic_default_marker_icon)
+                ?.applyCanvas {
+                    drawCircle(38f, 22f, 11f, paint)
+                }
+            return BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
 
     companion object {
         val DEFAULT_COLOR = Color.rgb(204, 54, 43)
@@ -180,21 +197,5 @@ class MapController(
         const val POLYGON_WIDTH = 3F
         const val ACTIVE_POLYGON_WIDTH = 5F
         val ACTIVE_POLYGON_FILL_COLOR = Color.argb(150, 204, 54, 43)
-
-        fun getActiveMarkerIcon(context: Context): Bitmap? {
-            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                this.color = Color.DKGRAY
-                this.style = Paint.Style.FILL
-            }
-            return context.bitmapFromVectorDrawable(
-                R.drawable.map_icon_map_pin, Color.rgb(222, 44, 41)
-            )?.applyCanvas {
-                drawCircle(42f, 24f, 12f, paint)
-            }
-        }
-
-        fun Marker?.setIcon(bitmap: Bitmap?) {
-            this?.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap))
-        }
     }
 }
