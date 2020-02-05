@@ -4,8 +4,6 @@ import androidx.room.Room
 import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.places.api.Places
 import com.ibile.AddShapeViewModel
-import com.ibile.MainFragment
-import com.ibile.UIStateViewModel
 import com.ibile.data.database.Database
 import com.ibile.data.repositiories.MarkersRepository
 import org.koin.android.ext.koin.androidContext

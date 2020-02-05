@@ -20,10 +20,13 @@ class MarkersViewModel(
 ) : BaseMvRxViewModel<MarkersViewModelState>(initialState) {
 
     fun init() {
-        markersRepository
-            .getAllMarkers()
-            .toObservable()
-            .execute { copy(markersAsync = it) }
+        withState { state ->
+            if (state.markersAsync is Success) return@withState
+            markersRepository
+                .getAllMarkers()
+                .toObservable()
+                .execute { copy(markersAsync = it) }
+        }
     }
 
     fun addMarker(markerCoords: LatLng) {

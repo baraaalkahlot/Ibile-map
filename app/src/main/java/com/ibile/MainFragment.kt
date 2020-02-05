@@ -49,7 +49,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) markersViewModel.init()
+        markersViewModel.init()
     }
 
     override fun onCreateView(

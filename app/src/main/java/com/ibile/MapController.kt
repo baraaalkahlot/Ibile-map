@@ -25,6 +25,8 @@ class MapController(
     private val mapPolylines = mutableListOf<Polyline>()
     private val mapPolygons = mutableListOf<Polygon>()
 
+    private var markersAdded: Boolean = false
+
     private var activeMapPolyline: Polyline? = null
         set(value) {
             if (value != null) {
@@ -54,10 +56,6 @@ class MapController(
             field = value
         }
 
-    init {
-        addMarkersToMap()
-    }
-
     private val state
         get() = withState(markersViewModel) { it }
 
@@ -65,8 +63,9 @@ class MapController(
         withState(markersViewModel) { (markersAsync) ->
             epoxyController.markerListPropertyObserverView {
                 id(MarkerListPropertyObserverView.id)
-                markersAsync()?.let { data(it) }
-                dataCallback {
+                markerList(markersAsync())
+                onNewMarkerList {
+                    addMarkersToMap(it)
                     addNewMarkerToMap(it)
                     addNewMarkerFromLocationSearchToMap(it)
                 }
@@ -74,9 +73,9 @@ class MapController(
         }
     }
 
-    private fun addNewMarkerToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+    private fun addNewMarkerToMap(markers: List<com.ibile.data.database.entities.Marker>?) {
         state.addMarkerAsync()?.let {
-            val newMarker = markers.find { marker -> marker.id == it }
+            val newMarker = markers?.find { marker -> marker.id == it }
             newMarker?.let {
                 markersViewModel.setActiveMarkerId(it.id)
                 addMarkerToMap(it)
@@ -85,9 +84,9 @@ class MapController(
         }
     }
 
-    private fun addNewMarkerFromLocationSearchToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+    private fun addNewMarkerFromLocationSearchToMap(markers: List<com.ibile.data.database.entities.Marker>?) {
         state.addMarkerFromLocationSearchAsync()?.let {
-            val newMarker = markers.find { marker -> marker.id == it }
+            val newMarker = markers?.find { marker -> marker.id == it }
             newMarker?.let {
                 markersViewModel.setActiveMarkerId(it.id)
                 addMarkerToMap(it)
@@ -96,8 +95,12 @@ class MapController(
         }
     }
 
-    private fun addMarkersToMap() {
-        state.markersAsync()?.forEach { addMarkerToMap(it) }
+    private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>?) {
+        markers?.let {
+            if (markersAdded) return
+            it.forEach { marker -> addMarkerToMap(marker) }
+            markersAdded = true
+        }
     }
 
     private fun addMarkerToMap(it: com.ibile.data.database.entities.Marker) {
