@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "352801796460",
+    "firebase_url": "https://ibile-265008.firebaseio.com",
+    "project_id": "ibile-265008",
+    "storage_bucket": "ibile-265008.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:352801796460:android:da18f15cfbb46d03160349",
+        "android_client_info": {
+          "package_name": "com.ibile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "352801796460-2lp2qe685d543dhn71r5r3vcouanjo7k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "9b2661dfaff151b1799de51efa76052d545010b3"
+          }
+        },
+        {
+          "client_id": "352801796460-r66epes7v9np8bta5remjvm1nvqgblc2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTsj7vd6y3IYvQPeqqLMYS0UcCefk7iO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "352801796460-r66epes7v9np8bta5remjvm1nvqgblc2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
