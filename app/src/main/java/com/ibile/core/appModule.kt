@@ -16,4 +16,5 @@ val appModule = module {
     viewModel { AddShapeViewModel(androidContext()) }
     single { Places.createClient(androidContext()) }
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
+    single { (androidContext() as Application).iconPack }
 }

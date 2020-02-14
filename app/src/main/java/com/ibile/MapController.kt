@@ -1,14 +1,20 @@
 package com.ibile
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
 import androidx.core.graphics.applyCanvas
-import com.airbnb.epoxy.EpoxyController
-import com.airbnb.mvrx.withState
+import androidx.core.graphics.drawable.toBitmap
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
-import com.ibile.core.bitmapFromVectorDrawable
+import com.ibile.core.getIconDrawable
+import com.ibile.core.intToDP
+import com.ibile.core.setColor
+import com.ibile.data.database.entities.Marker.Companion.DEFAULT_MARKER_ICON_ID
+import com.maltaisn.icondialog.pack.IconPack
+import org.koin.core.KoinComponent
+import org.koin.core.get
 
 /**
  * Wraps over the GoogleMap for some few isolated controls. Tied to the lifecycle of the map.
@@ -16,16 +22,12 @@ import com.ibile.core.bitmapFromVectorDrawable
  * @property markersViewModel
  * @property map
  */
-class MapController(
-    private var map: GoogleMap,
-    private val context: Context,
-    private val markersViewModel: MarkersViewModel
-) {
+class MapController(private var map: GoogleMap, private val markersViewModel: MarkersViewModel) {
+    private var markersAdded: Boolean = false
+
     private val mapMarkers = mutableListOf<Marker>()
     private val mapPolylines = mutableListOf<Polyline>()
     private val mapPolygons = mutableListOf<Polygon>()
-
-    private var markersAdded: Boolean = false
 
     private var activeMapPolyline: Polyline? = null
         set(value) {
@@ -33,7 +35,7 @@ class MapController(
                 activeMapPolygon = null
                 activeMapMarker = null
             }
-            field?.width = POLYLINE_WIDTH
+            field?.width = POLYLINE_DEFAULT_WIDTH
             field = value
         }
     private var activeMapPolygon: Polygon? = null
@@ -42,8 +44,10 @@ class MapController(
                 activeMapPolyline = null
                 activeMapMarker = null
             }
-            field?.strokeWidth = POLYGON_WIDTH
-            field?.fillColor = POLYGON_FILL_COLOR
+            field?.let {
+                it.strokeWidth = POLYGON_DEFAULT_WIDTH
+                it.fillColor = findMarkerForShape(it.tag).color.alpha(POLYGON_DEFAULT_COLOR_ALPHA)
+            }
             field = value
         }
     private var activeMapMarker: Marker? = null
@@ -52,30 +56,23 @@ class MapController(
                 activeMapPolyline = null
                 activeMapPolygon = null
             }
-            field?.setIcon(defaultMarkerIcon)
+            field?.let { it.setIcon(findMarkerForShape(it.tag).defaultBitmap) }
             field = value
         }
 
-    private val state
-        get() = withState(markersViewModel) { it }
+    private fun findMarkerForShape(obj: Any): com.ibile.data.database.entities.Marker =
+        markersViewModel.getMarkerById(obj as Long)!!
 
-    fun buildModels(epoxyController: EpoxyController) {
-        withState(markersViewModel) { (markersAsync) ->
-            epoxyController.markerListPropertyObserverView {
-                id(MarkerListPropertyObserverView.id)
-                markerList(markersAsync())
-                onNewMarkerList {
-                    addMarkersToMap(it)
-                    addNewMarkerToMap(it)
-                    addNewMarkerFromLocationSearchToMap(it)
-                }
-            }
-        }
+    fun onMarkersListUpdate(markers: List<com.ibile.data.database.entities.Marker>) {
+        addMarkersToMap(markers)
+        addNewMarkerToMap(markers)
+        addNewMarkerFromLocationSearchToMap(markers)
+        updateEditedMarkerOnMap(markers)
     }
 
-    private fun addNewMarkerToMap(markers: List<com.ibile.data.database.entities.Marker>?) {
-        state.addMarkerAsync()?.let {
-            val newMarker = markers?.find { marker -> marker.id == it }
+    private fun addNewMarkerToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+        markersViewModel.state.addMarkerAsync()?.let {
+            val newMarker = markers.find { marker -> marker.id == it }
             newMarker?.let {
                 markersViewModel.setActiveMarkerId(it.id)
                 addMarkerToMap(it)
@@ -84,9 +81,9 @@ class MapController(
         }
     }
 
-    private fun addNewMarkerFromLocationSearchToMap(markers: List<com.ibile.data.database.entities.Marker>?) {
-        state.addMarkerFromLocationSearchAsync()?.let {
-            val newMarker = markers?.find { marker -> marker.id == it }
+    private fun addNewMarkerFromLocationSearchToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+        markersViewModel.state.addMarkerFromLocationSearchAsync()?.let {
+            val newMarker = markers.find { marker -> marker.id == it }
             newMarker?.let {
                 markersViewModel.setActiveMarkerId(it.id)
                 addMarkerToMap(it)
@@ -95,26 +92,48 @@ class MapController(
         }
     }
 
-    private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>?) {
-        markers?.let {
+    private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+        markers.let {
             if (markersAdded) return
             it.forEach { marker -> addMarkerToMap(marker) }
             markersAdded = true
         }
     }
 
+    private fun updateEditedMarkerOnMap(markers: List<com.ibile.data.database.entities.Marker>) {
+        markersViewModel.state.markerForEdit?.let { markerForEdit ->
+            val marker = markers.find { it.id == markerForEdit.id }!!
+            when {
+                marker.isMarker -> mapMarkers.find { it.tag as Long == marker.id }?.let {
+                    it.remove()
+                    mapMarkers.removeAt(mapMarkers.indexOf(it))
+                }
+                marker.isPolygon -> mapPolygons.find { it.tag as Long == marker.id }?.let {
+                    it.remove()
+                    mapPolygons.removeAt(mapPolygons.indexOf(it))
+                }
+                marker.isPolyline -> mapPolylines.find { it.tag as Long == marker.id }?.let {
+                    it.remove()
+                    mapPolylines.removeAt(mapPolylines.indexOf(it))
+                }
+            }
+            addMarkerToMap(marker)
+            markersViewModel.setMarkerForEdit(null)
+        }
+    }
+
     private fun addMarkerToMap(it: com.ibile.data.database.entities.Marker) {
         when {
             it.isMarker -> {
-                val markerOptions = MarkerOptions().position(it.position).icon(defaultMarkerIcon)
+                val markerOptions = MarkerOptions().position(it.position).icon(it.defaultBitmap)
                 val marker = map.addMarker(markerOptions)
                 marker.tag = it.id
                 mapMarkers.add(marker)
             }
             it.isPolyline -> {
                 val options = PolylineOptions().addAll(it.points)
-                    .color(DEFAULT_COLOR)
-                    .width(POLYLINE_WIDTH)
+                    .color(it.color)
+                    .width(POLYLINE_DEFAULT_WIDTH)
                     .clickable(true)
                 val polyline = map.addPolyline(options)
                 polyline.tag = it.id
@@ -123,8 +142,8 @@ class MapController(
             it.isPolygon -> {
                 val options = PolygonOptions().addAll(it.points)
                     .strokeColor(Color.BLACK)
-                    .fillColor(POLYGON_FILL_COLOR)
-                    .strokeWidth(POLYGON_WIDTH)
+                    .fillColor(it.color.alpha(POLYGON_DEFAULT_COLOR_ALPHA))
+                    .strokeWidth(POLYGON_DEFAULT_WIDTH)
                     .clickable(true)
                 val polygon = map.addPolygon(options)
                 polygon.tag = it.id
@@ -163,42 +182,55 @@ class MapController(
                 marker.isPolygon -> {
                     activeMapPolygon = mapPolygons.find { it.tag as Long == marker.id }
                     activeMapPolygon?.strokeWidth = ACTIVE_POLYGON_WIDTH
-                    activeMapPolygon?.fillColor = ACTIVE_POLYGON_FILL_COLOR
+                    activeMapPolygon?.fillColor = marker.color.alpha(POLYGON_ACTIVE_COLOR_ALPHA)
                 }
                 marker.isMarker -> {
                     activeMapMarker = mapMarkers.find { it.tag as Long == marker.id }
-                    activeMapMarker?.setIcon(activeMarkerIcon)
+                    activeMapMarker?.setIcon(marker.activeBitmap)
                 }
             }
         }
     }
 
-    private val defaultMarkerIcon: BitmapDescriptor?
-        get() = BitmapDescriptorFactory.fromBitmap(context.bitmapFromVectorDrawable(R.drawable.ic_default_marker_icon))
-
-    private val paint by lazy {
-        Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.color = Color.DKGRAY
-            this.style = Paint.Style.FILL
-        }
-    }
-    private val activeMarkerIcon: BitmapDescriptor?
-        get() {
-            val bitmap = context.bitmapFromVectorDrawable(R.drawable.ic_default_marker_icon)
-                ?.applyCanvas {
-                    drawCircle(38f, 22f, 11f, paint)
-                }
-            return BitmapDescriptorFactory.fromBitmap(bitmap)
-        }
-
-    companion object {
-        val DEFAULT_COLOR = Color.rgb(204, 54, 43)
-        const val POLYLINE_WIDTH = 3F
+    companion object : KoinComponent {
+        const val POLYLINE_DEFAULT_WIDTH = 3F
         const val ACTIVE_POLYLINE_WIDTH = 6F
 
-        val POLYGON_FILL_COLOR = Color.argb(95, 204, 54, 43)
-        const val POLYGON_WIDTH = 3F
+        const val POLYGON_DEFAULT_WIDTH = 3F
         const val ACTIVE_POLYGON_WIDTH = 5F
-        val ACTIVE_POLYGON_FILL_COLOR = Color.argb(150, 204, 54, 43)
+        const val POLYGON_DEFAULT_COLOR_ALPHA = 95
+        const val POLYGON_ACTIVE_COLOR_ALPHA = 150
+
+        private val paint by lazy {
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = Color.DKGRAY
+                this.style = Paint.Style.FILL
+            }
+        }
+
+        private fun Int.alpha(value: Int): Int =
+            Color.argb(value, Color.red(this), Color.green(this), Color.blue(this))
+
+        private val com.ibile.data.database.entities.Marker.iconBitmap: Bitmap?
+            get() = get<IconPack>().getIconDrawable(icon)?.mutate()?.setColor(color)?.toBitmap()
+
+        private val com.ibile.data.database.entities.Marker.defaultBitmap: BitmapDescriptor?
+            get() = BitmapDescriptorFactory.fromBitmap(iconBitmap)
+
+        private val com.ibile.data.database.entities.Marker.activeBitmap: BitmapDescriptor?
+            get() {
+                if (this.icon?.id != DEFAULT_MARKER_ICON_ID) {
+                    // TODO: logic for other icons
+                    return defaultBitmap
+                }
+                val context = get<Context>()
+                val bitmap = iconBitmap?.applyCanvas {
+                    val cx = context.intToDP(22).toFloat()
+                    val cy = context.intToDP(13).toFloat()
+                    val radius = context.intToDP(7).toFloat()
+                    drawCircle(cx, cy, radius, paint)
+                }
+                return BitmapDescriptorFactory.fromBitmap(bitmap)
+            }
     }
 }

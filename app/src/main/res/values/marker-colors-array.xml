@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="poi_custom_color_0">#fff44336</color>
+    <color name="poi_custom_color_1">#ffe91e63</color>
+    <color name="poi_custom_color_2">#ff9c27b0</color>
+    <color name="poi_custom_color_3">#ff673ab7</color>
+    <color name="poi_custom_color_4">#ff3f51b5</color>
+    <color name="poi_custom_color_5">#ff2196f3</color>
+    <color name="poi_custom_color_6">#ff03a9f4</color>
+    <color name="poi_custom_color_7">#ff00bcd4</color>
+    <color name="poi_custom_color_8">#ff009688</color>
+    <color name="poi_custom_color_9">#ff71b300</color>
+    <color name="poi_custom_color_10">#ff8bc34a</color>
+    <color name="poi_custom_color_11">#ffcddc39</color>
+    <color name="poi_custom_color_12">#ffffeb3b</color>
+    <color name="poi_custom_color_13">#ffffc107</color>
+    <color name="poi_custom_color_14">#ffff9800</color>
+    <color name="poi_custom_color_15">#ffff5722</color>
+    <color name="poi_custom_color_16">#ff795548</color>
+    <color name="poi_custom_color_17">#ff9e9e9e</color>
+    <color name="poi_custom_color_18">#ff607d8b</color>
+    <color name="poi_default_color">#FFCC362B</color>
+
+    <array name="marker_colors">
+        <item>@color/poi_default_color</item>
+        <item>@color/poi_custom_color_0</item>
+        <item>@color/poi_custom_color_1</item>
+        <item>@color/poi_custom_color_3</item>
+        <item>@color/poi_custom_color_4</item>
+        <item>@color/poi_custom_color_5</item>
+        <item>@color/poi_custom_color_6</item>
+        <item>@color/poi_custom_color_7</item>
+        <item>@color/poi_custom_color_8</item>
+        <item>@color/poi_custom_color_9</item>
+        <item>@color/poi_custom_color_10</item>
+        <item>@color/poi_custom_color_11</item>
+        <item>@color/poi_custom_color_12</item>
+        <item>@color/poi_custom_color_13</item>
+        <item>@color/poi_custom_color_14</item>
+        <item>@color/poi_custom_color_15</item>
+        <item>@color/poi_custom_color_16</item>
+        <item>@color/poi_custom_color_17</item>
+        <item>@color/poi_custom_color_18</item>
+    </array>
+</resources>

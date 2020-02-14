@@ -86,6 +86,20 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
                     locationSearchViewModel.setSearchQuery("")
                 }
             }
+            selectSubscribe(
+                MarkersViewModelState::markerForEdit, UniqueOnly(this@MainFragment.mvrxViewId)
+            ) {
+                if (it != null) {
+                    if (uiStateViewModel.activeOverlay == Overlay.NEW_FRAGMENT) return@selectSubscribe
+                    uiStateViewModel.updateActiveOverlay(Overlay.NEW_FRAGMENT)
+                    val direction =
+                        MainFragmentDirections.actionMainFragmentToEditMarkerDialogFragment()
+                    findNavController().navigate(direction)
+                } else {
+                    if (uiStateViewModel.activeOverlay != Overlay.NEW_FRAGMENT) return@selectSubscribe
+                    uiStateViewModel.updateActiveOverlay(Overlay.NONE)
+                }
+            }
         }
     }
 
@@ -101,7 +115,13 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
             markersViewModel,
             uiStateViewModel
         ) { locationSearchState, markersState, uiState ->
-            mapController?.buildModels(epoxyController)
+            markerListPropertyObserverView {
+                id(MarkerListPropertyObserverView.id)
+                markerList(markersState.markersAsync())
+                onNewMarkerList {
+                    mapController?.onMarkersListUpdate(it)
+                }
+            }
             when (uiState.activeListView) {
                 UIStateViewModel.ListView.SEARCH_LOCATION -> {
                     val (_, searchPlacesResultAsync) = locationSearchState
@@ -149,7 +169,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onMapReady(map: GoogleMap) {
         this.map = map
-        mapController = MapController(map, requireContext(), markersViewModel)
+        mapController = MapController(map, markersViewModel)
         if (uiStateViewModel.activeOverlay == Overlay.ADD_POLY_SHAPE) {
             addShapeViewModel.setMap(map)
         }
@@ -282,6 +302,10 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     fun handleAddPolygonMarkerBtnClick() {
         addShapeViewModel.init(map, AddShapeViewModel.PolyType.POLYGON)
         uiStateViewModel.updateActiveOverlay(Overlay.ADD_POLY_SHAPE)
+    }
+
+    fun handleEditMarkerBtnClick() {
+        markersViewModel.setMarkerForEdit(markersViewModel.getActiveMarker())
     }
 
     @SuppressLint("MissingPermission")

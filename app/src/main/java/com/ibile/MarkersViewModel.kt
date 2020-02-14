@@ -11,13 +11,18 @@ data class MarkersViewModelState(
     val markersAsync: Async<List<Marker>> = Uninitialized,
     val activeMarkerId: Long? = null,
     val addMarkerAsync: Async<Long> = Uninitialized,
-    val addMarkerFromLocationSearchAsync: Async<Long> = Uninitialized
+    val addMarkerFromLocationSearchAsync: Async<Long> = Uninitialized,
+    val markerForEdit: Marker? = null,
+    val markerUpdateAsync: Async<Unit> = Uninitialized
 ) : MvRxState
 
 class MarkersViewModel(
     initialState: MarkersViewModelState,
     private val markersRepository: MarkersRepository
 ) : BaseMvRxViewModel<MarkersViewModelState>(initialState) {
+
+    val state: MarkersViewModelState
+        get() = withState(this) { it }
 
     fun init() {
         withState { state ->
@@ -30,7 +35,7 @@ class MarkersViewModel(
     }
 
     fun addMarker(markerCoords: LatLng) {
-        val newMarker = Marker.point(markerCoords)
+        val newMarker = Marker.createMarker(markerCoords)
         markersRepository
             .insertMarker(newMarker)
             .toObservable()
@@ -39,7 +44,7 @@ class MarkersViewModel(
     }
 
     fun addPolyline(points: List<LatLng?>) {
-        val newMarker = Marker.polyline(points)
+        val newMarker = Marker.createPolyline(points)
         markersRepository
             .insertMarker(newMarker)
             .toObservable()
@@ -48,7 +53,7 @@ class MarkersViewModel(
     }
 
     fun addPolygon(points: List<LatLng?>) {
-        val newMarker = Marker.polygon(points)
+        val newMarker = Marker.createPolygon(points)
         markersRepository
             .insertMarker(newMarker)
             .toObservable()
@@ -57,12 +62,21 @@ class MarkersViewModel(
     }
 
     fun addMarkerFromLocationSearchResult(markerCoords: LatLng) {
-        val newMarker = Marker.point(markerCoords)
+        val newMarker = Marker.createMarker(markerCoords)
         markersRepository
             .insertMarker(newMarker)
             .toObservable()
             .subscribeOn(Schedulers.io())
             .execute { copy(addMarkerFromLocationSearchAsync = it) }
+    }
+
+    fun updateStagedMarker() {
+        state.markerForEdit?.let {
+            markersRepository
+                .updateMarker(it)
+                .subscribeOn(Schedulers.io())
+                .execute { async -> copy(markerUpdateAsync = async) }
+        }
     }
 
     fun setActiveMarkerId(activeMarkerId: Long?) {
@@ -80,6 +94,19 @@ class MarkersViewModel(
 
     fun resetAddMarkerFromLocationSearchAsync() =
         setState { copy(addMarkerFromLocationSearchAsync = Uninitialized) }
+
+    fun setMarkerForEdit(marker: Marker?) {
+        if (marker != null) {
+            setState { copy(markerForEdit = marker, activeMarkerId = null, markerUpdateAsync = Uninitialized) }
+            return
+        }
+        setState { copy(activeMarkerId = markerForEdit?.id, markerForEdit = null, markerUpdateAsync = Uninitialized) }
+    }
+
+    fun editMarker(cb: Marker?.() -> Marker?) =
+        setState { copy(markerForEdit = cb(state.markerForEdit)) }
+
+    fun getMarkerById(id: Long?): Marker? = state.markersAsync()?.find { it.id == id }
 
     companion object : MvRxViewModelFactory<MarkersViewModel, MarkersViewModelState> {
         @JvmStatic

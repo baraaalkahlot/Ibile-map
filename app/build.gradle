@@ -56,10 +56,10 @@ android {
 }
 
 dependencies {
-    def lifecycle_version = "2.1.0"
+    def lifecycle_version = "2.2.0"
     def room_version = "2.2.3"
-    def activity_version = "1.0.0"
-    def fragment_version = "1.1.0"
+    def activity_version = "1.1.0"
+    def fragment_version = "1.2.0"
     def rxjava_version = "3.0.0-RC7"
     def mvrx_version = "2.0.0-alpha2"
     def epoxy_version = "3.9.0"
@@ -116,4 +116,8 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
     implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
+
+    implementation name: 'icondialog', ext: 'aar'
+    implementation "com.maltaisn:iconpack-default:1.0.0"
+    implementation 'petrov.kristiyan:colorpicker-library:1.1.10'
 }

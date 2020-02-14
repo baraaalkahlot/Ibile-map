@@ -62,7 +62,8 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
     }
 
     fun actionBarIsVisible(activeOverlay: Overlay) =
-        !arrayListOf(Overlay.ADD_POLY_SHAPE, Overlay.ADD_MARKER).contains(activeOverlay)
+        !arrayListOf(Overlay.ADD_POLY_SHAPE, Overlay.ADD_MARKER, Overlay.NEW_FRAGMENT)
+            .contains(activeOverlay)
 
     fun onCameraMove(cameraPositionCoords: LatLng) {
         cameraPosition = cameraPositionCoords
@@ -86,7 +87,7 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
     fun epoxyRvIsVisible(_activeOverlay: Overlay): Boolean =
         arrayListOf(Overlay.SEARCH_LOCATION, Overlay.BROWSE_MARKERS).contains(_activeOverlay)
 
-    enum class Overlay { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS, ADD_MARKER, ADD_POLY_SHAPE }
+    enum class Overlay { NONE, SEARCH_LOCATION, DRAWER, SHARE, BROWSE_MARKERS, ORGANIZE_MARKERS, ADD_MARKER, ADD_POLY_SHAPE, NEW_FRAGMENT }
     enum class ListView { NONE, SEARCH_LOCATION, BROWSE_MARKERS, ORGANIZE_MARKERS }
 
     companion object {

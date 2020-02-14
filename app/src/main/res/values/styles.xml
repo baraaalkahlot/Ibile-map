@@ -4,6 +4,50 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="icdStyle">@style/IcdStyle.Custom</item>
+    </style>
+
+    <style name="EditMarkerSectionLabel">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="IcdStyle.Custom">
+        <item name="icdListHeaderStyle">@style/IcdListHeaderStyle.Custom</item>
+        <item name="icdListStickyHeaderStyle">@style/IcdListStickyHeaderStyle.Custom</item>
+        <item name="icdIconColor">@android:color/white</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="icdSearchBarStyle">@style/IcdSearchBarStyle.Custom</item>
+        <item name="icdSearchIconStyle">@style/IcdSearchIconStyle.Custom</item>
+        <item name="colorBackgroundFloating">@color/dark_gray</item>
+        <item name="icdCancelSearchIconStyle">@style/IcdCancelSearchIconStyle.Custom</item>
+    </style>
+
+    <style name="IcdListHeaderStyle.Custom">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="IcdListStickyHeaderStyle.Custom">
+        <item name="android:textSize">22sp</item>
+        <item name="android:background">@color/light_gray</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="IcdSearchBarStyle.Custom">
+        <item name="android:background">@color/dark_gray</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
+        <item name="android:textCursorDrawable">@drawable/text_cursor_white</item>
+    </style>
+
+    <style name="IcdSearchIconStyle.Custom">
+        <item name="tint">@android:color/white</item>
+    </style>
+
+    <style name="IcdCancelSearchIconStyle.Custom">
+        <item name="tint">@android:color/white</item>
     </style>
 
 </resources>

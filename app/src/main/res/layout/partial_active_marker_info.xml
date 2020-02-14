@@ -8,6 +8,10 @@
         <variable
             name="marker"
             type="com.ibile.data.database.entities.Marker" />
+
+        <variable
+            name="fragment"
+            type="com.ibile.MainFragment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,6 +45,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@{marker.description}"
                     android:textColor="@android:color/white"
                     tools:text="A new marker" />
 
@@ -77,6 +82,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_edit_marker"
+                android:onClick="@{() -> fragment.handleEditMarkerBtnClick()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_edit_24" />
 

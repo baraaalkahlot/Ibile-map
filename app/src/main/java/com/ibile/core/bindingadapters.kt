@@ -3,13 +3,7 @@ package com.ibile.core
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.ImageButton
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.marginBottom
 import androidx.databinding.BindingAdapter
-import com.airbnb.epoxy.EpoxyRecyclerView
-import com.ibile.R
-import com.ibile.data.database.entities.Marker
 
 @BindingAdapter("app:isVisible")
 fun isVisible(view: View, visible: Boolean) {
@@ -26,4 +20,9 @@ fun setImageButtonEnabled(imageButton: ImageButton, enabled: Boolean) {
         if (tag == null) tag = drawable
         setImageDrawable(drawable.toGrayScale())
     }
+}
+
+@BindingAdapter("drawableBackgroundColor")
+fun setDrawableBackgroundColor(view: View, color: Int) {
+    view.background.mutate().setColor(color)
 }

@@ -30,4 +30,14 @@
     <string name="fmt_polyline_marker_distance">Distance: %1$s</string>
     <string name="fmt_polygon_marker_area">Perimeter: %1$s Km\nArea: %2$s</string>
     <string name="text_marker_folder_title_default_folder">Default folder</string>
+    <string name="text_edit_title_label">Title</string>
+    <string name="text_edit_description_label">Description</string>
+    <string name="fmt_marker_longitude">Longitude: \t %1$s</string>
+    <string name="fmt_marker_latitude">Latitude: \t %1$s</string>
+    <string name="text_extra_information_label">Extra information</string>
+    <string name="text_insert_label">Insert…</string>
+    <string name="text_creation_date_label">Creation date</string>
+    <string name="label_gps_coordinates">GPS coordinates</string>
+    <string name="label_marker_phone_number">Phone number</string>
+    <string name="label_icon_color">Icon and color</string>
 </resources>

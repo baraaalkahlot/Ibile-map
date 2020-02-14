@@ -3,11 +3,16 @@ package com.ibile.core
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.Drawable
+import android.graphics.drawable.*
 import android.os.Build
+import android.util.TypedValue
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
 import com.google.android.gms.tasks.Task
+import com.maltaisn.icondialog.data.Icon
+import com.maltaisn.icondialog.pack.IconPack
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.disposables.CompositeDisposable
@@ -30,9 +35,20 @@ fun Drawable.setColorFilter(color: Int) {
     }
 }
 
+fun Drawable.setColor(color: Int): Drawable {
+    when (this) {
+        is GradientDrawable -> setColor(color)
+        is ShapeDrawable -> paint.color = color
+        is ColorDrawable -> this.color = color
+        is VectorDrawable -> setTint(color)
+        else -> setColorFilter(color)
+    }
+    return this
+}
+
 fun Drawable.toGrayScale(): Drawable? {
     val drawable = constantState?.newDrawable()?.mutate()
-    return drawable?.apply { setColorFilter(Color.GRAY) }
+    return drawable?.apply { setColor(Color.GRAY) }
 }
 
 fun Context.bitmapFromVectorDrawable(vectorResId: Int): Bitmap? {
@@ -47,12 +63,23 @@ fun Context.bitmapFromVectorDrawable(vectorResId: Int): Bitmap? {
 fun Context.bitmapFromVectorDrawable(vectorResId: Int, color: Int): Bitmap? {
     return ContextCompat.getDrawable(this, vectorResId)?.run {
         setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-        setColorFilter(color)
+        setColor(color)
         val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
         draw(Canvas(bitmap))
         return bitmap
     }
 }
+
+fun Context.intToDP(value: Int): Int = TypedValue
+    .applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), this.resources.displayMetrics)
+    .toInt()
+
+fun Context.getResColor(id: Int) = ResourcesCompat.getColor(this.resources, id, null)
+
+val Fragment.currentContext: Context
+    get() = requireContext()
+
+fun IconPack.getIconDrawable(icon: Icon?): Drawable? = icon?.id?.let { this.getIconDrawable(it) }
 
 fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time

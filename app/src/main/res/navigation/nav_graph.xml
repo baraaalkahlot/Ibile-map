@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_mainFragment_to_locationSearchSelectedResultFragment"
             app:destination="@id/locationSearchSelectedResultFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_editMarkerDialogFragment"
+            app:destination="@id/editMarkerDialogFragment" />
     </fragment>
 
     <fragment
@@ -24,4 +27,11 @@
             android:name="arg_selected_search_place_id"
             app:argType="string" />
     </fragment>
+
+    <dialog
+        android:id="@+id/editMarkerDialogFragment"
+        android:name="com.ibile.EditMarkerDialogFragment"
+        android:label="EditMarkerDialogFragment"
+        tools:layout="@layout/epoxy_view_edit_marker_details_view">
+    </dialog>
 </navigation>

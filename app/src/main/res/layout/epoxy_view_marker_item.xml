@@ -31,10 +31,11 @@
             app:layout_constraintEnd_toStartOf="@id/tv_marker_name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/map_icon_map_pin" />
+            tools:src="@drawable/ic_map_pin" />
 
         <View
             android:id="@+id/view_marker_color"
+            drawableBackgroundColor="@{marker.color}"
             android:layout_width="0dp"
             android:layout_height="@dimen/size_1"
             android:layout_marginTop="4dp"
@@ -63,7 +64,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginBottom="@dimen/size_1"
-            android:text="@{marker.formattedCreatedAt}"
+            android:text="@{marker.description}"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toTopOf="@id/view_divider"
             app:layout_constraintEnd_toEndOf="@id/tv_marker_name"
