@@ -11,7 +11,7 @@ import com.ibile.data.database.entities.Marker
 @ModelView(autoLayout = ModelView.Size.WRAP_WIDTH_WRAP_HEIGHT)
 class MarkerListPropertyObserverView(context: Context) : View(context) {
 
-    var onNewMarkerList: ((data: List<Marker>?) -> Unit)? = null
+    var onMarkerListUpdate: ((data: List<Marker>?) -> Unit)? = null
         @CallbackProp set
 
     private var markerList: List<Marker>? = null
@@ -23,7 +23,7 @@ class MarkerListPropertyObserverView(context: Context) : View(context) {
 
     @AfterPropsSet
     fun useProps() {
-        onNewMarkerList?.invoke(markerList)
+        onMarkerListUpdate?.invoke(markerList)
     }
 
     companion object {

@@ -1,7 +1,9 @@
 package com.ibile.data.database.entities
 
-import android.graphics.Color
+import android.graphics.*
 import android.widget.ImageView
+import androidx.core.graphics.applyCanvas
+import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.google.android.libraries.maps.CameraUpdate
@@ -10,10 +12,10 @@ import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.LatLngBounds
 import com.google.maps.android.PolyUtil
 import com.ibile.R
+import com.ibile.core.Extensions.dp
+import com.ibile.core.context
 import com.ibile.core.getCurrentDateTime
-import com.ibile.core.getIconDrawable
 import com.ibile.core.setColor
-import com.maltaisn.icondialog.data.Icon
 import com.maltaisn.icondialog.pack.IconPack
 import org.koin.core.KoinComponent
 import org.koin.core.get
@@ -73,6 +75,10 @@ data class Marker(
     val formattedCreationTime: String
         get() = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(createdAt)
 
+    init {
+        if (type == Type.MARKER) icon!!.initBitmap(color)
+    }
+
     enum class Type { MARKER, POLYLINE, POLYGON }
 
     object PointsTypeConverter {
@@ -95,26 +101,104 @@ data class Marker(
         fun typeToString(markerType: Type): String = markerType.name
     }
 
-    object IconTypeConverter : KoinComponent {
+    object IconTypeConverter {
         @TypeConverter
         @JvmStatic
-        fun markerIconIdToIcon(iconId: Int?): Icon? {
-            val iconPack = get<IconPack>()
-            val icon = iconId?.let { iconPack.getIcon(it) }
-            iconPack.getIconDrawable(icon)
-            return icon
-        }
+        fun markerIconIdToIcon(iconId: Int?): Icon? = iconId?.let { Icon(iconId, true) }
 
         @TypeConverter
         @JvmStatic
         fun markerIconToIconId(icon: Icon?): Int? = icon?.id
     }
 
+    /**
+     * A container class for marker bitmaps used on the map.
+     *
+     * @property id - id of an icon from [IconPack]
+     * @property loadBitmap - flag for determining if to load bitmap. Bitmap is only required to be
+     * loaded when instance is being created by room.
+     */
+    data class Icon(val id: Int, val loadBitmap: Boolean = false) {
+        lateinit var defaultBitmap: Bitmap
+            private set
+        val activeBitmap: Bitmap by lazy { createActiveBitmap(defaultBitmap, id) }
+
+        fun initBitmap(color: Int) {
+            if (!loadBitmap) return
+            defaultBitmap = createDefaultBitmap(id, color)
+        }
+
+        companion object : KoinComponent {
+            fun createDefaultBitmap(iconId: Int, color: Int): Bitmap {
+                val drawable = iconPack.getIconDrawable(iconId)!!.mutate()
+                return when (iconId) {
+                    DEFAULT_MARKER_ICON_ID -> {
+                        drawable.setColor(color).toBitmap()
+                    }
+                    else -> {
+                        val backgroundBitmap = context
+                            .getDrawable(R.drawable.ic_non_default_marker_icon_bg)!!.mutate()
+                            .setColor(color).toBitmap()
+                        overlayBitmaps(backgroundBitmap, drawable.toBitmap())
+                    }
+                }
+            }
+
+            fun createActiveBitmap(bitmap: Bitmap, iconId: Int): Bitmap {
+                val activeBitmap = Bitmap.createBitmap(bitmap)
+                return when (iconId) {
+                    DEFAULT_MARKER_ICON_ID -> activeBitmap.applyCanvas {
+                        drawCircle(21.7f.dp, 12.5f.dp, 7f.dp, activeBmpDefaultPaint)
+                    }
+                    else -> activeBitmap.applyCanvas {
+                        drawPath(activeBmpPath, activeBmpNonDefaultPaint)
+                    }
+                }
+            }
+
+            private fun overlayBitmaps(bgBmp: Bitmap, overlayBmp: Bitmap): Bitmap {
+                val result = Bitmap.createBitmap(bgBmp.width, bgBmp.height, bgBmp.config)
+                val canvas = Canvas(result)
+                canvas.drawBitmap(bgBmp, Matrix(), null)
+                canvas.drawBitmap(overlayBmp, 17f.dp, 8f.dp, null)
+                return result
+            }
+
+            private val activeBmpDefaultPaint by lazy {
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    this.color = Color.DKGRAY; this.style = Paint.Style.FILL
+                }
+            }
+
+            private val activeBmpNonDefaultPaint by lazy {
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    this.color = Color.DKGRAY
+                    style = Paint.Style.STROKE
+                    strokeWidth = 3f.dp
+                }
+            }
+
+            private val activeBmpPath by lazy {
+                Path().apply {
+                    val cornerRad = 6f.dp
+                    val corners = floatArrayOf(
+                        cornerRad, cornerRad,
+                        cornerRad, cornerRad,
+                        cornerRad, cornerRad,
+                        cornerRad, cornerRad
+                    )
+                    val rect = RectF(11f.dp, 5f.dp, 46f.dp, 36f.dp)
+                    this.addRoundRect(rect, corners, Path.Direction.CW)
+                }
+            }
+        }
+    }
+
     companion object : KoinComponent {
         private val iconPack = get<IconPack>()
 
         fun createMarker(position: LatLng) = Marker(
-            arrayListOf(position), Type.MARKER, icon = iconPack.getIcon(DEFAULT_MARKER_ICON_ID)
+            arrayListOf(position), Type.MARKER, icon = Icon(DEFAULT_MARKER_ICON_ID)
         )
 
         fun createPolyline(points: List<LatLng?>) = Marker(points, Type.POLYLINE)
@@ -125,7 +209,7 @@ data class Marker(
         fun markerIcon(view: ImageView, marker: Marker) {
             val resources = view.context.resources
             val drawable = when (marker.type) {
-                Type.MARKER -> iconPack.getIconDrawable(marker.icon)?.mutate()?.setColor(Color.WHITE)
+                Type.MARKER -> iconPack.getIconDrawable(marker.icon!!.id)!!.mutate().setColor(Color.WHITE)
                 Type.POLYLINE -> resources.getDrawable(R.drawable.ic_polyline, null)
                 Type.POLYGON -> resources.getDrawable(R.drawable.ic_polygon, null)
             }

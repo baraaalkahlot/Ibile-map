@@ -118,8 +118,8 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
             markerListPropertyObserverView {
                 id(MarkerListPropertyObserverView.id)
                 markerList(markersState.markersAsync())
-                onNewMarkerList {
-                    mapController?.onMarkersListUpdate(it)
+                onMarkerListUpdate { markers ->
+                    markers?.let { mapController?.onMarkersListUpdate(it) }
                 }
             }
             when (uiState.activeListView) {

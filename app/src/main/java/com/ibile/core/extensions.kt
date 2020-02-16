@@ -11,12 +11,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.tasks.Task
-import com.maltaisn.icondialog.data.Icon
-import com.maltaisn.icondialog.pack.IconPack
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import org.koin.core.KoinComponent
+import org.koin.core.get
 import java.util.*
 
 fun View.animateSlideVertical(distance: Float, duration: Long) {
@@ -70,16 +70,10 @@ fun Context.bitmapFromVectorDrawable(vectorResId: Int, color: Int): Bitmap? {
     }
 }
 
-fun Context.intToDP(value: Int): Int = TypedValue
-    .applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), this.resources.displayMetrics)
-    .toInt()
-
 fun Context.getResColor(id: Int) = ResourcesCompat.getColor(this.resources, id, null)
 
 val Fragment.currentContext: Context
     get() = requireContext()
-
-fun IconPack.getIconDrawable(icon: Icon?): Drawable? = icon?.id?.let { this.getIconDrawable(it) }
 
 fun getCurrentDateTime(): Date {
     return Calendar.getInstance().time
@@ -98,3 +92,12 @@ fun <T> Task<T>.toObservable(): Observable<T> {
 
 fun Disposable.addTo(compositeDisposable: CompositeDisposable): Disposable =
     apply { compositeDisposable.add(this) }
+
+object Extensions : KoinComponent {
+    val Float.dp: Float
+        get() = TypedValue
+            .applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, context.resources.displayMetrics)
+}
+
+val KoinComponent.context: Context
+    get() = get()

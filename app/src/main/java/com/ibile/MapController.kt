@@ -1,20 +1,8 @@
 package com.ibile
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Paint
-import androidx.core.graphics.applyCanvas
-import androidx.core.graphics.drawable.toBitmap
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
-import com.ibile.core.getIconDrawable
-import com.ibile.core.intToDP
-import com.ibile.core.setColor
-import com.ibile.data.database.entities.Marker.Companion.DEFAULT_MARKER_ICON_ID
-import com.maltaisn.icondialog.pack.IconPack
-import org.koin.core.KoinComponent
-import org.koin.core.get
 
 /**
  * Wraps over the GoogleMap for some few isolated controls. Tied to the lifecycle of the map.
@@ -56,7 +44,10 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
                 activeMapPolyline = null
                 activeMapPolygon = null
             }
-            field?.let { it.setIcon(findMarkerForShape(it.tag).defaultBitmap) }
+            field?.let {
+                val defaultBitmap = findMarkerForShape(it.tag).icon!!.defaultBitmap
+                it.setIcon(BitmapDescriptorFactory.fromBitmap(defaultBitmap))
+            }
             field = value
         }
 
@@ -74,8 +65,8 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
         markersViewModel.state.addMarkerAsync()?.let {
             val newMarker = markers.find { marker -> marker.id == it }
             newMarker?.let {
-                markersViewModel.setActiveMarkerId(it.id)
                 addMarkerToMap(it)
+                markersViewModel.setActiveMarkerId(it.id)
                 markersViewModel.resetAddMarkerAsync()
             }
         }
@@ -93,11 +84,9 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
     }
 
     private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>) {
-        markers.let {
-            if (markersAdded) return
-            it.forEach { marker -> addMarkerToMap(marker) }
-            markersAdded = true
-        }
+        if (markersAdded) return
+        markers.forEach { marker -> addMarkerToMap(marker) }
+        markersAdded = true
     }
 
     private fun updateEditedMarkerOnMap(markers: List<com.ibile.data.database.entities.Marker>) {
@@ -125,7 +114,8 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
     private fun addMarkerToMap(it: com.ibile.data.database.entities.Marker) {
         when {
             it.isMarker -> {
-                val markerOptions = MarkerOptions().position(it.position).icon(it.defaultBitmap)
+                val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(it.icon!!.defaultBitmap)
+                val markerOptions = MarkerOptions().position(it.position).icon(bitmapDescriptor)
                 val marker = map.addMarker(markerOptions)
                 marker.tag = it.id
                 mapMarkers.add(marker)
@@ -177,22 +167,24 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
             when {
                 marker.isPolyline -> {
                     activeMapPolyline = mapPolylines.find { it.tag as Long == marker.id }
-                    activeMapPolyline?.width = ACTIVE_POLYLINE_WIDTH
+                    activeMapPolyline!!.width = ACTIVE_POLYLINE_WIDTH
                 }
                 marker.isPolygon -> {
                     activeMapPolygon = mapPolygons.find { it.tag as Long == marker.id }
-                    activeMapPolygon?.strokeWidth = ACTIVE_POLYGON_WIDTH
-                    activeMapPolygon?.fillColor = marker.color.alpha(POLYGON_ACTIVE_COLOR_ALPHA)
+                    activeMapPolygon!!.strokeWidth = ACTIVE_POLYGON_WIDTH
+                    activeMapPolygon!!.fillColor = marker.color.alpha(POLYGON_ACTIVE_COLOR_ALPHA)
                 }
                 marker.isMarker -> {
                     activeMapMarker = mapMarkers.find { it.tag as Long == marker.id }
-                    activeMapMarker?.setIcon(marker.activeBitmap)
+                    val activeBitmap =
+                        BitmapDescriptorFactory.fromBitmap(marker.icon!!.activeBitmap)
+                    activeMapMarker!!.setIcon(activeBitmap)
                 }
             }
         }
     }
 
-    companion object : KoinComponent {
+    companion object {
         const val POLYLINE_DEFAULT_WIDTH = 3F
         const val ACTIVE_POLYLINE_WIDTH = 6F
 
@@ -201,36 +193,7 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
         const val POLYGON_DEFAULT_COLOR_ALPHA = 95
         const val POLYGON_ACTIVE_COLOR_ALPHA = 150
 
-        private val paint by lazy {
-            Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                this.color = Color.DKGRAY
-                this.style = Paint.Style.FILL
-            }
-        }
-
         private fun Int.alpha(value: Int): Int =
             Color.argb(value, Color.red(this), Color.green(this), Color.blue(this))
-
-        private val com.ibile.data.database.entities.Marker.iconBitmap: Bitmap?
-            get() = get<IconPack>().getIconDrawable(icon)?.mutate()?.setColor(color)?.toBitmap()
-
-        private val com.ibile.data.database.entities.Marker.defaultBitmap: BitmapDescriptor?
-            get() = BitmapDescriptorFactory.fromBitmap(iconBitmap)
-
-        private val com.ibile.data.database.entities.Marker.activeBitmap: BitmapDescriptor?
-            get() {
-                if (this.icon?.id != DEFAULT_MARKER_ICON_ID) {
-                    // TODO: logic for other icons
-                    return defaultBitmap
-                }
-                val context = get<Context>()
-                val bitmap = iconBitmap?.applyCanvas {
-                    val cx = context.intToDP(22).toFloat()
-                    val cy = context.intToDP(13).toFloat()
-                    val radius = context.intToDP(7).toFloat()
-                    drawCircle(cx, cy, radius, paint)
-                }
-                return BitmapDescriptorFactory.fromBitmap(bitmap)
-            }
     }
 }
