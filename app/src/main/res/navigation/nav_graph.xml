@@ -32,6 +32,6 @@
         android:id="@+id/editMarkerDialogFragment"
         android:name="com.ibile.EditMarkerDialogFragment"
         android:label="EditMarkerDialogFragment"
-        tools:layout="@layout/epoxy_view_edit_marker_details_view">
+        tools:layout="@layout/epoxy_view_edit_marker_details_body">
     </dialog>
 </navigation>

@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="java.text.SimpleDateFormat" />
+
+        <import type="java.util.Date" />
+
+        <variable
+            name="marker"
+            type="com.ibile.data.database.entities.Marker" />
+
+        <variable
+            name="titleTextChangeCallback"
+            type="com.ibile.utils.EditTextChangeCallback" />
+
+        <variable
+            name="descriptionTextChangeCallback"
+            type="com.ibile.utils.EditTextChangeCallback" />
+
+        <variable
+            name="onClickChangeIcon"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClickChangeColor"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_overlay"
+        android:padding="@dimen/spacing_2"
+        android:paddingBottom="100dp"
+        android:scrollbars="vertical"
+        android:theme="@style/EditMarkerSectionLabel">
+
+        <TextView
+            android:id="@+id/tv_edit_marker_title_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/et_marker_title"
+            android:text="@string/text_edit_title_label"
+            app:layout_constraintBottom_toTopOf="@id/et_marker_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/et_marker_title"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_0_5"
+            android:afterTextChanged="@{titleTextChangeCallback::onEditTextChanged}"
+            android:autofillHints="Marker Title"
+            android:background="@android:color/white"
+            android:inputType="text"
+            android:paddingHorizontal="@dimen/spacing_2"
+            android:paddingVertical="@dimen/spacing_1"
+            android:text="@{marker.title}"
+            android:textColor="@android:color/black"
+            app:layout_constraintBottom_toTopOf="@id/tv_edit_marker_description_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_edit_marker_title_label" />
+
+        <TextView
+            android:id="@+id/tv_edit_marker_description_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:labelFor="@id/et_marker_description"
+            android:text="@string/text_edit_description_label"
+            app:layout_constraintBottom_toTopOf="@id/et_marker_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_marker_title" />
+
+        <EditText
+            android:id="@+id/et_marker_description"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_0_5"
+            android:afterTextChanged="@{descriptionTextChangeCallback::onEditTextChanged}"
+            android:autofillHints="Marker Description"
+            android:background="@android:color/white"
+            android:inputType="text"
+            android:paddingHorizontal="@dimen/spacing_2"
+            android:paddingVertical="@dimen/spacing_1"
+            android:text="@{marker.description}"
+            android:textColor="@android:color/black"
+            app:layout_constraintBottom_toTopOf="@id/tv_icon_color_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_edit_marker_description_label" />
+
+        <TextView
+            android:id="@+id/tv_icon_color_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:text='@{marker.isMarker ? "Icon and color" : "Color"}'
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_marker_description"
+            tools:text="Icon and color" />
+
+        <ImageView
+            android:id="@+id/ib_marker_icon"
+            markerIcon="@{marker}"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:onClick="@{onClickChangeIcon}"
+            android:padding="@dimen/spacing_1"
+            app:isVisible="@{marker.isMarker}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_icon_color_label"
+            tools:src="@drawable/ic_map_pin" />
+
+        <ImageView
+            android:id="@+id/ib_marker_color"
+            drawableBackgroundColor="@{marker.color}"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:onClick="@{onClickChangeColor}"
+            app:layout_constraintStart_toEndOf="@+id/ib_marker_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_icon_color_label"
+            app:layout_goneMarginStart="0dp" />
+
+        <TextView
+            android:id="@+id/tv_marker_edit_phone_number_label"
+            style="@style/EditMarkerSectionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:text="@string/label_marker_phone_number"
+            app:layout_constraintBottom_toTopOf="@id/tv_marker_phone_number"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ib_marker_color" />
+
+        <TextView
+            android:id="@+id/tv_marker_phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toTopOf="@id/ib_call_marker_phone_number"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_edit_phone_number_label"
+            tools:text="08056639180" />
+
+        <ImageButton
+            android:id="@+id/ib_call_marker_phone_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_call_24"
+            app:layout_constraintBottom_toTopOf="@id/tv_marker_gps_coordinates_label"
+            app:layout_constraintEnd_toStartOf="@id/ib_edit_marker_phone_number"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_phone_number" />
+
+        <ImageButton
+            android:id="@+id/ib_edit_marker_phone_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_edit_24"
+            app:layout_constraintBottom_toBottomOf="@id/ib_call_marker_phone_number"
+            app:layout_constraintEnd_toStartOf="@id/ib_choose_marker_contact"
+            app:layout_constraintStart_toEndOf="@id/ib_call_marker_phone_number"
+            app:layout_constraintTop_toTopOf="@id/ib_call_marker_phone_number" />
+
+        <ImageButton
+            android:id="@+id/ib_choose_marker_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_contacts_24"
+            app:layout_constraintBottom_toBottomOf="@id/ib_edit_marker_phone_number"
+            app:layout_constraintStart_toEndOf="@id/ib_edit_marker_phone_number"
+            app:layout_constraintTop_toTopOf="@id/ib_edit_marker_phone_number" />
+
+        <TextView
+            android:id="@+id/tv_marker_gps_coordinates_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:text="@string/label_gps_coordinates"
+            app:layout_constraintBottom_toTopOf="@id/tv_marker_latitude_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ib_call_marker_phone_number" />
+
+        <TextView
+            android:id="@+id/tv_marker_latitude_label"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_0_5"
+            android:text="@{@string/fmt_marker_latitude(marker.position.latitude)}"
+            android:textColor="@android:color/white"
+            app:isVisible="@{marker.isMarker}"
+            app:layout_constraintBottom_toTopOf="@id/tv_marker_longitude_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_gps_coordinates_label" />
+
+        <TextView
+            android:id="@+id/tv_marker_longitude_label"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{@string/fmt_marker_longitude(marker.position.longitude)}"
+            android:textColor="@android:color/white"
+            app:isVisible="@{marker.isMarker}"
+            app:layout_constraintBottom_toTopOf="@id/ib_copy_marker_coordinates"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_latitude_label" />
+
+
+        <ImageButton
+            android:id="@+id/ib_copy_marker_coordinates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_copy_24"
+            app:layout_constraintBottom_toTopOf="@id/tv_creation_date_label"
+            app:layout_constraintEnd_toStartOf="@id/ib_edit_marker_coordinates"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_longitude_label" />
+
+        <ImageButton
+            android:id="@+id/ib_edit_marker_coordinates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_edit_24"
+            app:layout_constraintBottom_toBottomOf="@id/ib_copy_marker_coordinates"
+            app:layout_constraintStart_toEndOf="@id/ib_copy_marker_coordinates"
+            app:layout_constraintTop_toTopOf="@id/ib_copy_marker_coordinates" />
+
+        <TextView
+            android:id="@+id/tv_creation_date_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:text="@string/text_creation_date_label"
+            app:layout_constraintBottom_toTopOf="@id/btn_change_marker_date"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ib_copy_marker_coordinates" />
+
+
+        <Button
+            android:id="@+id/btn_change_marker_date"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:drawableStart="@drawable/ic_calendar_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:padding="@dimen/spacing_1"
+            android:text='@{marker.formattedCreationDate}'
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/btn_change_marker_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_creation_date_label"
+            tools:text="Feb 10, 2020" />
+
+
+        <Button
+            android:id="@+id/btn_change_marker_time"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_overlay"
+            android:drawableStart="@drawable/ic_time_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:padding="@dimen/spacing_1"
+            android:text="@{marker.formattedCreationTime}"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/tv_extra_information_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_change_marker_date"
+            tools:text="05:07:39" />
+
+        <TextView
+            android:id="@+id/tv_extra_information_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:text="@string/text_extra_information_label"
+            app:layout_constraintBottom_toTopOf="@id/tv_marker_extra_information"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_change_marker_time" />
+
+        <TextView
+            android:id="@+id/tv_marker_extra_information"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/btn_insert_extra_info"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_extra_information_label"
+            tools:text="Murtala Muhammed International Airport, Lagos, Nigeria" />
+
+        <Button
+            android:id="@+id/btn_insert_extra_info"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_0_5"
+            android:background="@drawable/bg_overlay"
+            android:drawableStart="@drawable/ic_assignment_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_insert_label"
+            android:textColor="@android:color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_extra_information" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

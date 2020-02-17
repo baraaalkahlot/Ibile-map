@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="onClickSaveMarker"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="saveBtnIsEnabled"
+            type="Boolean" />
+
+        <variable
+            name="onClickBackBtn"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_overlay">
+
+        <ImageButton
+            android:id="@+id/btn_up_action_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:onClick="@{onClickBackBtn}"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_arrow_back_24"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="0dp"
+            android:background="@color/transparent_white"
+            app:layout_constraintBottom_toBottomOf="@id/btn_up_action_bar"
+            app:layout_constraintStart_toEndOf="@id/btn_up_action_bar"
+            app:layout_constraintTop_toTopOf="@id/btn_up_action_bar" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_more_vert_24"
+            app:layout_constraintEnd_toStartOf="@id/btn_save_marker"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_save_marker"
+            imageButtonEnabled="@{saveBtnIsEnabled}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:onClick="@{onClickSaveMarker}"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_save_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
