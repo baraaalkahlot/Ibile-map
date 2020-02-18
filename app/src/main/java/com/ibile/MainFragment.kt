@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.*
@@ -305,7 +306,26 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
     }
 
     fun handleEditMarkerBtnClick() {
-        markersViewModel.setMarkerForEdit(markersViewModel.getActiveMarker())
+        val activeMarker = markersViewModel.getActiveMarker()!!
+        // required to set loadBitmap to false so bitmap is not being loaded on any field edit
+        markersViewModel
+            .setMarkerForEdit(activeMarker.copy(icon = activeMarker.icon?.copy(loadBitmap = false)))
+    }
+
+    fun handleCallMarkerPhoneBtnClick() {
+        val activeMarker = markersViewModel.getActiveMarker()!!
+        val phoneNumber = activeMarker.phoneNumber
+        if (phoneNumber.isNullOrBlank()) {
+            Toast
+                .makeText(
+                    currentContext, getString(R.string.text_empty_marker_number), Toast.LENGTH_SHORT
+                )
+                .show()
+        } else {
+            val direction = MarkerPhoneNumberActionsDialogDirections
+                .actionGlobalMarkerPhoneNumberActionsDialog(phoneNumber)
+            findNavController().navigate(direction)
+        }
     }
 
     @SuppressLint("MissingPermission")

@@ -158,6 +158,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_call_marker"
+                android:onClick="@{() -> fragment.handleCallMarkerPhoneBtnClick()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_call_24" />
         </LinearLayout>

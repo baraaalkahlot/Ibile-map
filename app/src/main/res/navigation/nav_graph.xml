@@ -32,6 +32,16 @@
         android:id="@+id/editMarkerDialogFragment"
         android:name="com.ibile.EditMarkerDialogFragment"
         android:label="EditMarkerDialogFragment"
-        tools:layout="@layout/epoxy_view_edit_marker_details_body">
+        tools:layout="@layout/epoxy_view_edit_marker_details_body" />
+    <dialog
+        android:id="@+id/markerPhoneNumberActionsDialog"
+        android:name="com.ibile.MarkerPhoneNumberActionsDialog"
+        android:label="MarkerPhoneNumberActionsDialog">
+        <argument
+            android:name="phone_number"
+            app:argType="string" />
     </dialog>
+    <action
+        android:id="@+id/action_global_markerPhoneNumberActionsDialog"
+        app:destination="@id/markerPhoneNumberActionsDialog" />
 </navigation>

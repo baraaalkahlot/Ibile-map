@@ -8,6 +8,10 @@
 
         <import type="java.text.SimpleDateFormat" />
 
+        <import type="android.telephony.PhoneNumberUtils" />
+
+        <import type="java.util.Locale" />
+
         <import type="java.util.Date" />
 
         <variable
@@ -28,6 +32,18 @@
 
         <variable
             name="onClickChangeColor"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClickChooseContact"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClickEditPhoneNumber"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClickCallPhoneNumber"
             type="android.view.View.OnClickListener" />
     </data>
 
@@ -154,13 +170,16 @@
             android:id="@+id/tv_marker_phone_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@{marker.formattedPhoneNumber}"
             android:textSize="16sp"
             android:textStyle="normal"
+            app:isVisible="@{marker.phoneNumber != null &amp;&amp; marker.phoneNumber.length() > 0}"
             app:layout_constraintBottom_toTopOf="@id/ib_call_marker_phone_number"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_marker_edit_phone_number_label"
-            tools:text="08056639180" />
+            tools:text="08056639180"
+            tools:visibility="gone" />
 
         <ImageButton
             android:id="@+id/ib_call_marker_phone_number"
@@ -168,25 +187,28 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_1"
             android:background="@drawable/bg_overlay"
+            android:onClick="@{onClickCallPhoneNumber}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_call_24"
-            app:layout_constraintBottom_toTopOf="@id/tv_marker_gps_coordinates_label"
+            app:isVisible="@{marker.phoneNumber != null &amp;&amp; marker.phoneNumber.length() > 0}"
             app:layout_constraintEnd_toStartOf="@id/ib_edit_marker_phone_number"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_marker_phone_number" />
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_phone_number"
+            tools:visibility="gone" />
 
         <ImageButton
             android:id="@+id/ib_edit_marker_phone_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_1"
             android:background="@drawable/bg_overlay"
+            android:onClick="@{onClickEditPhoneNumber}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_edit_24"
-            app:layout_constraintBottom_toBottomOf="@id/ib_call_marker_phone_number"
-            app:layout_constraintEnd_toStartOf="@id/ib_choose_marker_contact"
             app:layout_constraintStart_toEndOf="@id/ib_call_marker_phone_number"
-            app:layout_constraintTop_toTopOf="@id/ib_call_marker_phone_number" />
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_phone_number"
+            app:layout_goneMarginStart="0dp" />
 
         <ImageButton
             android:id="@+id/ib_choose_marker_contact"
@@ -194,6 +216,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_1"
             android:background="@drawable/bg_overlay"
+            android:onClick="@{onClickChooseContact}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_contacts_24"
             app:layout_constraintBottom_toBottomOf="@id/ib_edit_marker_phone_number"
@@ -206,10 +229,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_2"
             android:text="@string/label_gps_coordinates"
-            app:layout_constraintBottom_toTopOf="@id/tv_marker_latitude_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ib_call_marker_phone_number" />
+            app:layout_constraintTop_toBottomOf="@id/ib_edit_marker_phone_number" />
 
         <TextView
             android:id="@+id/tv_marker_latitude_label"
@@ -220,9 +242,9 @@
             android:text="@{@string/fmt_marker_latitude(marker.position.latitude)}"
             android:textColor="@android:color/white"
             app:isVisible="@{marker.isMarker}"
-            app:layout_constraintBottom_toTopOf="@id/tv_marker_longitude_label"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_marker_gps_coordinates_label" />
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_gps_coordinates_label"
+            tools:text="Latitude: 8.00065" />
 
         <TextView
             android:id="@+id/tv_marker_longitude_label"
@@ -232,9 +254,9 @@
             android:text="@{@string/fmt_marker_longitude(marker.position.longitude)}"
             android:textColor="@android:color/white"
             app:isVisible="@{marker.isMarker}"
-            app:layout_constraintBottom_toTopOf="@id/ib_copy_marker_coordinates"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_marker_latitude_label" />
+            app:layout_constraintTop_toBottomOf="@id/tv_marker_latitude_label"
+            tools:text="Longitude: 8.00065" />
 
 
         <ImageButton

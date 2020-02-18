@@ -1,6 +1,7 @@
 package com.ibile.data.database.entities
 
 import android.graphics.*
+import android.telephony.PhoneNumberUtils
 import android.widget.ImageView
 import androidx.core.graphics.applyCanvas
 import androidx.core.graphics.drawable.toBitmap
@@ -40,14 +41,11 @@ data class Marker(
     var updatedAt: Date = getCurrentDateTime(),
     var description: String? = null,
     var color: Int = DEFAULT_COLOR,
-    var icon: Icon? = null
+    var icon: Icon? = null,
+    @ColumnInfo(name = "phone_number")
+    var phoneNumber: String? = null
 ) {
     val title get() = name ?: "Marker $id"
-
-    val formattedCreatedAt: String
-        get() = DateFormat
-            .getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM)
-            .format(createdAt)
 
     val isMarker
         get() = type == Type.MARKER
@@ -69,11 +67,19 @@ data class Marker(
             CameraUpdateFactory.newLatLngBounds(bounds, 100)
         }
 
+    val formattedCreatedAt: String
+        get() = DateFormat
+            .getDateTimeInstance(DateFormat.FULL, DateFormat.MEDIUM)
+            .format(createdAt)
+
     val formattedCreationDate: String
         get() = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(createdAt)
 
     val formattedCreationTime: String
         get() = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(createdAt)
+
+    val formattedPhoneNumber: String?
+        get() = phoneNumber?.let { PhoneNumberUtils.formatNumber(it, Locale.getDefault().country) }
 
     init {
         if (type == Type.MARKER) icon!!.initBitmap(color)

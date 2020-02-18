@@ -40,4 +40,11 @@
     <string name="label_gps_coordinates">GPS coordinates</string>
     <string name="label_marker_phone_number">Phone number</string>
     <string name="label_icon_color">Icon and color</string>
+    <string name="text_ok">OK</string>
+    <string name="title_edit_phone_number">Edit phone number</string>
+    <string name="text_cancel">Cancel</string>
+    <string name="text_btn_dial_number">Dial phone number</string>
+    <string name="text_text_phone_number">Text phone number</string>
+    <string name="text_call_phone_number">Call phone number</string>
+    <string name="text_empty_marker_number">No phone number is defined for that marker</string>
 </resources>

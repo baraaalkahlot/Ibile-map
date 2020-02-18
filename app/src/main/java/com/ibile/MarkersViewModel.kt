@@ -103,8 +103,8 @@ class MarkersViewModel(
         setState { copy(activeMarkerId = markerForEdit?.id, markerForEdit = null, markerUpdateAsync = Uninitialized) }
     }
 
-    fun editMarker(cb: Marker?.() -> Marker?) =
-        setState { copy(markerForEdit = cb(state.markerForEdit)) }
+    fun editMarker(cb: Marker.() -> Marker) =
+        setState { copy(markerForEdit = cb(state.markerForEdit!!)) }
 
     fun getMarkerById(id: Long?): Marker? = state.markersAsync()?.find { it.id == id }
 
