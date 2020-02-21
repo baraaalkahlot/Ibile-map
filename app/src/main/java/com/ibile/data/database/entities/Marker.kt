@@ -1,6 +1,7 @@
 package com.ibile.data.database.entities
 
 import android.graphics.*
+import android.net.Uri
 import android.telephony.PhoneNumberUtils
 import android.widget.ImageView
 import androidx.core.graphics.applyCanvas
@@ -28,7 +29,8 @@ import java.util.*
 @TypeConverters(
     Marker.PointsTypeConverter::class,
     Marker.TypeTypeConverter::class,
-    Marker.IconTypeConverter::class
+    Marker.IconTypeConverter::class,
+    Marker.UriListTypeConverter::class
 )
 data class Marker(
     val points: List<LatLng?>,
@@ -43,7 +45,8 @@ data class Marker(
     var color: Int = DEFAULT_COLOR,
     var icon: Icon? = null,
     @ColumnInfo(name = "phone_number")
-    var phoneNumber: String? = null
+    var phoneNumber: String? = null,
+    var imageUris: List<Uri> = listOf()
 ) {
     val title get() = name ?: "Marker $id"
 
@@ -117,6 +120,17 @@ data class Marker(
         fun markerIconToIconId(icon: Icon?): Int? = icon?.id
     }
 
+    object UriListTypeConverter {
+        @TypeConverter
+        @JvmStatic
+        fun urisToString(uris: List<Uri>): String = uris.joinToString(",") { uri -> uri.toString() }
+
+        @TypeConverter
+        @JvmStatic
+        fun stringToUris(urisString: String): List<Uri> =
+            if (urisString.isBlank()) listOf() else urisString.split(",").map { Uri.parse(it) }
+    }
+
     /**
      * A container class for marker bitmaps used on the map.
      *
@@ -125,12 +139,12 @@ data class Marker(
      * loaded when instance is being created by room.
      */
     data class Icon(val id: Int, val loadBitmap: Boolean = false) {
-        lateinit var defaultBitmap: Bitmap
+        var defaultBitmap: Bitmap? = null
             private set
-        val activeBitmap: Bitmap by lazy { createActiveBitmap(defaultBitmap, id) }
+        val activeBitmap: Bitmap by lazy { createActiveBitmap(defaultBitmap!!, id) }
 
         fun initBitmap(color: Int) {
-            if (!loadBitmap) return
+            if (!loadBitmap || defaultBitmap != null) return
             defaultBitmap = createDefaultBitmap(id, color)
         }
 

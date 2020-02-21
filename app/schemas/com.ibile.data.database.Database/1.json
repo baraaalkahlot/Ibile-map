@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ab9bb4ed205d46392791a282c8ea14ce",
+    "identityHash": "a679154ae11593a8883f9f1767b6f1b0",
     "entities": [
       {
         "tableName": "markers",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`points` TEXT NOT NULL, `type` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `description` TEXT, `color` INTEGER NOT NULL, `icon` INTEGER, `phone_number` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`points` TEXT NOT NULL, `type` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `description` TEXT, `color` INTEGER NOT NULL, `icon` INTEGER, `phone_number` TEXT, `imageUris` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "points",
@@ -67,6 +67,12 @@
             "columnName": "phone_number",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "imageUris",
+            "columnName": "imageUris",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -91,7 +97,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ab9bb4ed205d46392791a282c8ea14ce')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a679154ae11593a8883f9f1767b6f1b0')"
     ]
   }
 }

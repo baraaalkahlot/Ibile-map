@@ -5,6 +5,14 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/mainFragment">
 
+    <action
+        android:id="@+id/action_global_markerPhoneNumberActionsDialog"
+        app:destination="@id/markerPhoneNumberActionsDialog" />
+
+    <action
+        android:id="@+id/action_global_markerImageItemPreviewFragment"
+        app:destination="@id/markerImageItemPreviewFragment" />
+
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.ibile.MainFragment"
@@ -41,7 +49,15 @@
             android:name="phone_number"
             app:argType="string" />
     </dialog>
-    <action
-        android:id="@+id/action_global_markerPhoneNumberActionsDialog"
-        app:destination="@id/markerPhoneNumberActionsDialog" />
+    <dialog
+        android:id="@+id/markerImageItemPreviewFragment"
+        android:name="com.ibile.MarkerImageItemPreviewFragment"
+        android:label="MarkerImageItemPreviewFragment">
+        <argument
+            android:name="currentItem"
+            app:argType="integer" />
+        <argument
+            android:name="editMode"
+            android:defaultValue="false" />
+    </dialog>
 </navigation>

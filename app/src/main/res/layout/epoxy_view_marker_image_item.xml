@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="uri"
+            type="android.net.Uri" />
+
+        <variable
+            name="requestOptions"
+            type="com.bumptech.glide.request.RequestOptions" />
+
+        <variable
+            name="dimension"
+            type="Float" />
+    </data>
+
+    <ImageView
+        android:id="@+id/iv_marker_image"
+        dimension="@{dimension}"
+        imageUri="@{uri}"
+        requestOptions="@{requestOptions}"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="@{onClick}" />
+</layout>

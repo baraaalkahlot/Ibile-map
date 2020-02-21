@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="uri"
+            type="android.net.Uri" />
+
+        <variable
+            name="requestOptions"
+            type="com.bumptech.glide.request.RequestOptions" />
+    </data>
+
+    <ImageView
+        android:id="@+id/iv_marker_image_full"
+        imageUri="@{uri}"
+        requestOptions="@{requestOptions}"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</layout>

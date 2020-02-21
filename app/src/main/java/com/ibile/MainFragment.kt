@@ -4,6 +4,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.*
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
@@ -64,6 +66,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         binding.uiStateHandler = uiStateViewModel
         binding.locationSearchHandler = locationSearchViewModel
         binding.addPolylineMarkerHandler = addShapeViewModel
+        binding.markerInfoView.markerImagesCarouselModels = arrayListOf()
 
         return binding.root
     }
@@ -106,6 +109,22 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     private fun toggleMarkerInfoView() {
         val activeMarker = markersViewModel.getActiveMarker()
+        binding.markerInfoView.markerImagesCarouselModels =
+            activeMarker?.imageUris?.mapIndexed { i, uri: Uri ->
+                MarkerImageItemBindingModel_().apply {
+                    id(uri.toString())
+                    uri(uri)
+                    dimension(60f)
+                    requestOptions(RequestOptions().centerCrop())
+                    onClick { _ ->
+                        val action = MarkerImageItemPreviewFragmentDirections
+                            .actionGlobalMarkerImageItemPreviewFragment(i)
+                            .setEditMode(false)
+                        findNavController().navigate(action)
+                    }
+                }
+
+            } ?: arrayListOf()
         mapController?.toggleActiveMarkerIndication(activeMarker)
         uiStateViewModel.setActiveMarker(activeMarker)
     }
@@ -307,9 +326,7 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
 
     fun handleEditMarkerBtnClick() {
         val activeMarker = markersViewModel.getActiveMarker()!!
-        // required to set loadBitmap to false so bitmap is not being loaded on any field edit
-        markersViewModel
-            .setMarkerForEdit(activeMarker.copy(icon = activeMarker.icon?.copy(loadBitmap = false)))
+        markersViewModel.setMarkerForEdit(activeMarker.copy())
     }
 
     fun handleCallMarkerPhoneBtnClick() {

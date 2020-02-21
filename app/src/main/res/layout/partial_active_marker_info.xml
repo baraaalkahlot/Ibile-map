@@ -12,6 +12,10 @@
         <variable
             name="fragment"
             type="com.ibile.MainFragment" />
+
+        <variable
+            name="markerImagesCarouselModels"
+            type="java.util.List&lt;com.airbnb.epoxy.DataBindingEpoxyModel&gt;" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +27,8 @@
             android:id="@+id/sv_marker_details"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:padding="@dimen/spacing_1"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:paddingBottom="@dimen/spacing_1"
             app:layout_constraintBottom_toBottomOf="@id/btn_navigate_marker_container"
             app:layout_constraintEnd_toStartOf="@id/btn_edit_marker_container"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,6 +38,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
+                <com.airbnb.epoxy.Carousel
+                    android:id="@+id/carousel_marker_images"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:isVisible="@{markerImagesCarouselModels.size() > 0}"
+                    app:models="@{markerImagesCarouselModels}" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -83,7 +95,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_edit_marker"
                 android:onClick="@{() -> fragment.handleEditMarkerBtnClick()}"
-                android:padding="@dimen/spacing_1"
+                android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_edit_24" />
 
             <View
@@ -108,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_copy_marker_details"
-                android:padding="@dimen/spacing_1"
+                android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_copy_24" />
 
             <View
@@ -137,7 +149,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_navigate_marker"
-                android:padding="@dimen/spacing_1"
+                android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_navigate_24" />
         </LinearLayout>
 
@@ -159,7 +171,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_call_marker"
                 android:onClick="@{() -> fragment.handleCallMarkerPhoneBtnClick()}"
-                android:padding="@dimen/spacing_1"
+                android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_call_24" />
         </LinearLayout>
 

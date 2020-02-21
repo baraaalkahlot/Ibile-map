@@ -47,4 +47,6 @@
     <string name="text_text_phone_number">Text phone number</string>
     <string name="text_call_phone_number">Call phone number</string>
     <string name="text_empty_marker_number">No phone number is defined for that marker</string>
+    <string name="label_choose_images">Images</string>
+    <string name="text_add_images">Add Images</string>
 </resources>

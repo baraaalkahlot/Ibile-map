@@ -2,9 +2,16 @@ package com.ibile.utils.extensions
 
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.net.Uri
+import android.os.Environment
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.ibile.core.currentContext
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 fun Fragment.permissionGranted(permission: String): Boolean =
     ContextCompat.checkSelfPermission(currentContext, permission) == PERMISSION_GRANTED

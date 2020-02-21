@@ -14,6 +14,14 @@
 
         <import type="java.util.Date" />
 
+        <import type="java.util.List" />
+
+        <import type="com.airbnb.epoxy.EpoxyModel" />
+
+        <import type="android.view.View" />
+
+        <import type="com.airbnb.epoxy.DataBindingEpoxyModel" />
+
         <variable
             name="marker"
             type="com.ibile.data.database.entities.Marker" />
@@ -45,6 +53,14 @@
         <variable
             name="onClickCallPhoneNumber"
             type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClickAddImages"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="models"
+            type="List&lt;DataBindingEpoxyModel>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -224,6 +240,40 @@
             app:layout_constraintTop_toTopOf="@id/ib_edit_marker_phone_number" />
 
         <TextView
+            android:id="@+id/tv_label_add_images"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:text="@string/label_choose_images"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ib_choose_marker_contact" />
+
+        <Button
+            android:id="@+id/btn_add_images"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_2"
+            android:background="@drawable/bg_overlay"
+            android:onClick="@{onClickAddImages}"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_add_images"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_label_add_images"
+            app:layout_constraintStart_toEndOf="@id/tv_label_add_images"
+            app:layout_constraintTop_toTopOf="@id/tv_label_add_images" />
+
+        <com.airbnb.epoxy.Carousel
+            android:id="@+id/rl_carousel_images_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_label_add_images"
+            app:models="@{models}" />
+
+        <TextView
             android:id="@+id/tv_marker_gps_coordinates_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -231,7 +281,7 @@
             android:text="@string/label_gps_coordinates"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ib_edit_marker_phone_number" />
+            app:layout_constraintTop_toBottomOf="@id/rl_carousel_images_container" />
 
         <TextView
             android:id="@+id/tv_marker_latitude_label"
@@ -257,7 +307,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_marker_latitude_label"
             tools:text="Longitude: 8.00065" />
-
 
         <ImageButton
             android:id="@+id/ib_copy_marker_coordinates"

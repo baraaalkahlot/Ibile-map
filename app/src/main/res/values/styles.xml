@@ -49,11 +49,10 @@
     <style name="IcdCancelSearchIconStyle.Custom">
         <item name="tint">@android:color/white</item>
     </style>
-    
+
     <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:background">@color/dark_gray</item>
         <item name="android:textColorPrimary">@color/white</item>
-
     </style>
 
 </resources>
