@@ -15,6 +15,10 @@
         <variable
             name="editMode"
             type="Boolean" />
+
+        <variable
+            name="onClickShareBtn"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,6 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
+            android:onClick="@{onClickShareBtn}"
             android:src="@drawable/ic_share_24"
             app:isVisible="@{!editMode}"
             app:layout_constraintEnd_toEndOf="parent"

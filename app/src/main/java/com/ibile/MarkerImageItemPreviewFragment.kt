@@ -54,6 +54,7 @@ class MarkerImageItemPreviewFragment : BaseDialogFragment() {
                         if (args.editMode) return@onClickShareBtn
                         shareMarkerImage(marker.imageUris[currentImageIndex])
                     }
+                    .onClickShareBtn { _ -> shareMarkerImage(marker.imageUris[currentImageIndex]) }
                     .onClickDeleteBtn { _ ->
                         if (!args.editMode) return@onClickDeleteBtn
                         updateMarkerImages()
