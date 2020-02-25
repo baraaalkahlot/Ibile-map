@@ -9,4 +9,8 @@ class MarkersRepository(private val markerDao: MarkerDao) {
     fun updateMarker(marker: Marker) = markerDao.updateMarker(marker)
 
     fun getAllMarkers() = markerDao.getAllMarkers()
+
+    fun getMarker(id: Long) = markerDao.getMarker(id)
+
+    fun deleteMarker(marker: Marker) = markerDao.deleteMarker(marker)
 }

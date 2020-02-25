@@ -3,25 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
-        <import type="java.util.List" />
-
-        <import type="com.google.android.libraries.places.api.model.AutocompletePrediction" />
-
-        <import type="com.airbnb.mvrx.Async" />
-
-        <import type="com.airbnb.mvrx.Fail" />
-
-        <variable
-            name="searchPlacesResultAsync"
-            type="Async&lt;List&lt;AutocompletePrediction>>" />
-
         <variable
             name="isLoading"
             type="Boolean" />
 
         <variable
             name="isSuccess"
+            type="Boolean" />
+
+        <variable
+            name="isError"
             type="Boolean" />
     </data>
 
@@ -41,7 +32,7 @@
             android:text="@string/text_generic_async_error_msg"
             android:textAlignment="center"
             android:textColor="@color/red"
-            app:isVisible="@{searchPlacesResultAsync instanceof Fail}"
+            app:isVisible="@{isError}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

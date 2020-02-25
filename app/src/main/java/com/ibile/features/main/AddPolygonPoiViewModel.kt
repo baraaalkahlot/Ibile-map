@@ -1,4 +1,4 @@
-package com.ibile
+package com.ibile.features.main
 
 import android.content.Context
 import android.graphics.Color
@@ -10,9 +10,19 @@ import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
 import com.google.maps.android.SphericalUtil
+import com.ibile.R
+import com.ibile.core.addTo
 import com.ibile.core.bitmapFromVectorDrawable
+import com.ibile.data.repositiories.MarkersRepository
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
-open class AddShapeViewModel(private val context: Context) : ViewModel() {
+open class AddPolygonPoiViewModel(
+    private val context: Context,
+    private val markersRepository: MarkersRepository
+) : ViewModel() {
+    private var createdMarkerId: Long? = null
+
     private var map: GoogleMap? = null
 
     private var polylinePath: Polyline? = null
@@ -22,6 +32,7 @@ open class AddShapeViewModel(private val context: Context) : ViewModel() {
     private var polygonPathPolyline: Polyline? = null
 
     val points: ObservableArrayList<Marker?> = ObservableArrayList()
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
 
     val polylinePathDistance: ObservableField<String> = ObservableField()
     val currentPointCoords: ObservableField<LatLng> = ObservableField()
@@ -29,7 +40,7 @@ open class AddShapeViewModel(private val context: Context) : ViewModel() {
     val polygonPathPerimeter = ObservableField<String>()
 
     val polyTypeObservable: ObservableField<PolyType> = ObservableField()
-    var polyType
+    private var polyType
         get() = polyTypeObservable.get()
         set(value) {
             polyTypeObservable.set(value)
@@ -267,7 +278,22 @@ open class AddShapeViewModel(private val context: Context) : ViewModel() {
         drawPolyPath(map.cameraPosition.target)
     }
 
-    fun reset() {
+    fun handleSaveBtnClick() {
+        val points = points.map { it?.position }
+        val newMarker = com.ibile.data.database.entities.Marker.createPolygon(points)
+        markersRepository
+            .insertMarker(newMarker)
+            .subscribeOn(Schedulers.io())
+            .subscribe { createdMarkerId -> this.createdMarkerId = createdMarkerId }
+            .addTo(compositeDisposable)
+    }
+
+    fun onCreateMarkerSuccess(marker: com.ibile.data.database.entities.Marker) {
+        if (createdMarkerId != marker.id) return
+        reset()
+    }
+
+    private fun reset() {
         polylinePath?.remove()
         polylinePath = null
         polylinePathDistance.set("")
@@ -284,6 +310,11 @@ open class AddShapeViewModel(private val context: Context) : ViewModel() {
 
         activePointIndex = -1
         init(null, null)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.clear()
     }
 
     enum class PolyType { POLYLINE, POLYGON }

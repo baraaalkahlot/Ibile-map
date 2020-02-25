@@ -15,12 +15,16 @@
         <variable
             name="onClickBackBtn"
             type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClickDeleteBtn"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_overlay">
+        android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark">
 
         <ImageButton
             android:id="@+id/btn_up_action_bar"
@@ -42,11 +46,13 @@
             app:layout_constraintTop_toTopOf="@id/btn_up_action_bar" />
 
         <ImageButton
+            android:id="@+id/btn_delete_marker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            android:onClick="@{onClickDeleteBtn}"
             android:padding="@dimen/spacing_1"
-            android:src="@drawable/ic_more_vert_24"
+            android:src="@drawable/ic_delete_24"
             app:layout_constraintEnd_toStartOf="@id/btn_save_marker"
             app:layout_constraintTop_toTopOf="parent" />
 

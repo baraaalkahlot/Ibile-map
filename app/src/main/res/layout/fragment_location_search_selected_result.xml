@@ -6,11 +6,11 @@
 
     <data>
 
-        <import type="com.ibile.utils.Status" />
+        <import type="com.ibile.utils.extensions.MvRxExtKt" />
 
         <variable
-            name="locationSearchHandler"
-            type="com.ibile.LocationSearchViewModel" />
+            name="eventHandlers"
+            type="com.ibile.features.addmarkerfromlocationssearchresult.ViewBindingEvents" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,6 +23,13 @@
             android:layout_height="match_parent"
             map:cameraZoom="15" />
 
+        <com.airbnb.epoxy.EpoxyRecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <LinearLayout
             android:id="@+id/ll_action_bar_container"
             android:layout_width="0dp"
@@ -30,7 +37,7 @@
             android:layout_marginStart="@dimen/spacing_1"
             android:layout_marginTop="@dimen/spacing_1"
             android:layout_marginEnd="@dimen/spacing_1"
-            android:background="@drawable/bg_overlay"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -42,6 +49,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_back_btn"
                 android:gravity="center"
+                android:onClick="@{() -> eventHandlers.onClickBackBtn()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_arrow_back_24" />
 
@@ -92,14 +100,14 @@
                 android:text="@string/text_generic_async_error_msg"
                 android:textAlignment="center"
                 android:textColor="@color/red"
-                app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.ERROR}" />
+                app:isVisible="@{MvRxExtKt.isError(eventHandlers.data.placeAsyncResult)}" />
 
 
             <TextView
                 android:id="@+id/tv_location_primary_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{locationSearchHandler.getSelectedPlaceResource.data.name}"
+                android:text="@{eventHandlers.data.placeAsyncResult.invoke().name}"
                 android:textColor="@android:color/white"
                 tools:text="Oshodi/Isolo" />
 
@@ -107,7 +115,7 @@
                 android:id="@+id/tv_location_secondary_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{locationSearchHandler.getSelectedPlaceResource.data.address}"
+                android:text="@{eventHandlers.data.placeAsyncResult.invoke().address}"
                 android:textColor="@android:color/white"
                 tools:text="Oshodi/Isolo, Lagos, Nigeria" />
 
@@ -116,11 +124,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_1"
-                android:background="@drawable/bg_action_btn_container"
+                android:background="@drawable/bg_rect_thin_rounded_sm_transparent"
+                android:onClick="@{() -> eventHandlers.onClickCreateMarkerBtn()}"
+                android:padding="@dimen/spacing_2"
                 android:text="@string/text_btn_create"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.SUCCESS}" />
+                app:isVisible="@{MvRxExtKt.isSuccess(eventHandlers.data.placeAsyncResult)}" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -128,7 +138,7 @@
                 android:layout_marginTop="@dimen/spacing_2"
                 android:contentDescription="@string/cd_image_powered_by_google"
                 android:src="@drawable/places_powered_by_google_dark"
-                app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.SUCCESS}" />
+                app:isVisible="@{MvRxExtKt.isSuccess(eventHandlers.data.placeAsyncResult)}" />
         </LinearLayout>
 
         <ProgressBar
@@ -136,7 +146,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminateTint="@android:color/black"
-            app:isVisible="@{locationSearchHandler.getSelectedPlaceResource.status == Status.LOADING}"
+            app:isVisible="@{MvRxExtKt.isLoading(eventHandlers.data.placeAsyncResult)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

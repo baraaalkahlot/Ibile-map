@@ -3,16 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
-        <import type="com.ibile.AddShapeViewModel.PolyType" />
-
         <variable
-            name="handler"
-            type="com.ibile.AddShapeViewModel" />
-
-        <variable
-            name="fragment"
-            type="com.ibile.MainFragment" />
+            name="addShapeViewModel"
+            type="com.ibile.features.main.AddPolygonPoiViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +23,7 @@
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:isVisible="@{!handler.showPolylineDistanceText(handler.points, handler.activePointIndexObservable) &amp;&amp; !handler.showPolygonPathDistanceText(handler.points, handler.activePointIndexObservable)}"
+            app:isVisible="@{!addShapeViewModel.showPolylineDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable) &amp;&amp; !addShapeViewModel.showPolygonPathDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -42,11 +35,11 @@
             android:background="@color/transparent_black"
             android:paddingHorizontal="@dimen/spacing_1"
             android:paddingVertical="@dimen/spacing_2"
-            android:text="@{@string/fmt_polyline_marker_distance(handler.polylinePathDistance)}"
+            android:text="@{@string/fmt_polyline_marker_distance(addShapeViewModel.polylinePathDistance)}"
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:isVisible="@{handler.showPolylineDistanceText(handler.points, handler.activePointIndexObservable)}"
+            app:isVisible="@{addShapeViewModel.showPolylineDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -58,11 +51,11 @@
             android:background="@color/transparent_black"
             android:paddingHorizontal="@dimen/spacing_1"
             android:paddingVertical="@dimen/spacing_2"
-            android:text="@{@string/fmt_polygon_marker_area(handler.polygonPathPerimeter, handler.polygonPathArea)}"
+            android:text="@{@string/fmt_polygon_marker_area(addShapeViewModel.polygonPathPerimeter, addShapeViewModel.polygonPathArea)}"
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:isVisible="@{handler.showPolygonPathDistanceText(handler.points, handler.activePointIndexObservable)}"
+            app:isVisible="@{addShapeViewModel.showPolygonPathDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -73,7 +66,7 @@
             android:layout_height="16dp"
             android:contentDescription="@string/cd_add_new_marker_target"
             android:src="@drawable/ic_new_poly_marker_point_target"
-            app:isVisible="@{!handler.activePointIndexIsValid(handler.activePointIndexObservable)}"
+            app:isVisible="@{!addShapeViewModel.activePointIndexIsValid(addShapeViewModel.activePointIndexObservable)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -83,18 +76,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_3"
-            android:background="@drawable/bg_overlay"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
             app:layout_constraintBottom_toTopOf="@id/btn_lat_lng"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent">
 
             <ImageButton
-                imageButtonEnabled="@{handler.activePointIndexObservable > -1}"
+                imageButtonEnabled="@{addShapeViewModel.activePointIndexObservable > -1}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:onClick="@{() -> handler.handlePrevBtnClick()}"
+                android:onClick="@{() -> addShapeViewModel.handlePrevBtnClick()}"
                 android:padding="10dp"
                 android:src="@drawable/ic_arrow_back_ios_24" />
 
@@ -102,34 +95,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:onClick="@{() -> handler.addPoint()}"
+                android:onClick="@{() -> addShapeViewModel.addPoint()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_add_24" />
 
             <ImageButton
-                imageButtonEnabled="@{handler.activePointIndexIsValid(handler.activePointIndexObservable)}"
+                imageButtonEnabled="@{addShapeViewModel.activePointIndexIsValid(addShapeViewModel.activePointIndexObservable)}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:onClick="@{() -> handler.deletePoint()}"
+                android:onClick="@{() -> addShapeViewModel.deletePoint()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_remove_24" />
 
             <ImageButton
-                imageButtonEnabled="@{handler.activePointIndexObservable &lt; handler.points.size() &amp;&amp; handler.points.size() > 0}"
+                imageButtonEnabled="@{addShapeViewModel.activePointIndexObservable &lt; addShapeViewModel.points.size() &amp;&amp; addShapeViewModel.points.size() > 0}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:onClick="@{() -> handler.handleNextBtnClick()}"
+                android:onClick="@{() -> addShapeViewModel.handleNextBtnClick()}"
                 android:padding="10dp"
                 android:src="@drawable/ic_arrow_forward_ios_24" />
 
             <ImageButton
-                imageButtonEnabled="@{handler.saveBtnIsEnabled(handler.points, handler.polyTypeObservable)}"
+                imageButtonEnabled="@{addShapeViewModel.saveBtnIsEnabled(addShapeViewModel.points, addShapeViewModel.polyTypeObservable)}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:onClick="@{() -> fragment.handleSaveShapeBtnClick()}"
+                android:onClick="@{() -> addShapeViewModel.handleSaveBtnClick()}"
                 android:padding="@dimen/spacing_1"
                 android:src="@drawable/ic_save_24" />
         </LinearLayout>
@@ -141,7 +134,7 @@
             android:layout_marginBottom="@dimen/spacing_3"
             android:background="@color/transparent_black"
             android:padding="@dimen/spacing_1"
-            android:text="@{@string/fmt_add_marker_coords((float) handler.currentPointCoords.latitude, (float) handler.currentPointCoords.longitude)}"
+            android:text="@{@string/fmt_add_marker_coords((float) addShapeViewModel.currentPointCoords.latitude, (float) addShapeViewModel.currentPointCoords.longitude)}"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="12sp"

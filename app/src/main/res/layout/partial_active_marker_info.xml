@@ -6,22 +6,15 @@
     <data>
 
         <variable
-            name="marker"
-            type="com.ibile.data.database.entities.Marker" />
-
-        <variable
-            name="fragment"
-            type="com.ibile.MainFragment" />
-
-        <variable
-            name="markerImagesCarouselModels"
-            type="java.util.List&lt;com.airbnb.epoxy.DataBindingEpoxyModel&gt;" />
+            name="handler"
+            type="com.ibile.features.main.MarkerInfoDatabindingViewData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#dd000000">
+        android:background="#dd000000"
+        app:marker="@{handler.data}">
 
         <ScrollView
             android:id="@+id/sv_marker_details"
@@ -42,14 +35,12 @@
                 <com.airbnb.epoxy.Carousel
                     android:id="@+id/carousel_marker_images"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:isVisible="@{markerImagesCarouselModels.size() > 0}"
-                    app:models="@{markerImagesCarouselModels}" />
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{marker.title}"
+                    android:text="@{handler.data.title}"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"
                     tools:text="Marker 18" />
@@ -57,14 +48,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{marker.description}"
+                    android:text="@{handler.data.description}"
                     android:textColor="@android:color/white"
                     tools:text="A new marker" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{marker.formattedCreatedAt}"
+                    android:text="@{handler.data.formattedCreatedAt}"
                     android:textColor="@android:color/white"
                     tools:text="Thursday, January 16, 2020 09:19:08" />
             </LinearLayout>
@@ -94,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_edit_marker"
-                android:onClick="@{() -> fragment.handleEditMarkerBtnClick()}"
+                android:onClick="@{() -> handler.handleEditBtnClick()}"
                 android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_edit_24" />
 
@@ -120,6 +111,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_copy_marker_details"
+                android:onClick="@{() -> handler.handleCopyBtnClick()}"
                 android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_copy_24" />
 
@@ -149,6 +141,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_navigate_marker"
+                android:onClick="@{() -> handler.handleNavigationBtnClick()}"
                 android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_navigate_24" />
         </LinearLayout>
@@ -170,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/cd_btn_call_marker"
-                android:onClick="@{() -> fragment.handleCallMarkerPhoneBtnClick()}"
+                android:onClick="@{() -> handler.handleCallBtnClick()}"
                 android:padding="@dimen/spacing_1_5"
                 android:src="@drawable/ic_call_24" />
         </LinearLayout>

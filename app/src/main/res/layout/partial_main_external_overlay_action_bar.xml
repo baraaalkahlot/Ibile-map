@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="eventHandlers"
+            type="com.ibile.features.mainexternaloverlays.ActionBarViewBindingData" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ll_map_action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_back_btn"
+            android:onClick="@{() -> eventHandlers.onClickBackBtn()}"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_arrow_back_24"
+            app:layout_constraintEnd_toStartOf="@id/btn_back_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/btn_back_divider"
+            android:layout_width="0.5dp"
+            android:layout_height="0dp"
+            android:background="@color/transparent_white"
+            app:layout_constraintBottom_toBottomOf="@id/btn_back"
+            app:layout_constraintEnd_toStartOf="@id/btn_browse_markers"
+            app:layout_constraintStart_toEndOf="@id/btn_back"
+            app:layout_constraintTop_toTopOf="@id/btn_back" />
+
+        <ImageButton
+            android:id="@+id/btn_browse_markers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_browse_markers_btn"
+            android:onClick="@{() -> eventHandlers.onClickBrowseMarkersBtn()}"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_filter_list_24"
+            app:isVisible="@{!eventHandlers.data.currentViewIsBrowseMarkers}"
+            app:layout_constraintEnd_toStartOf="@id/et_browse_markers"
+            app:layout_constraintStart_toEndOf="@id/btn_back_divider"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/et_browse_markers"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginVertical="@dimen/spacing_0_5"
+            android:layout_marginStart="@dimen/spacing_0_5"
+            android:afterTextChanged="@{(text) -> eventHandlers.onBrowseMarkersSearchInputChange(text.toString())}"
+            android:autofillHints="Browse"
+            android:background="@drawable/bg_rect_thin_rounded_sm_transparent"
+            android:drawableStart="@drawable/ic_filter_list_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:hint="Browse"
+            android:inputType="text"
+            android:padding="@dimen/spacing_1"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            app:isVisible="@{eventHandlers.data.currentViewIsBrowseMarkers}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_organize_markers"
+            app:layout_constraintStart_toEndOf="@id/btn_browse_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_organize_markers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_organize_markers_button"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_format_list_bullet_24"
+            app:layout_constraintStart_toEndOf="@id/et_browse_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/et_organize_markers"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autofillHints="Organize"
+            android:background="@drawable/bg_rect_thin_rounded_sm_transparent"
+            android:drawableStart="@drawable/ic_format_list_bullet_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:hint="Organize"
+            android:inputType="text"
+            android:padding="@dimen/spacing_1"
+            android:textColor="@android:color/darker_gray"
+            android:textColorHint="@android:color/darker_gray"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/btn_search_location"
+            app:layout_constraintStart_toEndOf="@id/btn_organize_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_search_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_search_location_btn"
+            android:onClick="@{() -> eventHandlers.onClickLocationsSearchBtn()}"
+            android:padding="@dimen/spacing_1"
+            android:src="@drawable/ic_search_24"
+            app:isVisible="@{!eventHandlers.data.currentViewIsSearchLocations}"
+            app:layout_constraintEnd_toStartOf="@id/et_search_location"
+            app:layout_constraintStart_toEndOf="@id/et_organize_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/et_search_location"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginVertical="@dimen/spacing_0_5"
+            android:layout_marginStart="@dimen/spacing_0_5"
+            android:layout_marginEnd="@dimen/spacing_0_5"
+            android:afterTextChanged="@{(text) -> eventHandlers.onLocationsSearchInputChange(text.toString())}"
+            android:autofillHints="Search"
+            android:background="@drawable/bg_rect_thin_rounded_sm_transparent"
+            android:drawableStart="@drawable/ic_search_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:hint="@string/hint_et_search"
+            android:imeOptions="actionSearch|flagNoExtractUi"
+            android:inputType="text"
+            android:padding="@dimen/spacing_1"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            app:isVisible="@{eventHandlers.data.currentViewIsSearchLocations}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_search_location"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

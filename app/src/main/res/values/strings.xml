@@ -49,4 +49,7 @@
     <string name="text_empty_marker_number">No phone number is defined for that marker</string>
     <string name="label_choose_images">Images</string>
     <string name="text_add_images">Add Images</string>
+    <string name="edit_marker_exit_dialog_message">You have unsaved modifications, do you want to save them?</string>
+    <string name="text_yes">Yes</string>
+    <string name="text_no">No</string>
 </resources>

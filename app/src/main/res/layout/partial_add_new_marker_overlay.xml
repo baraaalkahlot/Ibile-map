@@ -5,12 +5,8 @@
     <data>
 
         <variable
-            name="uiStateHandler"
-            type="com.ibile.UIStateViewModel" />
-
-        <variable
-            name="fragment"
-            type="com.ibile.MainFragment" />
+            name="handler"
+            type="com.ibile.features.main.AddMarkerPoiDatabindingViewData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/spacing_3"
             android:background="@color/transparent_black"
-            android:onClick="@{() ->  fragment.handleConfirmAddMarkerBtnClick()}"
+            android:onClick="@{() -> handler.handleOkBtnClick()}"
             android:padding="@dimen/spacing_1"
             android:text="@string/text_btn_ok"
             android:textColor="@android:color/white"
@@ -73,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_2"
             android:background="@color/transparent_black"
-            android:onClick="@{() -> uiStateHandler.handleCancelAddMarkerBtnClick()}"
+            android:onClick="@{() -> handler.handleCancelBtnClick()}"
             android:padding="@dimen/spacing_1"
             android:text="@string/text_btn_cancel"
             android:textAllCaps="false"
@@ -89,7 +85,7 @@
             android:layout_marginBottom="@dimen/spacing_3"
             android:background="@color/transparent_black"
             android:padding="@dimen/spacing_1"
-            android:text="@{@string/fmt_add_marker_coords((float) uiStateHandler.cameraPositionObservable.latitude, (float) uiStateHandler.cameraPosition.longitude)}"
+            android:text="@{@string/fmt_add_marker_coords((float) handler.data.cameraPosition.latitude, (float) handler.data.cameraPosition.longitude)}"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="12sp"
@@ -104,7 +100,7 @@
             android:layout_marginStart="@dimen/spacing_1"
             android:background="@drawable/bg_circle"
             android:contentDescription="@string/cd_btn_add_polyline_marker"
-            android:onClick="@{() -> fragment.handleAddPolylineMarkerBtnClick()}"
+            android:onClick="@{() -> handler.handleAddPolylineBtnClick()}"
             android:src="@drawable/ic_polyline"
             app:layout_constraintBottom_toTopOf="@id/btn_add_polygon_marker"
             app:layout_constraintStart_toStartOf="parent"
@@ -119,7 +115,7 @@
             android:layout_marginTop="@dimen/spacing_2"
             android:background="@drawable/bg_circle"
             android:contentDescription="@string/cd_btn_add_polyline_marker"
-            android:onClick="@{() -> fragment.handleAddPolygonMarkerBtnClick()}"
+            android:onClick="@{() -> handler.handleAddPolyMarkerBtnClick()}"
             android:src="@drawable/ic_polygon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/btn_add_polyline_marker"

@@ -9,55 +9,42 @@
         android:id="@+id/action_global_markerPhoneNumberActionsDialog"
         app:destination="@id/markerPhoneNumberActionsDialog" />
 
-    <action
-        android:id="@+id/action_global_markerImageItemPreviewFragment"
-        app:destination="@id/markerImageItemPreviewFragment" />
-
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.ibile.MainFragment"
+        android:name="com.ibile.features.main.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main">
         <action
-            android:id="@+id/action_mainFragment_to_locationSearchSelectedResultFragment"
-            app:destination="@id/locationSearchSelectedResultFragment" />
-        <action
             android:id="@+id/action_mainFragment_to_editMarkerDialogFragment"
             app:destination="@id/editMarkerDialogFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/locationSearchSelectedResultFragment"
-        android:name="com.ibile.LocationSearchSelectedResultFragment"
-        android:label="LocationSearchSelectedResultFragment"
-        tools:layout="@layout/fragment_location_search_selected_result">
-        <argument
-            android:name="arg_selected_search_place_id"
-            app:argType="string" />
+        <action
+            android:id="@+id/action_mainFragment_to_mainExternalOverlaysDialogFragment"
+            app:destination="@id/mainExternalOverlaysDialogFragment" />
     </fragment>
 
     <dialog
         android:id="@+id/editMarkerDialogFragment"
-        android:name="com.ibile.EditMarkerDialogFragment"
+        android:name="com.ibile.features.editmarker.EditMarkerDialogFragment"
         android:label="EditMarkerDialogFragment"
-        tools:layout="@layout/epoxy_view_edit_marker_details_body" />
+        tools:layout="@layout/epoxy_view_edit_marker_details_body">
+        <argument
+            android:name="markerId"
+            app:argType="long" />
+    </dialog>
     <dialog
         android:id="@+id/markerPhoneNumberActionsDialog"
-        android:name="com.ibile.MarkerPhoneNumberActionsDialog"
+        android:name="com.ibile.features.MarkerPhoneNumberActionsDialog"
         android:label="MarkerPhoneNumberActionsDialog">
         <argument
             android:name="phone_number"
             app:argType="string" />
     </dialog>
     <dialog
-        android:id="@+id/markerImageItemPreviewFragment"
-        android:name="com.ibile.MarkerImageItemPreviewFragment"
-        android:label="MarkerImageItemPreviewFragment">
+        android:id="@+id/mainExternalOverlaysDialogFragment"
+        android:name="com.ibile.features.mainexternaloverlays.MainExternalOverlaysDialogFragment"
+        android:label="ExternalOverlaysDialogFragment">
         <argument
-            android:name="currentItem"
-            app:argType="integer" />
-        <argument
-            android:name="editMode"
-            android:defaultValue="false" />
+            android:name="view"
+            app:argType="com.ibile.features.mainexternaloverlays.UIStateViewModel$CurrentView" />
     </dialog>
 </navigation>

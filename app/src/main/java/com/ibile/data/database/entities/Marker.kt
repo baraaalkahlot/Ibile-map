@@ -238,5 +238,16 @@ data class Marker(
 
         val DEFAULT_COLOR = Color.rgb(204, 54, 43)
         const val DEFAULT_MARKER_ICON_ID = 3000
+
+        const val POLYLINE_DEFAULT_WIDTH = 3F
+        const val ACTIVE_POLYLINE_WIDTH = 6F
+
+        const val POLYGON_DEFAULT_WIDTH = 3F
+        const val ACTIVE_POLYGON_WIDTH = 5F
+        const val POLYGON_DEFAULT_COLOR_ALPHA = 95
+        const val POLYGON_ACTIVE_COLOR_ALPHA = 150
+
+        fun Int.alpha(value: Int): Int =
+            Color.argb(value, Color.red(this), Color.green(this), Color.blue(this))
     }
 }

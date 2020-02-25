@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.LifecycleOwner
 import com.airbnb.epoxy.EpoxyRecyclerView
@@ -19,7 +20,7 @@ abstract class BaseDialogFragment : DialogFragment(), MvRxView {
     protected lateinit var recyclerView: EpoxyRecyclerView
     protected val epoxyController by lazy { epoxyController() }
 
-    open val layoutId: Int = R.layout.fragment_base
+    @LayoutRes open val layoutId: Int = R.layout.fragment_base
 
     override fun onCreate(savedInstanceState: Bundle?) {
         mvrxViewIdProperty.restoreFrom(savedInstanceState)

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="handler"
+            type="com.ibile.features.main.ActionBarDatabindingViewData" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_open_drawer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_drawer_btn"
+            android:padding="@dimen/spacing_0_5"
+            android:onClick="@{() -> handler.handleDrawerBtnClick()}"
+            android:src="@drawable/ic_menu_24"
+            app:layout_constraintEnd_toStartOf="@id/divider_btn_open_drawer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/divider_btn_open_drawer"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/transparent_white"
+            app:layout_constraintBottom_toBottomOf="@id/btn_open_drawer"
+            app:layout_constraintEnd_toStartOf="@id/btn_browse_markers"
+            app:layout_constraintStart_toEndOf="@id/btn_open_drawer"
+            app:layout_constraintTop_toTopOf="@id/btn_open_drawer" />
+
+        <ImageButton
+            android:id="@+id/btn_browse_markers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_browse_markers_btn"
+            android:padding="@dimen/spacing_0_5"
+            android:src="@drawable/ic_filter_list_24"
+            android:onClick="@{() -> handler.handleBrowseMarkersBtnClick()}"
+            app:layout_constraintEnd_toStartOf="@id/btn_organize_markers"
+            app:layout_constraintStart_toEndOf="@id/divider_btn_open_drawer"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_organize_markers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_organize_markers_button"
+            android:padding="@dimen/spacing_0_5"
+            android:onClick="@{() -> handler.handleOrganizeMarkersBtnClick()}"
+            android:src="@drawable/ic_format_list_bullet_24"
+            app:layout_constraintEnd_toStartOf="@id/btn_search_location"
+            app:layout_constraintStart_toEndOf="@id/btn_browse_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_search_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/cd_search_location_btn"
+            android:padding="@dimen/spacing_0_5"
+            android:onClick="@{() -> handler.handleSearchBtnClick()}"
+            android:src="@drawable/ic_search_24"
+            app:layout_constraintEnd_toStartOf="@id/btn_share"
+            app:layout_constraintStart_toEndOf="@id/btn_organize_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btn_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:contentDescription="@string/cd_share_button"
+            android:onClick="@{() -> handler.handleShareBtnClick()}"
+            android:padding="@dimen/spacing_0_5"
+            android:src="@drawable/ic_share_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btn_search_location"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

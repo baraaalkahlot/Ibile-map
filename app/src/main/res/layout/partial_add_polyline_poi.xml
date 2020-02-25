@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="com.ibile.features.addpolylinepoi.AddPolyLinePoiDatabindingViewData" />
+
+        <variable
+            name="handler"
+            type="AddPolyLinePoiDatabindingViewData" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tv_add_marker_help"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:paddingVertical="@dimen/spacing_2"
+            android:text="@string/text_polyline_marker_instruction"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:isVisible="@{handler.data.instructionsIsVisible}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_polyline_path_distance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:paddingHorizontal="@dimen/spacing_1"
+            android:paddingVertical="@dimen/spacing_2"
+            android:text="@{@string/fmt_polyline_marker_distance(handler.data.polylinePathDistance)}"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:isVisible="@{handler.data.distanceIsVisible}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_new_point_target"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="@string/cd_add_new_marker_target"
+            android:src="@drawable/ic_new_poly_marker_point_target"
+            app:isVisible="@{handler.data.newPointTargetIsVisible}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_3"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            app:layout_constraintBottom_toTopOf="@id/btn_lat_lng"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageButton
+                imageButtonEnabled="@{handler.data.previousBtnIsEnabled}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.onClickPrevBtn()}"
+                android:padding="10dp"
+                android:src="@drawable/ic_arrow_back_ios_24" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.onClickAddBtn()}"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_add_24" />
+
+            <ImageButton
+                imageButtonEnabled="@{handler.data.removeBtnIsEnabled}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.onClickRemoveBtn()}"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_remove_24" />
+
+            <ImageButton
+                imageButtonEnabled="@{handler.data.nextBtnIsEnabled}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.onClickNextBtn()}"
+                android:padding="10dp"
+                android:src="@drawable/ic_arrow_forward_ios_24" />
+
+            <ImageButton
+                imageButtonEnabled="@{handler.data.saveBtnIsEnabled}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClick="@{() -> handler.onClickSaveBtn()}"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_save_24" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_lat_lng"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_3"
+            android:background="@color/transparent_black"
+            android:padding="@dimen/spacing_1"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:text="@{@string/fmt_add_marker_coords(handler.data.currentPointCoords.latitude, handler.data.currentPointCoords.longitude)}"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
