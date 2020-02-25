@@ -14,7 +14,6 @@ data class MarkersViewModelState(
     val markersAsync: Async<List<Marker>> = Uninitialized,
     val activeMarkerId: Long? = null,
     val addMarkerAsync: Async<Long> = Uninitialized,
-    val addMarkerFromLocationSearchAsync: Async<Long> = Uninitialized,
     val markerForEdit: Marker? = null,
     val markerUpdateAsync: Async<Unit> = Uninitialized,
     val importMarkerImagesAsync: Async<List<Uri>> = Uninitialized
@@ -72,19 +71,7 @@ class MarkersViewModel(
             .execute { copy(addMarkerAsync = it) }
     }
 
-    fun addMarkerFromLocationSearchResult(markerCoords: LatLng) {
-        val newMarker = Marker.createMarker(markerCoords)
-        markersRepository
-            .insertMarker(newMarker)
-            .toObservable()
-            .subscribeOn(Schedulers.io())
-            .execute { copy(addMarkerFromLocationSearchAsync = it) }
-    }
-
     fun resetAddMarkerAsync() = setState { copy(addMarkerAsync = Uninitialized) }
-
-    fun resetAddMarkerFromLocationSearchAsync() =
-        setState { copy(addMarkerFromLocationSearchAsync = Uninitialized) }
 
     fun setActiveMarkerId(activeMarkerId: Long?) {
         setState { copy(activeMarkerId = activeMarkerId) }

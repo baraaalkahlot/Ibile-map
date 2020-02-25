@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.airbnb.mvrx.BaseMvRxFragment
+import com.airbnb.mvrx.UniqueOnly
 import com.airbnb.mvrx.activityViewModel
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
@@ -53,7 +54,9 @@ class LocationSearchSelectedResultFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        markersViewModel.asyncSubscribe(MarkersViewModelState::addMarkerFromLocationSearchAsync) {
+        markersViewModel.asyncSubscribe(
+            MarkersViewModelState::addMarkerAsync, UniqueOnly(mvrxViewId)
+        ) {
             findNavController().popBackStack(R.id.mainFragment, false)
         }
     }
@@ -73,7 +76,7 @@ class LocationSearchSelectedResultFragment :
     }
 
     private fun handleCreateMarkerBtnClick() {
-        locationCoords?.let { markersViewModel.addMarkerFromLocationSearchResult(it) }
+        locationCoords?.let { markersViewModel.addMarker(it) }
     }
 
     override fun invalidate() {

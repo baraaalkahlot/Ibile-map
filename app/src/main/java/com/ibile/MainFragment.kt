@@ -84,15 +84,12 @@ class MainFragment : BaseFragment(), OnMapReadyCallback,
         super.onViewCreated(view, savedInstanceState)
         with(markersViewModel) {
             selectSubscribe(MarkersViewModelState::activeMarkerId) { toggleMarkerInfoView() }
-            asyncSubscribe(MarkersViewModelState::addMarkerFromLocationSearchAsync) {
-                if (uiStateViewModel.activeOverlay == Overlay.SEARCH_LOCATION) {
-                    uiStateViewModel.updateActiveOverlay(Overlay.NONE)
-                    locationSearchViewModel.setSearchQuery("")
-                }
+            selectSubscribe(MarkersViewModelState::addMarkerAsync, UniqueOnly(mvrxViewId)) {
+                if (uiStateViewModel.activeOverlay != Overlay.SEARCH_LOCATION || it() != null) return@selectSubscribe
+                uiStateViewModel.updateActiveOverlay(Overlay.NONE)
+                binding.mapActionBar.etSearchLocation.setText("")
             }
-            selectSubscribe(
-                MarkersViewModelState::markerForEdit, UniqueOnly(this@MainFragment.mvrxViewId)
-            ) {
+            selectSubscribe(MarkersViewModelState::markerForEdit, UniqueOnly(mvrxViewId)) {
                 if (it != null) {
                     if (uiStateViewModel.activeOverlay == Overlay.NEW_FRAGMENT) return@selectSubscribe
                     uiStateViewModel.updateActiveOverlay(Overlay.NEW_FRAGMENT)

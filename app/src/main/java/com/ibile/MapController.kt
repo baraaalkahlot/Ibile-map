@@ -51,42 +51,41 @@ class MapController(private var map: GoogleMap, private val markersViewModel: Ma
             field = value
         }
 
+    init {
+        markersViewModel.state.markersAsync()?.let { addMarkersToMap(it) }
+    }
+
     private fun findMarkerForShape(obj: Any): com.ibile.data.database.entities.Marker =
-        markersViewModel.getMarkerById(obj as Long)!!
+        markersViewModel.getMarkerById(obj as Long)
 
     fun onMarkersListUpdate(markers: List<com.ibile.data.database.entities.Marker>) {
         addMarkersToMap(markers)
         addNewMarkerToMap(markers)
-        addNewMarkerFromLocationSearchToMap(markers)
         updateEditedMarkerOnMap(markers)
-    }
-
-    private fun addNewMarkerToMap(markers: List<com.ibile.data.database.entities.Marker>) {
-        markersViewModel.state.addMarkerAsync()?.let {
-            val newMarker = markers.find { marker -> marker.id == it }
-            newMarker?.let {
-                addMarkerToMap(it)
-                markersViewModel.setActiveMarkerId(it.id)
-                markersViewModel.resetAddMarkerAsync()
-            }
-        }
-    }
-
-    private fun addNewMarkerFromLocationSearchToMap(markers: List<com.ibile.data.database.entities.Marker>) {
-        markersViewModel.state.addMarkerFromLocationSearchAsync()?.let {
-            val newMarker = markers.find { marker -> marker.id == it }
-            newMarker?.let {
-                markersViewModel.setActiveMarkerId(it.id)
-                addMarkerToMap(it)
-                markersViewModel.resetAddMarkerFromLocationSearchAsync()
-            }
-        }
     }
 
     private fun addMarkersToMap(markers: List<com.ibile.data.database.entities.Marker>) {
         if (markersAdded) return
         markers.forEach { marker -> addMarkerToMap(marker) }
         markersAdded = true
+    }
+
+    private fun addNewMarkerToMap(markers: List<com.ibile.data.database.entities.Marker>) {
+        markersViewModel.state.addMarkerAsync()?.let {
+            val newMarker = markers.find { marker -> marker.id == it }
+            newMarker?.let {
+                if (!markerAdded(it)) addMarkerToMap(it)
+                markersViewModel.setActiveMarkerId(it.id)
+                markersViewModel.resetAddMarkerAsync()
+            }
+        }
+    }
+
+    private fun markerAdded(marker: com.ibile.data.database.entities.Marker): Boolean = when {
+        marker.isMarker -> mapMarkers.any { it.tag as Long == marker.id }
+        marker.isPolygon -> mapPolygons.any { it.tag as Long == marker.id }
+        marker.isPolyline -> mapPolylines.any { it.tag as Long == marker.id }
+        else -> false
     }
 
     private fun updateEditedMarkerOnMap(markers: List<com.ibile.data.database.entities.Marker>) {
