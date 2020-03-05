@@ -304,7 +304,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         }
 
         override fun handleNavigationBtnClick() {
-            markerInfoPresenter.handleNavigationBtnClick()
+            markerInfoPresenter.handleNavigationBtnClick(currentContext)
         }
 
         override fun handleCallBtnClick() {

@@ -1,8 +1,8 @@
 package com.ibile.features.main
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentManager
@@ -13,6 +13,7 @@ import com.ibile.features.MarkerImagesPreviewFragment
 import com.ibile.features.MarkerPhoneNumberActionsDialogDirections
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.utils.extensions.copyTextToClipboard
+import com.ibile.utils.extensions.startResolvableActivity
 
 class MarkerInfoPresenter(private val fragmentManager: FragmentManager) {
     val data: ObservableField<Marker> = ObservableField()
@@ -51,12 +52,19 @@ class MarkerInfoPresenter(private val fragmentManager: FragmentManager) {
 
     fun handleCopyBtnClick(context: Context) {
         context.copyTextToClipboard(marker!!.details)
-        Toast.makeText(context,
-            context.getString(R.string.text_toast_marker_details_copied), Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            context.getString(R.string.text_toast_marker_details_copied), Toast.LENGTH_SHORT
+        ).show()
     }
 
-    fun handleNavigationBtnClick() {
-
+    fun handleNavigationBtnClick(context: Context) {
+        Intent(Intent.ACTION_VIEW)
+            .setData(Uri.parse("geo:0,0?q=${marker!!.latitude},${marker!!.longitude}"))
+            .apply {
+                val chooserIntent = Intent.createChooser(this, "Choose an app...")
+                context.startResolvableActivity(chooserIntent)
+            }
     }
 
     fun handleCallBtnClick(navController: NavController, context: Context) {

@@ -1,9 +1,6 @@
 package com.ibile.utils.extensions
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.ContentResolver
-import android.content.Context
+import android.content.*
 import android.net.Uri
 import android.os.Environment
 import android.webkit.MimeTypeMap
@@ -44,4 +41,10 @@ fun Context.copyTextToClipboard(text: String, label: String = "") {
     val clipboard = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clipData = ClipData.newPlainText(label, text)
     clipboard.setPrimaryClip(clipData)
+}
+
+fun Context.startResolvableActivity(intent: Intent) {
+    if (intent.resolveActivity(this.packageManager) != null) {
+        this.startActivity(intent)
+    }
 }
