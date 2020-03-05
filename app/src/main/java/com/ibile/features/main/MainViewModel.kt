@@ -1,6 +1,7 @@
 package com.ibile.features.main
 
 import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
 import com.airbnb.mvrx.*
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.core.BaseViewModel
@@ -13,7 +14,8 @@ data class MarkersViewModelState(
     val markersAsync: Async<List<Marker>> = Uninitialized,
     val activeMarkerId: Long? = null,
     val addMarkerAsync: Async<Long> = Uninitialized,
-    val cameraPosition: LatLng? = null
+    val cameraPosition: LatLng? = null,
+    val marker_pointsEdit: Marker? = null
 ) : MvRxState
 
 class MainViewModel(
@@ -31,17 +33,6 @@ class MainViewModel(
                 .execute { copy(markersAsync = it) }
         }
     }
-
-    fun addMarker(markerCoords: LatLng) {
-        val newMarker = Marker.createMarker(markerCoords)
-        markersRepository
-            .insertMarker(newMarker)
-            .toObservable()
-            .subscribeOn(Schedulers.io())
-            .execute { copy(addMarkerAsync = it) }
-    }
-
-    fun resetAddMarkerAsync() = setState { copy(addMarkerAsync = Uninitialized) }
 
     fun setActiveMarkerId(activeMarkerId: Long?) {
         setState { copy(activeMarkerId = activeMarkerId) }

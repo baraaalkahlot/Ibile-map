@@ -5,7 +5,7 @@
     <data>
         <variable
             name="addShapeViewModel"
-            type="com.ibile.features.main.AddPolygonPoiViewModel" />
+            type="com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,23 +23,7 @@
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            app:isVisible="@{!addShapeViewModel.showPolylineDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable) &amp;&amp; !addShapeViewModel.showPolygonPathDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable)}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_polyline_path_distance"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/transparent_black"
-            android:paddingHorizontal="@dimen/spacing_1"
-            android:paddingVertical="@dimen/spacing_2"
-            android:text="@{@string/fmt_polyline_marker_distance(addShapeViewModel.polylinePathDistance)}"
-            android:textAlignment="center"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            app:isVisible="@{addShapeViewModel.showPolylineDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable)}"
+            app:isVisible="@{!addShapeViewModel.showPolygonPathDistanceText(addShapeViewModel.points, addShapeViewModel.activePointIndexObservable)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -118,7 +102,7 @@
                 android:src="@drawable/ic_arrow_forward_ios_24" />
 
             <ImageButton
-                imageButtonEnabled="@{addShapeViewModel.saveBtnIsEnabled(addShapeViewModel.points, addShapeViewModel.polyTypeObservable)}"
+                imageButtonEnabled="@{addShapeViewModel.saveBtnIsEnabled(addShapeViewModel.points)}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"

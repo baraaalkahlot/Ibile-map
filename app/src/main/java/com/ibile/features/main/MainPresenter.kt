@@ -4,7 +4,6 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.location.Location
 import com.airbnb.epoxy.EpoxyController
-import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.withState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.maps.CameraUpdateFactory
@@ -12,6 +11,7 @@ import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.core.addTo
 import com.ibile.core.toObservable
+import com.ibile.data.database.entities.Marker
 import com.ibile.features.main.MainFragment.Companion.RC_ACCESS_FINE_LOCATION
 import io.reactivex.disposables.CompositeDisposable
 
@@ -116,7 +116,7 @@ class MainPresenter(
         mainViewModel.setActiveMarkerId(id)
     }
 
-    fun buildModels(controller: EpoxyController, onNewMarker: (marker: com.ibile.data.database.entities.Marker) -> Unit) {
+    fun buildModels(controller: EpoxyController, onNewMarker: (marker: Marker) -> Unit) {
         withState(mainViewModel) { markersState ->
             markersState.markersAsync()?.map { marker ->
                 controller.markerView {
@@ -124,6 +124,7 @@ class MainPresenter(
                     marker(marker)
                     map(map)
                     isActive(markersState.activeMarkerId == marker.id)
+                    isVisible(marker.id != markersState.marker_pointsEdit?.id)
                     onMarkerAdded { onNewMarker(it) }
                     this.onUnbind { _, view -> view.removeMarker() }
                 }
@@ -131,12 +132,26 @@ class MainPresenter(
         }
     }
 
-    fun onNewMarker(marker: com.ibile.data.database.entities.Marker) {
+    fun onNewMarker(marker: Marker) {
         handleAddMarkerSuccess(marker)
     }
 
-    private fun handleAddMarkerSuccess(marker: com.ibile.data.database.entities.Marker) {
-        if (mainViewModel.state.addMarkerAsync is Success) mainViewModel.resetAddMarkerAsync()
+    private fun handleAddMarkerSuccess(marker: Marker) {
         mainViewModel.setActiveMarkerId(marker.id)
+        mainViewModel.updateState { copy(marker_pointsEdit = null) }
+    }
+
+    fun onMarkerPointsUpdateInit(marker: Marker) {
+        mainViewModel.updateState { copy(marker_pointsEdit = marker) }
+    }
+
+    fun onClickAddMarker() {
+        mainViewModel.setActiveMarkerId(null)
+    }
+
+    fun onCancelAddOrEditMarkerPoints() {
+        mainViewModel.updateState {
+            copy(marker_pointsEdit = null, activeMarkerId = mainViewModel.state.marker_pointsEdit?.id)
+        }
     }
 }

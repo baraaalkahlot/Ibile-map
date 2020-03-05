@@ -3,7 +3,7 @@ package com.ibile.core
 import androidx.room.Room
 import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.places.api.Places
-import com.ibile.features.main.AddPolygonPoiViewModel
+import com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel
 import com.ibile.data.database.Database
 import com.ibile.data.repositiories.ImageRepository
 import com.ibile.data.repositiories.MarkersRepository
@@ -19,5 +19,10 @@ val appModule = module {
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
     single { (androidContext() as Application).iconPack }
     single { ImageRepository(androidApplication()) }
-    viewModel { AddPolygonPoiViewModel(androidContext(), get()) }
+    viewModel {
+        AddPolygonPoiViewModel(
+            androidContext(),
+            get()
+        )
+    }
 }

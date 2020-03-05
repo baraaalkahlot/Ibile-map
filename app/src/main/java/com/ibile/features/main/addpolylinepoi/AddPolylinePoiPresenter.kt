@@ -1,4 +1,4 @@
-package com.ibile.features.addpolylinepoi
+package com.ibile.features.main.addpolylinepoi
 
 import androidx.lifecycle.LifecycleOwner
 import com.airbnb.epoxy.EpoxyController
@@ -14,18 +14,15 @@ class AddPolylinePoiPresenter(private val viewModel: AddPolylinePoiViewModel) {
 
     fun init(lifecycleOwner: LifecycleOwner, map: GoogleMap) {
         databindingViewDataProvider.init(viewModel, lifecycleOwner)
-
         val cameraPosition = map.cameraPosition.target
-        viewModel.updateState { copy(cameraPosition = cameraPosition) }
+        viewModel.updateState { copy(cameraPosition = cameraPosition, mode = Mode.Add) }
     }
 
     fun reset() {
         viewModel.updateState { AddPolylinePoiViewModel.State() }
     }
 
-    fun onCreateMarkerSuccess(marker: Marker) {
-        if (viewModel.state.addMarkerAsync() == null || viewModel.state.addMarkerAsync() != marker.id)
-            return
+    fun onCreateOrUpdateSuccess(marker: Marker) {
         reset()
     }
 
@@ -87,9 +84,12 @@ class AddPolylinePoiPresenter(private val viewModel: AddPolylinePoiViewModel) {
         }
     }
 
-    fun onClickSaveBtn() {
-        val marker = Marker.createPolyline(viewModel.state.points)
-        viewModel.addMarker(marker)
+    fun onClickSaveBtn() = when (viewModel.state.mode) {
+        is Mode.Add -> viewModel.addMarker(Marker.createPolyline(viewModel.state.points))
+        is Mode.Edit -> {
+            val marker = (viewModel.state.mode as Mode.Edit).marker
+            viewModel.updateMarker(marker.copy(points = viewModel.state.points))
+        }
     }
 
     fun onMapMove(cameraPosition: LatLng) {
@@ -129,5 +129,28 @@ class AddPolylinePoiPresenter(private val viewModel: AddPolylinePoiViewModel) {
             val newPointTargetPosition = if (activePointIndex == -1) 0 else points.size
             add(newPointTargetPosition, cameraPosition)
         }
+    }
+
+    fun initEditPoints(marker: Marker, map: GoogleMap, lifecycleOwner: LifecycleOwner) {
+        databindingViewDataProvider.init(viewModel, lifecycleOwner)
+        val points = marker.points.toMutableList().map { it!! }
+        viewModel
+            .updateState {
+                copy(
+                    cameraPosition = points.last(),
+                    points = points,
+                    mode = Mode.Edit(marker),
+                    activePointIndex = points.size
+                )
+            }
+    }
+
+    fun onCancel() {
+        reset()
+    }
+
+    sealed class Mode {
+        object Add : Mode()
+        data class Edit(val marker: Marker) : Mode()
     }
 }

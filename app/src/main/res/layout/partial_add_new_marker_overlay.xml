@@ -85,42 +85,13 @@
             android:layout_marginBottom="@dimen/spacing_3"
             android:background="@color/transparent_black"
             android:padding="@dimen/spacing_1"
-            android:text="@{@string/fmt_add_marker_coords((float) handler.data.cameraPosition.latitude, (float) handler.data.cameraPosition.longitude)}"
+            android:text="@{@string/fmt_add_marker_coords((float) handler.data.markerTargetCoords.latitude, (float) handler.data.markerTargetCoords.longitude)}"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageButton
-            android:id="@+id/btn_add_polyline_marker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_1"
-            android:background="@drawable/bg_circle"
-            android:contentDescription="@string/cd_btn_add_polyline_marker"
-            android:onClick="@{() -> handler.handleAddPolylineBtnClick()}"
-            android:src="@drawable/ic_polyline"
-            app:layout_constraintBottom_toTopOf="@id/btn_add_polygon_marker"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
-
-        <ImageButton
-            android:id="@+id/btn_add_polygon_marker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_1"
-            android:layout_marginTop="@dimen/spacing_2"
-            android:background="@drawable/bg_circle"
-            android:contentDescription="@string/cd_btn_add_polyline_marker"
-            android:onClick="@{() -> handler.handleAddPolyMarkerBtnClick()}"
-            android:src="@drawable/ic_polygon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/btn_add_polyline_marker"
-            app:layout_constraintStart_toStartOf="@id/btn_add_polyline_marker"
-            app:layout_constraintTop_toBottomOf="@id/btn_add_polyline_marker" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

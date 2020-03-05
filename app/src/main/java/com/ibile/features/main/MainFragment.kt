@@ -25,10 +25,14 @@ import com.ibile.core.simpleController
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
-import com.ibile.features.addpolylinepoi.AddPolyLinePoiDatabindingViewData
-import com.ibile.features.addpolylinepoi.AddPolylinePoiPresenter
-import com.ibile.features.addpolylinepoi.AddPolylinePoiViewModel
+import com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData
+import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
+import com.ibile.features.main.addpolylinepoi.AddPolylinePoiViewModel
+import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
+import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
+import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
+import com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel
 import com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView
 import com.ibile.utils.extensions.navController
 import com.ibile.utils.extensions.runWithPermissions
@@ -38,12 +42,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 interface AddMarkerPoiDatabindingViewData {
     fun handleOkBtnClick()
     fun handleCancelBtnClick()
-    fun handleAddPolylineBtnClick()
-    fun handleAddPolyMarkerBtnClick()
 
-    data class Data(val cameraPosition: LatLng = LatLng(0.0, 0.0))
-
-    val data: ObservableField<Data>
+    val data: AddMarkerPoiViewModel
 }
 
 interface MarkerInfoDatabindingViewData {
@@ -67,6 +67,8 @@ interface ActionBarDatabindingViewData {
 interface MainDataBindingViewData {
     fun handleMyLocationBtnClick()
     fun handleAddMarkerBtnClick()
+    fun handleAddPolylineBtnClick()
+    fun handleAddPolygonBtnClick()
 
     val data: MainViewModel
 }
@@ -74,7 +76,7 @@ interface MainDataBindingViewData {
 class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
-    GoogleMap.OnCameraMoveListener {
+    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
@@ -88,6 +90,11 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     private val addPolylinePoiViewModel: AddPolylinePoiViewModel by fragmentViewModel()
     private val addPolylinePoiPresenter: AddPolylinePoiPresenter by lazy {
         AddPolylinePoiPresenter(addPolylinePoiViewModel)
+    }
+
+    private val addMarkerPoiViewModel: AddMarkerPoiViewModel by fragmentViewModel()
+    private val addMarkerPoiPresenter: AddMarkerPoiPresenter by lazy {
+        AddMarkerPoiPresenter(addMarkerPoiViewModel)
     }
 
     private val markerInfoPresenter: MarkerInfoPresenter by lazy {
@@ -139,6 +146,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
             it.setOnMapClickListener(this)
             it.setOnPolylineClickListener(this)
             it.setOnPolygonClickListener(this)
+            it.setOnMarkerDragListener(markerDragListener)
 
             repositionLocationCompass(this.mapView)
 
@@ -163,7 +171,22 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         if (uiStateViewModel.state.activeOverlay is Overlay.AddPolygonPoi)
             addPolygonPoiViewModel.onMapMove(cameraPosition)
         if (uiStateViewModel.state.activeOverlay is Overlay.AddMarkerPoi)
-            addMarkerPoiDatabindingViewData.onMapMove(cameraPosition)
+            addMarkerPoiPresenter.onMapMove(cameraPosition)
+    }
+
+    private val markerDragListener = object : GoogleMap.OnMarkerDragListener {
+        override fun onMarkerDragEnd(marker: com.google.android.libraries.maps.model.Marker) {
+
+        }
+
+        override fun onMarkerDragStart(marker: com.google.android.libraries.maps.model.Marker) {
+            onClickEditCoordinatesBtn(marker.tag as Long)
+        }
+
+        override fun onMarkerDrag(marker: com.google.android.libraries.maps.model.Marker) {
+
+        }
+
     }
 
     private val mainDataBindingViewData = object : MainDataBindingViewData {
@@ -172,7 +195,19 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         }
 
         override fun handleAddMarkerBtnClick() {
-            uiStateViewModel.updateActiveOverlay(Overlay.AddMarkerPoi)
+            addMarkerPoiPresenter.init(map)
+            mainPresenter.onClickAddMarker()
+            uiStateViewModel.updateActiveOverlay(Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Add))
+        }
+
+        override fun handleAddPolylineBtnClick() {
+            uiStateViewModel.updateActiveOverlay(Overlay.AddPolylinePoi(AddPolylinePoiPresenter.Mode.Add))
+            addPolylinePoiPresenter.init(this@MainFragment, map)
+        }
+
+        override fun handleAddPolygonBtnClick() {
+            uiStateViewModel.updateActiveOverlay(Overlay.AddPolygonPoi(AddPolygonPoiViewModel.Mode.Add))
+            addPolygonPoiViewModel.init(map)
         }
 
         override val data: MainViewModel by lazy { mainViewModel }
@@ -232,46 +267,36 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         }
     }
 
-
     private val addMarkerPoiDatabindingViewData = object : AddMarkerPoiDatabindingViewData {
         override fun handleOkBtnClick() {
-            mainViewModel.addMarker(map.cameraPosition.target)
+            addMarkerPoiPresenter.onClickOkBtn(map)
         }
 
+        // TODO: should only be for addMarkerPoiPresenter, but onBackPressed will use the same
+        //  functionality
         override fun handleCancelBtnClick() {
-            uiStateViewModel.updateActiveOverlay(Overlay.None)
+            addMarkerPoiPresenter.onCancel(binding.addMarkerView)
+            addPolylinePoiPresenter.onCancel()
+            addPolygonPoiViewModel.onCancel()
+
+            if (markerInfoPresenter.markerId == null)
+                uiStateViewModel.updateActiveOverlay(Overlay.None)
+            else
+                uiStateViewModel.updateActiveOverlay(Overlay.MarkerInfo(markerInfoPresenter.markerId))
+
+            mainPresenter.onCancelAddOrEditMarkerPoints()
+            markerInfoPresenter.onCancelAddOrEditMarkerPoints()
         }
 
-        // TODO: this button belongs to the main view
-        override fun handleAddPolylineBtnClick() {
-            uiStateViewModel.updateActiveOverlay(Overlay.AddPolylinePoi)
-            addPolylinePoiPresenter.init(this@MainFragment, map)
-        }
-
-        // TODO: this button belongs to the main view
-        override fun handleAddPolyMarkerBtnClick() {
-            uiStateViewModel.updateActiveOverlay(Overlay.AddPolygonPoi)
-            addPolygonPoiViewModel.init(map, AddPolygonPoiViewModel.PolyType.POLYGON)
-        }
-
-        override val data: ObservableField<AddMarkerPoiDatabindingViewData.Data> = ObservableField()
-
-        private fun updateData(newUpdate: AddMarkerPoiDatabindingViewData.Data.() -> AddMarkerPoiDatabindingViewData.Data) {
-            data.set(newUpdate(data.get() ?: AddMarkerPoiDatabindingViewData.Data()))
-        }
-
-        fun onMapMove(cameraPosition: LatLng) {
-            updateData { copy(cameraPosition = cameraPosition) }
-        }
+        override val data by lazy { addMarkerPoiViewModel }
     }
-
 
     private val markerInfoDatabindingViewData = object : MarkerInfoDatabindingViewData {
         override val data: ObservableField<Marker> by lazy { markerInfoPresenter.data }
 
         override fun handleEditBtnClick() {
             uiStateViewModel.updateActiveOverlay(Overlay.ExternalOverlay)
-            markerInfoPresenter.handleEditBtnClick(navController)
+            markerInfoPresenter.handleEditBtnClick()
         }
 
         override fun handleCopyBtnClick() {
@@ -309,14 +334,36 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
                 onExternalOverlayResult(result)
                 mainPresenter.onExternalOverlayResult(result)
             }
-
-        navController.currentBackStackEntry?.savedStateHandle
-            ?.getLiveData<Long?>(RESULT_FRAGMENT_EDIT_MARKER)
-            ?.observe(viewLifecycleOwner) {
-                mainPresenter.onEditMarkerResult(it)
-                handleExternalOverlayResult(it)
-            }
     }
+
+    override fun onClickEditCoordinatesBtn(markerId: Long) {
+        val marker = mainViewModel.getMarkerById(markerId)
+        markerInfoPresenter.onMarkerPointsUpdateInit(marker)
+        mainPresenter.onMarkerPointsUpdateInit(marker)
+        when {
+            marker.isMarker -> {
+                addMarkerPoiPresenter.initEditMarkerPoint(marker, binding.addMarkerView, map)
+                uiStateViewModel.updateActiveOverlay(Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit(marker)))
+            }
+            marker.isPolyline -> {
+                addPolylinePoiPresenter.initEditPoints(marker, map, this)
+                uiStateViewModel.updateActiveOverlay(Overlay.AddPolylinePoi(AddPolylinePoiPresenter.Mode.Edit(marker)))
+            }
+            marker.isPolygon -> {
+                addPolygonPoiViewModel.initEditPoints(marker, map)
+                uiStateViewModel.updateActiveOverlay(Overlay.AddPolygonPoi(AddPolygonPoiViewModel.Mode.Edit(marker)))
+            }
+        }
+    }
+
+    override fun onComplete(markerId: Long?) {
+        mainPresenter.onEditMarkerResult(markerId)
+        handleExternalOverlayResult(markerId)
+        markerInfoPresenter.onEditMarkerComplete()
+    }
+
+    override val editmarkerId: Long
+        get() = markerInfoPresenter.markerId!!
 
     private fun onExternalOverlayResult(result: ExternalOverlaysResult) {
         mainPresenter.onExternalOverlayResult(result)
@@ -357,27 +404,27 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     }
 
     private fun onMarkerClick(id: Long) {
-        if (listOf(Overlay.AddPolygonPoi, Overlay.AddPolylinePoi, Overlay.AddMarkerPoi)
-                .contains(uiStateViewModel.state.activeOverlay)
-        ) return
+        val activeOverlay = uiStateViewModel.state.activeOverlay
+        if (activeOverlay !is Overlay.None && activeOverlay !is Overlay.MarkerInfo) return
         uiStateViewModel.updateActiveOverlay(Overlay.MarkerInfo(id))
         mainPresenter.onMarkerClick(id)
     }
 
     override fun epoxyController(): MvRxEpoxyController = simpleController {
-        mainPresenter.buildModels(this, this@MainFragment::handleOnMarkerAdded)
-        if (uiStateViewModel.state.activeOverlay == Overlay.AddPolylinePoi)
+        mainPresenter.buildModels(this, this@MainFragment::handleOnMarkerCreatedOrUpdated)
+        if (uiStateViewModel.state.activeOverlay is Overlay.AddPolylinePoi)
             addPolylinePoiPresenter.buildModels(map, this)
     }
 
-    private fun handleOnMarkerAdded(marker: Marker) {
+    private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {
         if (uiStateViewModel.state.activeOverlay is Overlay.None
             || uiStateViewModel.state.activeOverlay is Overlay.MarkerInfo
         ) return
-        when (uiStateViewModel.state.activeOverlay) {
-            is Overlay.AddPolylinePoi -> addPolylinePoiPresenter.onCreateMarkerSuccess(marker)
-            is Overlay.AddPolygonPoi -> addPolygonPoiViewModel.onCreateMarkerSuccess(marker)
-        }
+
+        addPolylinePoiPresenter.onCreateOrUpdateSuccess(marker)
+        addPolygonPoiViewModel.onCreateOrUpdateSuccess(marker)
+        addMarkerPoiPresenter.onCreateOrUpdateSuccess(marker, binding.addMarkerView)
+
         mainPresenter.onNewMarker(marker)
         uiStateViewModel.updateActiveOverlay(Overlay.MarkerInfo(marker.id))
     }

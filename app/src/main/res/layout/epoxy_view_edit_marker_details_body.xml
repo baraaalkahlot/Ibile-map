@@ -61,6 +61,10 @@
         <variable
             name="models"
             type="List&lt;DataBindingEpoxyModel>" />
+
+        <variable
+            name="onClickEditMarkerCoordinatesBtn"
+            type="View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -327,6 +331,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_1"
             android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            android:onClick="@{onClickEditMarkerCoordinatesBtn}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_edit_24"
             app:layout_constraintBottom_toBottomOf="@id/ib_copy_marker_coordinates"

@@ -20,10 +20,10 @@ class MarkerView(context: Context) : View(context) {
     private lateinit var mapPolyline: Polyline
 
     private lateinit var _marker: Marker
-
     private lateinit var _map: GoogleMap
 
     private var _isActive: Boolean = false
+    private var _isVisible: Boolean = true
 
     private var markerAdded: Boolean = false
 
@@ -46,12 +46,27 @@ class MarkerView(context: Context) : View(context) {
     @ModelProp
     fun setIsActive(isActive: Boolean) {
         _isActive = isActive
+        if (markerAdded) if (isActive) showActiveIndication() else removeActiveIndication()
+    }
+
+    @ModelProp
+    fun isVisible(isVisible: Boolean) {
+        _isVisible = isVisible
+        if (!markerAdded) return
+        setIsVisible()
+    }
+
+    private fun setIsVisible() {
+        when {
+            _marker.isMarker -> mapMarker.isVisible = _isVisible
+            _marker.isPolyline -> mapPolyline.isVisible = _isVisible
+            _marker.isPolygon -> mapPolygon.isVisible = _isVisible
+        }
     }
 
     @AfterPropsSet
     fun useProps() {
         if (!markerAdded) addMarkerToMap()
-        if (markerAdded) if (_isActive) showActiveIndication() else removeActiveIndication()
     }
 
     fun removeMarker() {
@@ -67,6 +82,7 @@ class MarkerView(context: Context) : View(context) {
                 isMarker -> {
                     val options = MarkerOptions()
                         .position(position)
+                        .draggable(true)
                         .icon(BitmapDescriptorFactory.fromBitmap(icon!!.defaultBitmap))
                     mapMarker = _map.addMarker(options).apply { tag = this@with.id }
                 }
@@ -88,6 +104,8 @@ class MarkerView(context: Context) : View(context) {
             }
         }
         markerAdded = true
+        if (_isActive) showActiveIndication() else removeActiveIndication()
+        setIsVisible()
         onMarkerAdded?.invoke(_marker)
     }
 

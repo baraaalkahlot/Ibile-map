@@ -1,4 +1,4 @@
-package com.ibile.features.addpolylinepoi
+package com.ibile.features.main.addpolylinepoi
 
 import androidx.databinding.ObservableField
 

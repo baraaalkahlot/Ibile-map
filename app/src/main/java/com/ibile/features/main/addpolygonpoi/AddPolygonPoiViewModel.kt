@@ -1,4 +1,4 @@
-package com.ibile.features.main
+package com.ibile.features.main.addpolygonpoi
 
 import android.content.Context
 import android.graphics.Color
@@ -21,61 +21,44 @@ open class AddPolygonPoiViewModel(
     private val context: Context,
     private val markersRepository: MarkersRepository
 ) : ViewModel() {
-    private var createdMarkerId: Long? = null
-
     private var map: GoogleMap? = null
 
-    private var polylinePath: Polyline? = null
-    private var polygonPath: Polygon? = null
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    private var mode: Mode =
+        Mode.Add
+
     // when drawing the polygon, if the points are less than 3, no shape is drawn if the polygon
     // shape is used. This polyline is used in that case to indicate the least polygon path
     private var polygonPathPolyline: Polyline? = null
+    private var polygonPath: Polygon? = null
 
     val points: ObservableArrayList<Marker?> = ObservableArrayList()
-    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
-
-    val polylinePathDistance: ObservableField<String> = ObservableField()
     val currentPointCoords: ObservableField<LatLng> = ObservableField()
     val polygonPathArea = ObservableField<String>()
     val polygonPathPerimeter = ObservableField<String>()
-
-    val polyTypeObservable: ObservableField<PolyType> = ObservableField()
-    private var polyType
-        get() = polyTypeObservable.get()
-        set(value) {
-            polyTypeObservable.set(value)
-        }
 
     val activePointIndexObservable = ObservableInt(-1)
     private var activePointIndex: Int
         get() = activePointIndexObservable.get()
         set(value) = activePointIndexObservable.set(value)
 
-    fun init(map: GoogleMap?, type: PolyType?) {
-        this.polyType = type
+    fun init(map: GoogleMap?) {
         this.map = map
-
+        mode =
+            Mode.Add
         initShape()
     }
 
     private fun initShape() {
         map?.let {
-            when (polyType) {
-                PolyType.POLYLINE -> {
-                    polylinePath = it.addPolyline(PolylineOptions().add().width(5f))
-                }
-                PolyType.POLYGON -> {
-                    polygonPath = it.addPolygon(polygonOptions(it.cameraPosition.target))
-                    polygonPathPolyline =
-                        it.addPolyline(PolylineOptions().width(3f).color(Color.WHITE))
-                }
-            }
+            polygonPath = it.addPolygon(polygonOptions(it.cameraPosition.target))
+            polygonPathPolyline = it.addPolyline(PolylineOptions().width(3f).color(Color.WHITE))
         }
     }
 
     fun onMapMove(coords: LatLng) {
         currentPointCoords.set(coords)
-        drawPolyPath(coords)
+        drawPolygonPath(coords)
     }
 
     fun addPoint() {
@@ -96,7 +79,7 @@ open class AddPolygonPoiViewModel(
             }
 
             updateActivePointIcon()
-            drawPolyPath(it.cameraPosition.target)
+            drawPolygonPath(it.cameraPosition.target)
         }
     }
 
@@ -105,7 +88,7 @@ open class AddPolygonPoiViewModel(
         activePointIndex -= 1
         if (activePointIndexIsValid()) map?.let {
             it.moveCamera(CameraUpdateFactory.newLatLng(points[activePointIndex]?.position))
-            drawPolyPath(it.cameraPosition.target)
+            drawPolygonPath(it.cameraPosition.target)
         }
         updateActivePointIcon()
     }
@@ -115,7 +98,7 @@ open class AddPolygonPoiViewModel(
         activePointIndex += 1
         if (activePointIndexIsValid()) map?.let {
             it.moveCamera(CameraUpdateFactory.newLatLng(points[activePointIndex]?.position))
-            drawPolyPath(it.cameraPosition.target)
+            drawPolygonPath(it.cameraPosition.target)
         }
         updateActivePointIcon()
     }
@@ -134,59 +117,17 @@ open class AddPolygonPoiViewModel(
             val cameraPositionCoords =
                 if (activePointIndexIsValid()) points[activePointIndex]?.position else it.cameraPosition.target
             map?.moveCamera(CameraUpdateFactory.newLatLng(cameraPositionCoords))
-            drawPolyPath(it.cameraPosition.target)
+            drawPolygonPath(it.cameraPosition.target)
         }
     }
 
-    fun saveBtnIsEnabled(_points: MutableList<Marker?>, type: PolyType?): Boolean = when (type) {
-        PolyType.POLYGON -> _points.size > 2
-        PolyType.POLYLINE -> _points.map { it?.position }.distinct().size > 1
-        else -> false
-    }
+    fun saveBtnIsEnabled(_points: MutableList<Marker?>): Boolean = _points.size > 2
 
     /**
      * [pointIndex] is used in view databinding layout
      */
     fun activePointIndexIsValid(pointIndex: Int = activePointIndex): Boolean =
-        pointIndex > -1 && pointIndex < points.size
-
-    private fun drawPolyPath(newPoint: LatLng) {
-        when (polyType) {
-            PolyType.POLYLINE -> drawPolylinePath(newPoint)
-            PolyType.POLYGON -> drawPolygonPath(newPoint)
-        }
-    }
-
-    private fun drawPolylinePath(newPoint: LatLng) {
-        map?.let {
-            if (activePointIndexIsValid()) points[activePointIndex]?.position = newPoint
-
-            val pathPoints = getUpdatedPathPoints(newPoint)
-            polylinePath?.points = pathPoints
-            polylinePathDistance.set(getPolylinePathDistance())
-        }
-    }
-
-    private fun getPolylinePathDistance(): String {
-        if (!showPolylineDistanceText()) return ""
-        val distance = SphericalUtil.computeLength(polylinePath?.points)
-        return if (distance < 1000) "${distance.toInt()} Meters" else "%.${2}f Km".format(distance / 1000)
-    }
-
-    /**
-     *
-     * Parameters are required because of view databinding
-     *
-     * @param _points
-     * @param pointIndex
-     */
-    fun showPolylineDistanceText(
-        _points: MutableList<Marker?> = points, pointIndex: Int = activePointIndex
-    ) = polyType == PolyType.POLYLINE && when {
-        _points.size == 0 -> false
-        _points.size == 1 && activePointIndexIsValid(pointIndex) -> false
-        else -> true
-    }
+        pointIndex in points.indices
 
     private fun getUpdatedPathPoints(newPoint: LatLng): MutableList<LatLng?> {
         val pathPoints = points.map { it?.position }.toMutableList()
@@ -225,7 +166,7 @@ open class AddPolygonPoiViewModel(
 
     fun showPolygonPathDistanceText(
         _points: MutableList<Marker?> = points, pointIndex: Int = activePointIndex
-    ): Boolean = polyType == PolyType.POLYGON && when {
+    ): Boolean = when {
         _points.size < 2 -> false
         _points.size == 2 && activePointIndexIsValid(pointIndex) -> false
         else -> true
@@ -275,29 +216,36 @@ open class AddPolygonPoiViewModel(
                 map.addMarker(createMarkerPoint(point?.position, index == activePointIndex))
         }
         initShape()
-        drawPolyPath(map.cameraPosition.target)
+        drawPolygonPath(map.cameraPosition.target)
     }
 
     fun handleSaveBtnClick() {
         val points = points.map { it?.position }
-        val newMarker = com.ibile.data.database.entities.Marker.createPolygon(points)
-        markersRepository
-            .insertMarker(newMarker)
-            .subscribeOn(Schedulers.io())
-            .subscribe { createdMarkerId -> this.createdMarkerId = createdMarkerId }
-            .addTo(compositeDisposable)
+        when (mode) {
+            is Mode.Add -> {
+                val newMarker = com.ibile.data.database.entities.Marker.createPolygon(points)
+                markersRepository
+                    .insertMarker(newMarker)
+                    .subscribeOn(Schedulers.io())
+                    .subscribe()
+                    .addTo(compositeDisposable)
+            }
+            is Mode.Edit -> {
+                val updatedMarker = (mode as Mode.Edit).marker.copy(points = points)
+                markersRepository
+                    .updateMarker(updatedMarker)
+                    .subscribeOn(Schedulers.io())
+                    .subscribe()
+                    .addTo(compositeDisposable)
+            }
+        }
     }
 
-    fun onCreateMarkerSuccess(marker: com.ibile.data.database.entities.Marker) {
-        if (createdMarkerId != marker.id) return
+    fun onCreateOrUpdateSuccess(marker: com.ibile.data.database.entities.Marker) {
         reset()
     }
 
     private fun reset() {
-        polylinePath?.remove()
-        polylinePath = null
-        polylinePathDistance.set("")
-
         polygonPath?.remove()
         polygonPath = null
         polygonPathPolyline?.remove()
@@ -309,7 +257,7 @@ open class AddPolygonPoiViewModel(
         points.clear()
 
         activePointIndex = -1
-        init(null, null)
+        init(null)
     }
 
     override fun onCleared() {
@@ -317,5 +265,30 @@ open class AddPolygonPoiViewModel(
         compositeDisposable.clear()
     }
 
-    enum class PolyType { POLYLINE, POLYGON }
+    fun initEditPoints(marker: com.ibile.data.database.entities.Marker, map: GoogleMap) {
+        this.map = map
+        mode =
+            Mode.Edit(
+                marker
+            )
+        currentPointCoords.set(map.cameraPosition.target)
+
+        initShape()
+
+        activePointIndex = marker.points.size
+        val markerPoints = marker.points.mapIndexed { _, point ->
+            map.addMarker(createMarkerPoint(point, false))
+        }
+        this.points.addAll(markerPoints)
+        drawPolygonPath(marker.points.last()!!)
+    }
+
+    fun onCancel() {
+        reset()
+    }
+
+    sealed class Mode {
+        object Add : Mode()
+        data class Edit(val marker: com.ibile.data.database.entities.Marker) : Mode()
+    }
 }

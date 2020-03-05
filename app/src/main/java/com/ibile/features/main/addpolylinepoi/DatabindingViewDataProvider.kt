@@ -1,14 +1,12 @@
-package com.ibile.features.addpolylinepoi
+package com.ibile.features.main.addpolylinepoi
 
 import androidx.databinding.ObservableField
 import androidx.lifecycle.LifecycleOwner
 import com.google.maps.android.SphericalUtil
-import com.ibile.features.addpolylinepoi.AddPolyLinePoiDatabindingViewData.Data
+import com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData.Data
 
 class DatabindingViewDataProvider {
-    private val _data: ObservableField<Data> by lazy {
-        ObservableField<Data>()
-    }
+    private val _data: ObservableField<Data> by lazy { ObservableField<Data>() }
 
     private lateinit var viewModel: AddPolylinePoiViewModel
 
