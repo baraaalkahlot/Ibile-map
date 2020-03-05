@@ -1,5 +1,7 @@
 package com.ibile.features.main
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.databinding.ObservableField
@@ -10,6 +12,7 @@ import com.ibile.data.database.entities.Marker
 import com.ibile.features.MarkerImagesPreviewFragment
 import com.ibile.features.MarkerPhoneNumberActionsDialogDirections
 import com.ibile.features.editmarker.EditMarkerDialogFragment
+import com.ibile.utils.extensions.copyTextToClipboard
 
 class MarkerInfoPresenter(private val fragmentManager: FragmentManager) {
     val data: ObservableField<Marker> = ObservableField()
@@ -46,8 +49,10 @@ class MarkerInfoPresenter(private val fragmentManager: FragmentManager) {
         marker = null
     }
 
-    fun handleCopyBtnClick() {
-
+    fun handleCopyBtnClick(context: Context) {
+        context.copyTextToClipboard(marker!!.details)
+        Toast.makeText(context,
+            context.getString(R.string.text_toast_marker_details_copied), Toast.LENGTH_SHORT).show()
     }
 
     fun handleNavigationBtnClick() {

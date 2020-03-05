@@ -4,7 +4,7 @@
 
     <data>
 
-        <import type="com.ibile.features.addpolylinepoi.AddPolyLinePoiDatabindingViewData" />
+        <import type="com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData" />
 
         <variable
             name="handler"

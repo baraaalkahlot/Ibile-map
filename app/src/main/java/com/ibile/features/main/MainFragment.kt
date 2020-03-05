@@ -300,7 +300,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         }
 
         override fun handleCopyBtnClick() {
-            markerInfoPresenter.handleCopyBtnClick()
+            markerInfoPresenter.handleCopyBtnClick(currentContext)
         }
 
         override fun handleNavigationBtnClick() {

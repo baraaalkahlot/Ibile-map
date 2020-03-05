@@ -1,5 +1,7 @@
 package com.ibile.utils.extensions
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
@@ -37,3 +39,9 @@ fun ContentResolver.copyContentUriToFile(uri: Uri, file: File): File {
 
 fun ContentResolver.getExtension(uri: Uri): String? =
     MimeTypeMap.getSingleton().getExtensionFromMimeType(getType(uri))
+
+fun Context.copyTextToClipboard(text: String, label: String = "") {
+    val clipboard = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipData = ClipData.newPlainText(label, text)
+    clipboard.setPrimaryClip(clipData)
+}

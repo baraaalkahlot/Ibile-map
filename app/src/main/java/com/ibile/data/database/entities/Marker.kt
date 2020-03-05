@@ -84,6 +84,18 @@ data class Marker(
     val formattedPhoneNumber: String?
         get() = phoneNumber?.let { PhoneNumberUtils.formatNumber(it, Locale.getDefault().country) }
 
+    val latitude
+        get() = position?.latitude?.toFloat()
+
+    val longitude
+        get() = position?.longitude?.toFloat()
+
+    val details: String
+        get() = "$title\nlat/lng: (${latitude},${longitude})\nhttps://maps.google.com/?q=${latitude},${longitude}"
+
+    val coordinatesInfo: String
+        get() = "lat/lng: (${latitude},${longitude})"
+
     init {
         if (type == Type.MARKER) icon!!.initBitmap(color)
     }

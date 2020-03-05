@@ -65,6 +65,10 @@
         <variable
             name="onClickEditMarkerCoordinatesBtn"
             type="View.OnClickListener" />
+
+        <variable
+            name="onClickCopyCoordinates"
+            type="View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -318,6 +322,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_1"
             android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            android:onClick="@{onClickCopyCoordinates}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_copy_24"
             app:layout_constraintBottom_toTopOf="@id/tv_creation_date_label"
