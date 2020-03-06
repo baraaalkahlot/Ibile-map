@@ -11,6 +11,7 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.inject
 
 data class EditMarkerViewModelState(
+    val markerId: Long,
     val getMarkerAsync: Async<Marker> = Uninitialized,
     val marker: Marker? = null,
     val importMarkerImagesAsync: Async<List<Uri>> = Uninitialized,
@@ -93,5 +94,13 @@ class EditMarkerViewModel(
             val imageRepository by activity.inject<ImageRepository>()
             return EditMarkerViewModel(state, repo, imageRepository)
         }
+
+        override fun initialState(viewModelContext: ViewModelContext): EditMarkerViewModelState? {
+            val fragment = (viewModelContext as FragmentViewModelContext).fragment
+            val markerId = fragment.arguments?.get(ARG_MARKER_ID) as Long
+            return EditMarkerViewModelState(markerId)
+        }
+
+        const val ARG_MARKER_ID = "ARG_MARKER_ID"
     }
 }

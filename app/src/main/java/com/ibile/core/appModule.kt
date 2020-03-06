@@ -19,10 +19,5 @@ val appModule = module {
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
     single { (androidContext() as Application).iconPack }
     single { ImageRepository(androidApplication()) }
-    viewModel {
-        AddPolygonPoiViewModel(
-            androidContext(),
-            get()
-        )
-    }
+    viewModel { AddPolygonPoiViewModel(androidContext(), get()) }
 }

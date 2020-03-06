@@ -7,14 +7,14 @@
 
         <variable
             name="handler"
-            type="com.ibile.features.main.MarkerInfoDatabindingViewData" />
+            type="com.ibile.features.main.markerslist.MarkerInfoDatabindingViewData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#dd000000"
-        app:marker="@{handler.data}">
+        app:marker="@{handler.data.activeMarker}">
 
         <ScrollView
             android:id="@+id/sv_marker_details"
@@ -40,7 +40,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{handler.data.title}"
+                    android:text="@{handler.data.activeMarker.title}"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"
                     tools:text="Marker 18" />
@@ -48,14 +48,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{handler.data.description}"
+                    android:text="@{handler.data.activeMarker.description}"
                     android:textColor="@android:color/white"
                     tools:text="A new marker" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{handler.data.formattedCreatedAt}"
+                    android:text="@{handler.data.activeMarker.formattedCreatedAt}"
                     android:textColor="@android:color/white"
                     tools:text="Thursday, January 16, 2020 09:19:08" />
             </LinearLayout>

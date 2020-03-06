@@ -3,15 +3,12 @@ package com.ibile.features.main
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.location.Location
-import com.airbnb.epoxy.EpoxyController
-import com.airbnb.mvrx.withState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.core.addTo
 import com.ibile.core.toObservable
-import com.ibile.data.database.entities.Marker
 import com.ibile.features.main.MainFragment.Companion.RC_ACCESS_FINE_LOCATION
 import io.reactivex.disposables.CompositeDisposable
 
@@ -23,7 +20,7 @@ typealias RunWithPermission = (
 ) -> Unit
 
 class MainPresenter(
-    private val mainViewModel: MainViewModel,
+    private val uiStateViewModel: UIStateViewModel,
     private val fusedLocationClient: FusedLocationProviderClient
 ) {
 
@@ -31,13 +28,9 @@ class MainPresenter(
     lateinit var map: GoogleMap
 
     fun onCameraMove(cameraPosition: LatLng) {
-        mainViewModel.updateState { copy(cameraPosition = cameraPosition) }
-        val locationBtnIsActive = mainViewModel.locationButtonIsActive
+        uiStateViewModel.updateState { copy(cameraPosition = cameraPosition) }
+        val locationBtnIsActive = uiStateViewModel.locationButtonIsActive
         if (locationBtnIsActive.get()) locationBtnIsActive.set(false)
-    }
-
-    fun init() {
-        mainViewModel.init()
     }
 
 
@@ -55,9 +48,8 @@ class MainPresenter(
     }
 
     private fun moveToLastKnownLocation(): Boolean {
-        if (withState(mainViewModel) { it.activeMarkerId } != null) return true
-        if (mainViewModel.state.cameraPosition != null) {
-            map.moveCamera(CameraUpdateFactory.newLatLng(mainViewModel.state.cameraPosition))
+        if (uiStateViewModel.state.cameraPosition != null) {
+            map.moveCamera(CameraUpdateFactory.newLatLng(uiStateViewModel.state.cameraPosition))
             return true
         }
         return false
@@ -72,7 +64,7 @@ class MainPresenter(
                     val update = CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude))
                     map.animateCamera(update, 500, object : GoogleMap.CancelableCallback {
                         override fun onFinish() {
-                            mainViewModel.locationButtonIsActive.set(true)
+                            uiStateViewModel.locationButtonIsActive.set(true)
                         }
 
                         override fun onCancel() {}
@@ -91,67 +83,5 @@ class MainPresenter(
     fun onGrantLocationPermission() {
         map.isMyLocationEnabled = true
         moveToDeviceLocation()
-    }
-
-    fun onEditMarkerResult(result: Long?) {
-        mainViewModel.setActiveMarkerId(result)
-    }
-
-    fun onExternalOverlayResult(result: MainFragment.Companion.ExternalOverlaysResult) {
-        when (result) {
-            is MainFragment.Companion.ExternalOverlaysResult.BrowseMarkers -> {
-                mainViewModel.setActiveMarkerId(result.selectedMarkerId)
-            }
-            is MainFragment.Companion.ExternalOverlaysResult.LocationsSearch -> {
-                mainViewModel.setActiveMarkerId(result.createdMarkerId)
-            }
-        }
-    }
-
-    fun onMapClick() {
-        mainViewModel.setActiveMarkerId(null)
-    }
-
-    fun onMarkerClick(id: Long) {
-        mainViewModel.setActiveMarkerId(id)
-    }
-
-    fun buildModels(controller: EpoxyController, onNewMarker: (marker: Marker) -> Unit) {
-        withState(mainViewModel) { markersState ->
-            markersState.markersAsync()?.map { marker ->
-                controller.markerView {
-                    id(marker.id)
-                    marker(marker)
-                    map(map)
-                    isActive(markersState.activeMarkerId == marker.id)
-                    isVisible(marker.id != markersState.marker_pointsEdit?.id)
-                    onMarkerAdded { onNewMarker(it) }
-                    this.onUnbind { _, view -> view.removeMarker() }
-                }
-            }
-        }
-    }
-
-    fun onNewMarker(marker: Marker) {
-        handleAddMarkerSuccess(marker)
-    }
-
-    private fun handleAddMarkerSuccess(marker: Marker) {
-        mainViewModel.setActiveMarkerId(marker.id)
-        mainViewModel.updateState { copy(marker_pointsEdit = null) }
-    }
-
-    fun onMarkerPointsUpdateInit(marker: Marker) {
-        mainViewModel.updateState { copy(marker_pointsEdit = marker) }
-    }
-
-    fun onClickAddMarker() {
-        mainViewModel.setActiveMarkerId(null)
-    }
-
-    fun onCancelAddOrEditMarkerPoints() {
-        mainViewModel.updateState {
-            copy(marker_pointsEdit = null, activeMarkerId = mainViewModel.state.marker_pointsEdit?.id)
-        }
     }
 }

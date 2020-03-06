@@ -8,15 +8,9 @@
 
         <import type="com.ibile.features.main.UIStateViewModel.Overlay" />
 
-        <import type="com.ibile.features.main.UIStateViewModel" />
-
         <variable
             name="handler"
             type="com.ibile.features.main.MainDataBindingViewData" />
-
-        <variable
-            name="uiStateViewModel"
-            type="com.ibile.features.main.UIStateViewModel" />
 
     </data>
 
@@ -82,7 +76,7 @@
             android:contentDescription="@string/cd_btn_add_polyline_marker"
             android:onClick="@{() -> handler.handleAddPolylineBtnClick()}"
             android:src="@drawable/ic_polyline"
-            app:isVisible="@{uiStateViewModel.addPolyShapeBtnIsVisible(uiStateViewModel.activeOverlayObservable)}"
+            app:isVisible="@{handler.data.addPolyShapeBtnIsVisible(handler.data.activeOverlayObservable)}"
             app:layout_constraintBottom_toTopOf="@id/btn_add_polygon_marker"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -98,7 +92,7 @@
             android:contentDescription="@string/cd_btn_add_polyline_marker"
             android:onClick="@{() -> handler.handleAddPolygonBtnClick()}"
             android:src="@drawable/ic_polygon"
-            app:isVisible="@{uiStateViewModel.addPolyShapeBtnIsVisible(uiStateViewModel.activeOverlayObservable)}"
+            app:isVisible="@{handler.data.addPolyShapeBtnIsVisible(handler.data.activeOverlayObservable)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/btn_add_polyline_marker"
             app:layout_constraintStart_toStartOf="@id/btn_add_polyline_marker"
@@ -107,22 +101,22 @@
         <include
             android:id="@+id/action_bar"
             layout="@layout/partial_action_bar"
-            app:isVisible="@{uiStateViewModel.activeOverlayObservable instanceof Overlay.None || uiStateViewModel.activeOverlayObservable instanceof Overlay.MarkerInfo}" />
+            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.None}" />
 
         <include
             android:id="@+id/add_marker_view"
             layout="@layout/partial_add_new_marker_overlay"
-            app:isVisible="@{uiStateViewModel.activeOverlayObservable instanceof Overlay.AddMarkerPoi}" />
+            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddMarkerPoi}" />
 
         <include
             android:id="@+id/partial_add_polygon_poi"
             layout="@layout/partial_add_polygon_poi"
-            app:isVisible="@{uiStateViewModel.activeOverlayObservable instanceof Overlay.AddPolygonPoi}" />
+            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddPolygonPoi}" />
 
         <include
             android:id="@+id/partial_add_polyline_poi"
             layout="@layout/partial_add_polyline_poi"
-            app:isVisible="@{uiStateViewModel.activeOverlayObservable instanceof Overlay.AddPolylinePoi}" />
+            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddPolylinePoi}" />
 
         <include
             android:id="@+id/marker_info_view"

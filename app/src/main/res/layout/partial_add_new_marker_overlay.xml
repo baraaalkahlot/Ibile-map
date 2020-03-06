@@ -6,7 +6,7 @@
 
         <variable
             name="handler"
-            type="com.ibile.features.main.AddMarkerPoiDatabindingViewData" />
+            type="com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

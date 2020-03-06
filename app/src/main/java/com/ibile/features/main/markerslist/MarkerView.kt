@@ -1,4 +1,4 @@
-package com.ibile.features.main
+package com.ibile.features.main.markerslist
 
 import android.content.Context
 import android.graphics.Color
