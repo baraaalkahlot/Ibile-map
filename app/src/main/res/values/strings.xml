@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Ibile</string>
+    <string name="app_name">Ibile Maps</string>
     <string name="cd_drawer_btn">drawer button</string>
     <string name="cd_browse_markers_btn">browse markers button</string>
     <string name="cd_organize_markers_button">organize markers button</string>
