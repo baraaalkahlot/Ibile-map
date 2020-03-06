@@ -27,13 +27,13 @@ import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
+import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
 import com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel
 import com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiViewModel
-import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
 import com.ibile.features.main.markerslist.MarkerInfoDatabindingViewData
 import com.ibile.features.main.markerslist.MarkersPresenter
 import com.ibile.features.main.markerslist.MarkersViewModel
@@ -295,6 +295,23 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
             }
     }
 
+    override fun epoxyController(): MvRxEpoxyController = simpleController {
+        markersPresenter.buildModels(map, this, this@MainFragment::handleOnMarkerCreatedOrUpdated)
+        if (uiStateViewModel.state.activeOverlay is Overlay.AddPolylinePoi)
+            addPolylinePoiPresenter.buildModels(map, this)
+    }
+
+    private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {
+        if (uiStateViewModel.state.activeOverlay is Overlay.None) return
+
+        uiStateViewModel.updateActiveOverlay(Overlay.None)
+
+        addPolylinePoiPresenter.onCreateOrUpdateSuccess(marker)
+        addPolygonPoiViewModel.onCreateOrUpdateSuccess(marker)
+        addMarkerPoiPresenter.onCreateOrUpdateSuccess(marker, binding.addMarkerView)
+        markersPresenter.onMarkerCreatedOrUpdated(marker)
+    }
+
     override fun onComplete(markerId: Long?) {
         uiStateViewModel.updateActiveOverlay(Overlay.None)
         markersPresenter.onEditMarkerComplete(markerId)
@@ -347,21 +364,6 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         val activeOverlay = uiStateViewModel.state.activeOverlay
         if (activeOverlay !is Overlay.None) return
         markersPresenter.onClickMarker(id)
-    }
-
-    override fun epoxyController(): MvRxEpoxyController = simpleController {
-        markersPresenter.buildModels(map, this, this@MainFragment::handleOnMarkerCreatedOrUpdated)
-        if (uiStateViewModel.state.activeOverlay is Overlay.AddPolylinePoi)
-            addPolylinePoiPresenter.buildModels(map, this)
-    }
-
-    private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {
-        if (uiStateViewModel.state.activeOverlay is Overlay.None) return
-
-        addPolylinePoiPresenter.onCreateOrUpdateSuccess(marker)
-        addPolygonPoiViewModel.onCreateOrUpdateSuccess(marker)
-        addMarkerPoiPresenter.onCreateOrUpdateSuccess(marker, binding.addMarkerView)
-        markersPresenter.onMarkerCreatedOrUpdated(marker)
     }
 
     override fun onRequestPermissionsResult(
