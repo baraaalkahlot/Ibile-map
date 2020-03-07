@@ -54,4 +54,5 @@
     <string name="text_no">No</string>
     <string name="text_toast_marker_details_copied">Marker details copied to clipboard</string>
     <string name="text_toast_marker_coordinates_copied">Coordinates copied to clipboard</string>
+    <string name="text_share_images">Share images</string>
 </resources>

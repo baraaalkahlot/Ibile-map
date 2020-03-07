@@ -69,6 +69,14 @@
         <variable
             name="onClickCopyCoordinates"
             type="View.OnClickListener" />
+
+        <variable
+            name="onClickShareImagesBtn"
+            type="View.OnClickListener" />
+
+        <variable
+            name="shareImagesBtnIsVisible"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -270,6 +278,23 @@
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@id/tv_label_add_images"
             app:layout_constraintStart_toEndOf="@id/tv_label_add_images"
+            app:layout_constraintTop_toTopOf="@id/tv_label_add_images" />
+
+        <Button
+            android:id="@+id/btn_share_images"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_2"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            android:onClick="@{onClickShareImagesBtn}"
+            android:padding="@dimen/spacing_1"
+            android:text="@string/text_share_images"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:isVisible="@{shareImagesBtnIsVisible}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_label_add_images"
+            app:layout_constraintStart_toEndOf="@id/btn_add_images"
             app:layout_constraintTop_toTopOf="@id/tv_label_add_images" />
 
         <com.airbnb.epoxy.Carousel

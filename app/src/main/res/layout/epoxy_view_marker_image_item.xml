@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -18,14 +19,56 @@
         <variable
             name="dimension"
             type="Float" />
+
+        <variable
+            name="isSelected"
+            type="Boolean" />
+
+        <!--        <variable-->
+        <!--            name="checkBoxIsVisible"-->
+        <!--            type="Boolean" />-->
+
+        <!--        <variable-->
+        <!--            name="onClickCheckBox"-->
+        <!--            type="android.view.View.OnClickListener" />-->
+
+        <variable
+            name="onLongClick"
+            type="android.view.View.OnLongClickListener" />
     </data>
 
-    <ImageView
-        android:id="@+id/iv_marker_image"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
         dimension="@{dimension}"
-        imageUri="@{uri}"
-        requestOptions="@{requestOptions}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="@{onClick}" />
+        android:onClick="@{onClick}"
+        android:onLongClickListener="@{onLongClick}"
+        tools:layout_height="120dp"
+        tools:layout_width="120dp">
+
+        <ImageView
+            android:id="@+id/iv_marker_image"
+            imageUri="@{uri}"
+            requestOptions="@{requestOptions}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent_white"
+            app:isVisible="@{isSelected}" />
+
+        <!--        <CheckBox-->
+        <!--            android:id="@+id/checkbox_item_selected"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginTop="@dimen/spacing_0_5"-->
+        <!--            android:layout_marginEnd="@dimen/spacing_0_5"-->
+        <!--            android:checked="@{isSelected}"-->
+        <!--            android:onClick="@{onClickCheckBox}"-->
+        <!--            app:isVisible="@{checkBoxIsVisible}"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent" />-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

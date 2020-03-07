@@ -3,6 +3,7 @@ package com.ibile.features.editmarker
 import android.net.Uri
 import androidx.navigation.fragment.navArgs
 import com.airbnb.mvrx.*
+import com.ibile.core.BaseViewModel
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.ImageRepository
 import com.ibile.data.repositiories.MarkersRepository
@@ -16,17 +17,16 @@ data class EditMarkerViewModelState(
     val marker: Marker? = null,
     val importMarkerImagesAsync: Async<List<Uri>> = Uninitialized,
     val updateMarkerAsync: Async<Unit> = Uninitialized,
-    val deleteMarkerAsync: Async<Unit> = Uninitialized
+    val deleteMarkerAsync: Async<Unit> = Uninitialized,
+    val markerImagesInSelectMode: Boolean = false,
+    val selectedImages: List<Uri> = arrayListOf()
 ) : MvRxState
 
 class EditMarkerViewModel(
     initialState: EditMarkerViewModelState,
     private val markersRepository: MarkersRepository,
     private val imageRepository: ImageRepository
-) : BaseMvRxViewModel<EditMarkerViewModelState>(initialState) {
-
-    val state: EditMarkerViewModelState
-        get() = withState(this) { it }
+) : BaseViewModel<EditMarkerViewModelState>(initialState) {
 
     fun getMarker(markerId: Long) {
         markersRepository
