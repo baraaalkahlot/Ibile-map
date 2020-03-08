@@ -150,7 +150,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         }
 
         override fun onMarkerDragStart(marker: com.google.android.libraries.maps.model.Marker) {
-            onEditMarkerDialogEditCoordinatesBtnClick(marker.tag as Long)
+            updateActiveMarkerPoints()
         }
 
         override fun onMarkerDrag(marker: com.google.android.libraries.maps.model.Marker) {
@@ -317,7 +317,11 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         markersPresenter.onEditMarkerComplete(markerId)
     }
 
-    override fun onEditMarkerDialogEditCoordinatesBtnClick(markerId: Long) {
+    override fun onEditMarkerDialogEditCoordinatesBtnClick() {
+        updateActiveMarkerPoints()
+    }
+
+    private fun updateActiveMarkerPoints() {
         val marker = markersPresenter.onMarkerPointsUpdateInit()
         when {
             marker.isMarker -> {

@@ -24,16 +24,17 @@ class MarkersPresenter(
 ) {
     private val activeMarker: Marker?
         get() {
-            val (activeMarkerId) = markersViewModel.state
-            return markersViewModel.state.markersListAsync()
-                ?.find { element -> element.id == activeMarkerId }
+            val (activeMarkerId, markersListAsync) = markersViewModel.state
+            return markersListAsync()?.find { element -> element.id == activeMarkerId }
         }
 
     private val markerImagesPreviewFragment: MarkerImagesPreviewFragment
         get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_MARKER_IMAGES_PREVIEW)
                 as? MarkerImagesPreviewFragment ?: MarkerImagesPreviewFragment()
 
-    private var editMarkerDialogFragment: EditMarkerDialogFragment? = null
+    private val editMarkerDialogFragment: EditMarkerDialogFragment
+        get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_EDIT_MARKER) as? EditMarkerDialogFragment
+            ?: EditMarkerDialogFragment.newInstance(activeMarker!!.id)
 
     var clickedMarkerImageIndex: Int = 0
     val mode: MarkerImagesPreviewFragment.Callback.Mode = object
@@ -83,7 +84,7 @@ class MarkersPresenter(
 
     fun onEditMarkerComplete(result: Long?) {
         markersViewModel.updateState { copy(activeMarkerId = result, marker_edit = null) }
-        editMarkerDialogFragment?.dismiss()
+        editMarkerDialogFragment.dismiss()
     }
 
     fun onExternalOverlayResult(result: MainFragment.Companion.ExternalOverlaysResult) {
@@ -98,8 +99,8 @@ class MarkersPresenter(
     }
 
     fun onMarkerPointsUpdateInit(): Marker {
-        if (editMarkerDialogFragment?.dialog?.isShowing == true)
-            editMarkerDialogFragment?.dismiss()
+        if (editMarkerDialogFragment.dialog?.isShowing == true)
+            editMarkerDialogFragment.dismiss()
         return markersViewModel.state.marker_edit!!
 
     }
@@ -115,11 +116,9 @@ class MarkersPresenter(
     }
 
     fun onClickEditMarkerBtn() {
-        val activeMarker = markersViewModel.state.markersListAsync()
-            ?.find { it.id == markersViewModel.state.activeMarkerId }
         markersViewModel.updateState { copy(activeMarkerId = null, marker_edit = activeMarker) }
-        editMarkerDialogFragment = EditMarkerDialogFragment.newInstance(activeMarker!!.id)
-            .apply { show(this@MarkersPresenter.fragmentManager, FRAGMENT_TAG_EDIT_MARKER) }
+        editMarkerDialogFragment
+            .show(this@MarkersPresenter.fragmentManager, FRAGMENT_TAG_EDIT_MARKER)
     }
 
     fun onClickMarkerInfoCopyBtn(context: Context) {
