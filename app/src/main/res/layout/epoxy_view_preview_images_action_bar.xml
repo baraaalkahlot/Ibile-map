@@ -41,7 +41,7 @@
             android:id="@+id/btn_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/spacing_1"
+            android:layout_marginEnd="@dimen/spacing_2"
             android:background="@null"
             android:onClick="@{onClickDeleteBtn}"
             android:src="@drawable/ic_delete_24"

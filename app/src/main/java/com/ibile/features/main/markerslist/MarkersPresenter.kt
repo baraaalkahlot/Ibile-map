@@ -33,8 +33,11 @@ class MarkersPresenter(
                 as? MarkerImagesPreviewFragment ?: MarkerImagesPreviewFragment()
 
     private val editMarkerDialogFragment: EditMarkerDialogFragment
-        get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_EDIT_MARKER) as? EditMarkerDialogFragment
-            ?: EditMarkerDialogFragment.newInstance(activeMarker!!.id)
+        get() {
+            val activeMarkerId = markersViewModel.state.activeMarkerId
+            return fragmentManager.findFragmentByTag(FRAGMENT_TAG_EDIT_MARKER) as? EditMarkerDialogFragment
+                ?: EditMarkerDialogFragment.newInstance(activeMarkerId!!)
+        }
 
     var clickedMarkerImageIndex: Int = 0
     val mode: MarkerImagesPreviewFragment.Callback.Mode = object
@@ -128,12 +131,11 @@ class MarkersPresenter(
     }
 
     fun onClickMarkerInfoNavigationBtn(context: Context) {
-        Intent(Intent.ACTION_VIEW)
-            .setData(Uri.parse("geo:0,0?q=${activeMarker!!.latitude},${activeMarker!!.longitude}"))
-            .apply {
-                val chooserIntent = Intent.createChooser(this, "Choose an app...")
-                context.startResolvableActivity(chooserIntent)
-            }
+        val intent = Intent(Intent.ACTION_VIEW)
+            .setData(Uri.parse("geo:${activeMarker!!.latitude},${activeMarker!!.longitude}"))
+        val chooserIntent = Intent.createChooser(intent, "Choose an app...")
+        context.startResolvableActivity(chooserIntent)
+
     }
 
     fun onClickMarkerInfoCallBtn(navController: NavController, context: Context) {
