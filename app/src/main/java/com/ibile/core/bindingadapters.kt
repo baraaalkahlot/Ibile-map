@@ -1,5 +1,6 @@
 package com.ibile.core
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
@@ -9,6 +10,9 @@ import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.ibile.core.Extensions.dp
+import com.maltaisn.icondialog.pack.IconPack
+import org.koin.core.KoinComponent
+import org.koin.core.get
 
 @BindingAdapter("app:isVisible")
 fun isVisible(view: View, visible: Boolean) {
@@ -46,4 +50,13 @@ fun setDimension(view: View, dimension: Float) {
     lp.height = dimension.dp.toInt()
     lp.width = dimension.dp.toInt()
     view.layoutParams = lp
+}
+
+object BindingAdapters : KoinComponent {
+    @BindingAdapter("src_iconPackId")
+    @JvmStatic
+    fun setSrcFromIconPack(view: ImageView, iconPackId: Int) {
+        val drawable = get<IconPack>().getIconDrawable(iconPackId)?.mutate()?.setColor(Color.WHITE)
+        view.setImageDrawable(drawable)
+    }
 }

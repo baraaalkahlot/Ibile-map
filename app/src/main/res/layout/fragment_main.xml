@@ -14,116 +14,147 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".features.main.MainFragment">
+        android:fitsSystemWindows="true">
 
-        <com.google.android.libraries.maps.MapView
-            android:id="@+id/map_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            map:cameraZoom="13"
-            map:uiCompass="true" />
-
-        <com.airbnb.epoxy.EpoxyRecyclerView
-            android:id="@+id/recyclerview"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
-            android:id="@+id/btn_my_location"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_circle"
-            android:contentDescription="@string/cd_my_location_button"
-            android:elevation="8dp"
-            android:onClick="@{() -> handler.handleMyLocationBtnClick()}"
-            android:src="@drawable/ic_btn_my_location"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:selected="@{handler.data.locationButtonIsActive}" />
-
-
-        <ImageButton
-            android:id="@+id/btn_add_marker"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="64dp"
-            android:background="@drawable/bg_circle"
-            android:contentDescription="@string/cd_add_marker_button"
-            android:elevation="8dp"
-            android:onClick="@{() -> handler.handleAddMarkerBtnClick()}"
-            android:src="@drawable/ic_add_new_marker"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <ImageButton
-            android:id="@+id/btn_add_polyline_marker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_1"
-            android:background="@drawable/bg_circle"
-            android:contentDescription="@string/cd_btn_add_polyline_marker"
-            android:onClick="@{() -> handler.handleAddPolylineBtnClick()}"
-            android:src="@drawable/ic_polyline"
-            app:isVisible="@{handler.data.addPolyShapeBtnIsVisible(handler.data.activeOverlayObservable)}"
-            app:layout_constraintBottom_toTopOf="@id/btn_add_polygon_marker"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
-
-        <ImageButton
-            android:id="@+id/btn_add_polygon_marker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_1"
-            android:layout_marginTop="@dimen/spacing_2"
-            android:background="@drawable/bg_circle"
-            android:contentDescription="@string/cd_btn_add_polyline_marker"
-            android:onClick="@{() -> handler.handleAddPolygonBtnClick()}"
-            android:src="@drawable/ic_polygon"
-            app:isVisible="@{handler.data.addPolyShapeBtnIsVisible(handler.data.activeOverlayObservable)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/btn_add_polyline_marker"
-            app:layout_constraintStart_toStartOf="@id/btn_add_polyline_marker"
-            app:layout_constraintTop_toBottomOf="@id/btn_add_polyline_marker" />
-
-        <include
-            android:id="@+id/action_bar"
-            layout="@layout/partial_action_bar"
-            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.None}" />
-
-        <include
-            android:id="@+id/add_marker_view"
-            layout="@layout/partial_add_new_marker_overlay"
-            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddMarkerPoi}" />
-
-        <include
-            android:id="@+id/partial_add_polygon_poi"
-            layout="@layout/partial_add_polygon_poi"
-            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddPolygonPoi}" />
-
-        <include
-            android:id="@+id/partial_add_polyline_poi"
-            layout="@layout/partial_add_polyline_poi"
-            app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddPolylinePoi}" />
-
-        <include
-            android:id="@+id/marker_info_view"
-            layout="@layout/partial_active_marker_info"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="parent" />
+            android:layout_height="match_parent"
+            tools:context=".features.main.MainFragment">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.libraries.maps.MapView
+                android:id="@+id/map_view"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                map:cameraZoom="13"
+                map:uiCompass="true" />
+
+            <com.airbnb.epoxy.EpoxyRecyclerView
+                android:id="@+id/recyclerview"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btn_my_location"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_circle"
+                android:contentDescription="@string/cd_my_location_button"
+                android:elevation="8dp"
+                android:onClick="@{() -> handler.handleMyLocationBtnClick()}"
+                android:src="@drawable/ic_btn_my_location"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:selected="@{handler.data.locationButtonIsActive}" />
+
+
+            <ImageButton
+                android:id="@+id/btn_add_marker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="64dp"
+                android:background="@drawable/bg_circle"
+                android:contentDescription="@string/cd_add_marker_button"
+                android:elevation="8dp"
+                android:onClick="@{() -> handler.handleAddMarkerBtnClick()}"
+                android:src="@drawable/ic_add_new_marker"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btn_add_polyline_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_1"
+                android:background="@drawable/bg_circle"
+                android:contentDescription="@string/cd_btn_add_polyline_marker"
+                android:onClick="@{() -> handler.handleAddPolylineBtnClick()}"
+                android:src="@drawable/ic_polyline"
+                app:isVisible="@{handler.data.addPolyShapeBtnIsVisible(handler.data.activeOverlayObservable)}"
+                app:layout_constraintBottom_toTopOf="@id/btn_add_polygon_marker"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <ImageButton
+                android:id="@+id/btn_add_polygon_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_1"
+                android:layout_marginTop="@dimen/spacing_2"
+                android:background="@drawable/bg_circle"
+                android:contentDescription="@string/cd_btn_add_polyline_marker"
+                android:onClick="@{() -> handler.handleAddPolygonBtnClick()}"
+                android:src="@drawable/ic_polygon"
+                app:isVisible="@{handler.data.addPolyShapeBtnIsVisible(handler.data.activeOverlayObservable)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/btn_add_polyline_marker"
+                app:layout_constraintStart_toStartOf="@id/btn_add_polyline_marker"
+                app:layout_constraintTop_toBottomOf="@id/btn_add_polyline_marker" />
+
+            <include
+                android:id="@+id/action_bar"
+                layout="@layout/partial_action_bar"
+                app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.None}" />
+
+            <include
+                android:id="@+id/add_marker_view"
+                layout="@layout/partial_add_new_marker_overlay"
+                app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddMarkerPoi}" />
+
+            <include
+                android:id="@+id/partial_add_polygon_poi"
+                layout="@layout/partial_add_polygon_poi"
+                app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddPolygonPoi}" />
+
+            <include
+                android:id="@+id/partial_add_polyline_poi"
+                layout="@layout/partial_add_polyline_poi"
+                app:isVisible="@{handler.data.activeOverlayObservable instanceof Overlay.AddPolylinePoi}" />
+
+            <include
+                android:id="@+id/marker_info_view"
+                layout="@layout/partial_active_marker_info"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/drawer_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start">
+
+            <com.airbnb.epoxy.EpoxyRecyclerView
+                android:id="@+id/drawer_recyclerview"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@color/dark_gray"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.7" />
+
+            <!--            <View-->
+            <!--                android:id="@+id/drawer_empty_view"-->
+            <!--                android:layout_width="0dp"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:background="@color/black_de"-->
+            <!--                app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                app:layout_constraintStart_toEndOf="@id/drawer_recyclerview" />-->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

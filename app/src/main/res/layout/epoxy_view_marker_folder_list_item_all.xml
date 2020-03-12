@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="count"
+            type="String" />
+
+        <variable
+            name="selected"
+            type="Boolean" />
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_0_5"
+        android:layout_marginTop="@dimen/spacing_1"
+        android:background="@{selected ? @drawable/bg_rect_thin_rounded_sm_black_transparent_dark : @drawable/bg_transparent}"
+        android:onClick="@{onClick}"
+        android:paddingHorizontal="@dimen/spacing_1"
+        android:paddingVertical="@dimen/spacing_1">
+
+        <ImageView
+            android:id="@+id/iv_all_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_select_all_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_folder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1_5"
+            android:text="@string/text_all"
+            android:textColor="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/iv_all_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_folder_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{count}"
+            android:textColor="@color/white_gray"
+            app:layout_constraintStart_toStartOf="@id/tv_folder_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_folder_name"
+            tools:text="1 markers in 3 folders" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

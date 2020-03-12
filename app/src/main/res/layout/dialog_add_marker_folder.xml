@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="data"
+            type="com.ibile.features.main.addfolder.AddFolderViewModel" />
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onFolderNameInputChange"
+            type="androidx.databinding.adapters.TextViewBindingAdapter.AfterTextChanged" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/light_gray"
+        android:paddingBottom="@dimen/spacing_1">
+
+        <EditText
+            android:id="@+id/et_folder_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:afterTextChanged="@{onFolderNameInputChange}"
+            android:autofillHints="@string/text_folder_name"
+            android:background="@color/white"
+            android:hint="@string/text_folder_name"
+            android:inputType="text"
+            android:isScrollContainer="true"
+            android:paddingHorizontal="@dimen/spacing_0_5"
+            android:paddingVertical="@dimen/spacing_1"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:textColor="@android:color/black"
+            android:textCursorDrawable="@drawable/text_cursor_black"
+            android:textSize="18sp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_title_folder_icon_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_2"
+            android:background="@android:color/transparent"
+            android:text="@string/text_title_folder_icon_color"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_folder_name"
+            tools:textColor="@color/black_de" />
+
+        <ImageView
+            android:id="@+id/ib_folder_icon"
+            src_iconPackId="@{data.folder.iconId}"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            android:padding="@dimen/spacing_1"
+            app:layout_constraintEnd_toStartOf="@id/ib_folder_color"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_folder_icon_color"
+            tools:src="@drawable/ic_map_pin" />
+
+        <ImageView
+            android:id="@+id/ib_folder_color"
+            drawableBackgroundColor="@{data.folder.color}"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ib_folder_icon"
+            app:layout_constraintTop_toTopOf="@id/ib_folder_icon" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

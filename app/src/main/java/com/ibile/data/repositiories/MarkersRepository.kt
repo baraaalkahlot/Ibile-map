@@ -14,3 +14,4 @@ class MarkersRepository(private val markerDao: MarkerDao) {
 
     fun deleteMarker(marker: Marker) = markerDao.deleteMarker(marker)
 }
+

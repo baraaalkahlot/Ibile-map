@@ -46,7 +46,9 @@ data class Marker(
     var icon: Icon? = null,
     @ColumnInfo(name = "phone_number")
     var phoneNumber: String? = null,
-    var imageUris: List<Uri> = listOf()
+    var imageUris: List<Uri> = listOf(),
+    @ColumnInfo(name = "folder_id")
+    val folderId: Long = DEFAULT_FOLDER_ID
 ) {
     val title get() = name ?: "Marker $id"
 
@@ -258,6 +260,8 @@ data class Marker(
         const val ACTIVE_POLYGON_WIDTH = 5F
         const val POLYGON_DEFAULT_COLOR_ALPHA = 95
         const val POLYGON_ACTIVE_COLOR_ALPHA = 150
+
+        const val DEFAULT_FOLDER_ID = 1L
 
         fun Int.alpha(value: Int): Int =
             Color.argb(value, Color.red(this), Color.green(this), Color.blue(this))

@@ -55,4 +55,8 @@
     <string name="text_toast_marker_details_copied">Marker details copied to clipboard</string>
     <string name="text_toast_marker_coordinates_copied">Coordinates copied to clipboard</string>
     <string name="text_share_images">Share images</string>
+    <string name="text_add_folder">Add folder</string>
+    <string name="text_folder_name">Folder name</string>
+    <string name="text_all">All</string>
+    <string name="text_title_folder_icon_color">Folder Icon and Color:</string>
 </resources>

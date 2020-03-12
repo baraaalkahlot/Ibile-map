@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.databinding.ObservableField
-import androidx.lifecycle.observe
+import androidx.lifecycle.Observer
 import com.airbnb.mvrx.fragmentViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.maps.GoogleMap
@@ -22,11 +22,13 @@ import com.ibile.core.BaseFragment
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
+import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
+import com.ibile.features.main.addfolder.AddFolderDialog
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
@@ -34,6 +36,8 @@ import com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel
 import com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiViewModel
+import com.ibile.features.main.folderlist.FolderListPresenter
+import com.ibile.features.main.folderlist.FoldersViewModel
 import com.ibile.features.main.markerslist.MarkerInfoDatabindingViewData
 import com.ibile.features.main.markerslist.MarkersPresenter
 import com.ibile.features.main.markerslist.MarkersViewModel
@@ -46,11 +50,15 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
-    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback {
+    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback, AddFolderDialog.Callback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
     private val fusedLocationClient: FusedLocationProviderClient by inject()
+
+    private val drawerLayoutViewEpoxyController: MvRxEpoxyController by lazy {
+        drawerLayoutViewEpoxyController()
+    }
 
     private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
     private val mainPresenter: MainPresenter by lazy {
@@ -76,12 +84,22 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
 
     private lateinit var map: GoogleMap
 
+    private val foldersViewModel: FoldersViewModel by fragmentViewModel()
+    private val folderListPresenter: FolderListPresenter by lazy {
+        FolderListPresenter(
+            childFragmentManager,
+            foldersViewModel
+        )
+    }
+
     override val mode: MarkerImagesPreviewFragment.Callback.Mode
         get() = markersPresenter.mode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        drawerLayoutViewEpoxyController.onRestoreInstanceState(savedInstanceState)
         markersPresenter.init()
+        folderListPresenter.init()
     }
 
     override fun onCreateView(
@@ -94,11 +112,17 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         binding.handler = mainDataBindingViewData
         binding.actionBar.handler = actionBarDatabindingViewData
 
+        // TODO: move this to its own interface and set in layout
+        binding.drawerView.setOnClickListener {
+            binding.drawerLayout.closeDrawer(binding.drawerView, true)
+        }
+
+        binding.markerInfoView.handler = markerInfoDatabindingViewData
+        binding.drawerRecyclerview.setController(drawerLayoutViewEpoxyController)
+
         binding.addMarkerView.handler = addMarkerPoiDatabindingViewData
         binding.partialAddPolylinePoi.handler = addPolyLinePoiDatabindingViewData
         binding.partialAddPolygonPoi.addShapeViewModel = addPolygonPoiViewModel
-
-        binding.markerInfoView.handler = markerInfoDatabindingViewData
 
         return binding.root
     }
@@ -213,7 +237,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     private val actionBarDatabindingViewData = object :
         ActionBarDatabindingViewData {
         override fun handleDrawerBtnClick() {
-
+            binding.drawerLayout.openDrawer(binding.drawerView)
         }
 
         override fun handleBrowseMarkersBtnClick() {
@@ -289,16 +313,29 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
 
         navController.currentBackStackEntry?.savedStateHandle
             ?.getLiveData<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
-            ?.observe(viewLifecycleOwner) { result ->
-                markersPresenter.onExternalOverlayResult(result)
+            ?.observe(viewLifecycleOwner, Observer { t ->
+                markersPresenter.onExternalOverlayResult(t)
                 uiStateViewModel.updateActiveOverlay(Overlay.None)
-            }
+            })
+    }
+
+    override fun invalidate() {
+        super.invalidate()
+        binding.drawerRecyclerview.requestModelBuild()
     }
 
     override fun epoxyController(): MvRxEpoxyController = simpleController {
         markersPresenter.buildModels(map, this, this@MainFragment::handleOnMarkerCreatedOrUpdated)
         if (uiStateViewModel.state.activeOverlay is Overlay.AddPolylinePoi)
             addPolylinePoiPresenter.buildModels(map, this)
+    }
+
+    private fun drawerLayoutViewEpoxyController() = simpleController {
+        folderListPresenter.buildModels(this)
+    }
+
+    override fun onAddFolderDialogOkBtnClick(folder: Folder) {
+        folderListPresenter.onAddFolderViewOkBtnClick(folder)
     }
 
     private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {
@@ -327,7 +364,9 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
             marker.isMarker -> {
                 addMarkerPoiPresenter.initEditMarkerPoint(marker, binding.addMarkerView, map)
                 uiStateViewModel
-                    .updateActiveOverlay(Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit(marker)))
+                    .updateActiveOverlay(
+                        Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit(marker))
+                    )
             }
             marker.isPolyline -> {
                 addPolylinePoiPresenter.initEditPoints(marker, map, this)
@@ -395,6 +434,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        drawerLayoutViewEpoxyController.onSaveInstanceState(outState)
         var mapViewBundle = outState.getBundle(BUNDLE_MAP_VIEW_KEY)
         if (mapViewBundle == null) {
             mapViewBundle = Bundle()
@@ -431,6 +471,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     }
 
     override fun onDestroyView() {
+        drawerLayoutViewEpoxyController.cancelPendingModelBuild()
         super.onDestroyView()
         addPolygonPoiViewModel.setMap(null)
         navController.currentBackStackEntry?.savedStateHandle

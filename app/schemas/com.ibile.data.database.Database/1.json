@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a679154ae11593a8883f9f1767b6f1b0",
+    "identityHash": "242cbb5afa0cb9809fa323b1eb07f0aa",
     "entities": [
       {
         "tableName": "markers",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`points` TEXT NOT NULL, `type` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `description` TEXT, `color` INTEGER NOT NULL, `icon` INTEGER, `phone_number` TEXT, `imageUris` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`points` TEXT NOT NULL, `type` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `description` TEXT, `color` INTEGER NOT NULL, `icon` INTEGER, `phone_number` TEXT, `imageUris` TEXT NOT NULL, `folder_id` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "points",
@@ -73,6 +73,12 @@
             "columnName": "imageUris",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folder_id",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -92,12 +98,56 @@
           }
         ],
         "foreignKeys": []
+      },
+      {
+        "tableName": "folders",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`title` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `icon_id` INTEGER NOT NULL, `color` INTEGER NOT NULL, `selected` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iconId",
+            "columnName": "icon_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selected",
+            "columnName": "selected",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a679154ae11593a8883f9f1767b6f1b0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '242cbb5afa0cb9809fa323b1eb07f0aa')"
     ]
   }
 }

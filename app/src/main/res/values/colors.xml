@@ -10,6 +10,7 @@
     <color name="dark_gray">#2C2B2B</color>
     <color name="material_on_background_emphasis_medium" tools:ignore="PrivateResource">@color/white</color>
     <color name="black_transparent_dark">#D1000000</color>
+    <color name="white_gray">#BFBCBC</color>
 
     <drawable name="bg_transparent">@android:color/transparent</drawable>
 </resources>

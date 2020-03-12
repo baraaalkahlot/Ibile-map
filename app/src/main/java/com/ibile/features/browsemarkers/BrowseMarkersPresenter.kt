@@ -2,9 +2,11 @@ package com.ibile.features.browsemarkers
 
 import androidx.navigation.NavController
 import com.airbnb.epoxy.EpoxyController
+import com.airbnb.mvrx.Success
 import com.ibile.data.database.entities.Marker
 import com.ibile.features.main.MainFragment
 import com.ibile.features.main.MainFragment.Companion.ExternalOverlaysResult
+import com.ibile.markerFolderTitle
 import com.ibile.markerItem
 
 interface BrowseMarkersViewEvents {
@@ -13,23 +15,34 @@ interface BrowseMarkersViewEvents {
 
 class BrowseMarkersPresenter(private val browseMarkersViewModel: BrowseMarkersViewModel) {
     fun init() {
-        browseMarkersViewModel.init()
+        if (browseMarkersViewModel.state.getFoldersAsync !is Success) {
+            browseMarkersViewModel.getAllFolders()
+        }
     }
 
     fun buildModels(controller: EpoxyController, eventsHandler: BrowseMarkersViewEvents) {
-        val markers = browseMarkersViewModel.state.markersAsync()
-        val searchQuery = browseMarkersViewModel.state.searchQuery
-        markers
-            ?.filter { marker -> marker.containsQuery(searchQuery) }
-            ?.forEach { marker ->
-                controller.markerItem {
-                    id(marker.id)
-                    marker(marker)
-                    onClick { model, _, _, _ ->
-                        eventsHandler.onClickMarkerItem(model.marker().id)
-                    }
+        with(controller) {
+            val searchQuery = browseMarkersViewModel.state.searchQuery
+            browseMarkersViewModel.state.getFoldersAsync()?.forEach { (folder, markers) ->
+                val filteredMarkers = markers.filter { it.containsQuery(searchQuery) }
+                if (filteredMarkers.isEmpty()) return@forEach
+
+                markerFolderTitle {
+                    id("BrowseMarkersList_MarkersFolderItem_${folder.id}")
+                    text(folder.title)
                 }
+                filteredMarkers
+                    .forEach { marker ->
+                        markerItem {
+                            id("BrowseMarkersList_MarkerItem_${marker.id}")
+                            marker(marker)
+                            onClick { model, _, _, _ ->
+                                eventsHandler.onClickMarkerItem(model.marker().id)
+                            }
+                        }
+                    }
             }
+        }
     }
 
     private fun Marker.containsQuery(query: String): Boolean = title.contains(query, true)
@@ -53,7 +66,7 @@ class BrowseMarkersPresenter(private val browseMarkersViewModel: BrowseMarkersVi
     }
 
     fun onSearchInputChange(value: String) {
-        browseMarkersViewModel.setSearchQuery(value)
+        browseMarkersViewModel.updateState { copy(searchQuery = value) }
     }
 
     fun dispose() {

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="count"
+            type="String" />
+
+        <variable
+            name="folder"
+            type="com.ibile.features.main.folderlist.FolderWithMarkersCount" />
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_0_5"
+        android:layout_marginTop="@dimen/spacing_1"
+        android:background="@{folder.selected ? @drawable/bg_rect_thin_rounded_sm_black_transparent_dark : @drawable/bg_transparent}"
+        android:onClick="@{onClick}"
+        android:paddingHorizontal="@dimen/spacing_1"
+        android:paddingVertical="@dimen/spacing_1">
+
+        <ImageView
+            android:id="@+id/iv_folder_icon"
+            src_iconPackId="@{folder.iconId}"
+            android:layout_width="@dimen/size_3"
+            android:layout_height="@dimen/size_3"
+            app:layout_constraintBottom_toTopOf="@id/view_folder_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_map_pin" />
+
+        <View
+            android:id="@+id/view_folder_color"
+            drawableBackgroundColor="@{folder.color}"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_1"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_marker_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/iv_folder_icon"
+            app:layout_constraintStart_toStartOf="@id/iv_folder_icon"
+            app:layout_constraintTop_toBottomOf="@id/iv_folder_icon" />
+
+        <TextView
+            android:id="@+id/tv_folder_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1_5"
+            android:text="@{folder.title}"
+            android:textColor="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/iv_folder_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Default folder" />
+
+        <TextView
+            android:id="@+id/tv_folder_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{count}"
+            android:textColor="@color/white_gray"
+            app:layout_constraintStart_toStartOf="@id/tv_folder_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_folder_name"
+            tools:text="1 markers" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
