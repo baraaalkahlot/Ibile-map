@@ -1,10 +1,7 @@
 package com.ibile.data.database.daos
 
 import androidx.room.*
-import com.ibile.data.database.entities.Folder
-import com.ibile.data.database.entities.FolderWithMarkers
 import com.ibile.data.database.entities.Marker
-import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -21,11 +18,14 @@ interface MarkerDao {
     fun getAllMarkers(): Flowable<List<Marker>>
 
     @Update
-    fun updateMarker(marker: Marker): Completable
+    fun updateMarkers(vararg marker: Marker): Completable
 
     @Query("SELECT * FROM markers where id = :id LIMIT 1")
     fun getMarker(id: Long): Single<Marker>
 
     @Delete
     fun deleteMarker(marker: Marker): Completable
+
+    @Query("SELECT * FROM markers where folder_id = :folderId")
+    fun getMarkersByFolderId(folderId: Long): Single<List<Marker>>
 }

@@ -13,4 +13,6 @@ class FoldersRepository(private val foldersDao: FoldersDao) {
     fun addFolder(folder: Folder) = foldersDao.insertFolder(folder)
 
     fun updateFolders(vararg folder: Folder) = foldersDao.updateFolders(*folder)
+
+    fun getFolder(folderId: Long) = foldersDao.getFolder(folderId)
 }

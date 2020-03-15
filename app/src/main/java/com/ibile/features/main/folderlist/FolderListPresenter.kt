@@ -5,7 +5,8 @@ import com.airbnb.epoxy.EpoxyController
 import com.airbnb.mvrx.Success
 import com.ibile.*
 import com.ibile.data.database.entities.Folder
-import com.ibile.features.main.addfolder.AddFolderDialog
+import com.ibile.features.main.addfolder.AddFolderDialogFragment
+import com.ibile.features.main.editfolder.EditFolderDialogFragment
 import com.ibile.features.main.folderlist.FolderWithMarkersCount.Companion.toFolder
 
 class FolderListPresenter(
@@ -44,6 +45,10 @@ class FolderListPresenter(
                         onClick { model, _, _, _ ->
                             handleFolderItemClick(model.folder())
                         }
+                        onLongClick { model, _, _, _ ->
+                            handleFolderItemLongClick(model.folder())
+                            true
+                        }
                     }
                 }
             }
@@ -55,8 +60,14 @@ class FolderListPresenter(
         }
     }
 
+    private fun handleFolderItemLongClick(folder: FolderWithMarkersCount) {
+        EditFolderDialogFragment
+            .newInstance(folder.id)
+            .show(fragmentManager, FRAGMENT_TAG_EDIT_MARKER)
+    }
+
     private fun handleAddFolderBtnClick() {
-        AddFolderDialog.newInstance().show(fragmentManager, FRAGMENT_TAG_ADD_MARKER_FOLDER_DIALOG)
+        AddFolderDialogFragment.newInstance().show(fragmentManager, FRAGMENT_TAG_ADD_MARKER_FOLDER_DIALOG)
     }
 
     private fun handleFolderItemClick(folderWithMarkersCount: FolderWithMarkersCount) {
@@ -71,12 +82,8 @@ class FolderListPresenter(
         viewModel.updateFolders(*folders.toTypedArray())
     }
 
-    fun onAddFolderViewOkBtnClick(folder: Folder) {
-        if (folder.title.isBlank()) return
-        viewModel.addFolder(folder)
-    }
-
     companion object {
         const val FRAGMENT_TAG_ADD_MARKER_FOLDER_DIALOG = "FRAGMENT_TAG_ADD_MARKER_FOLDER_DIALOG"
+        const val FRAGMENT_TAG_EDIT_MARKER = "FRAGMENT_TAG_EDIT_MARKER"
     }
 }

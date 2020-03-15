@@ -59,4 +59,5 @@
     <string name="text_folder_name">Folder name</string>
     <string name="text_all">All</string>
     <string name="text_title_folder_icon_color">Folder Icon and Color:</string>
+    <string name="text_modify_folder">Modify folder</string>
 </resources>

@@ -26,4 +26,7 @@ interface FoldersDao {
 
     @Update
     fun updateFolders(vararg folder: Folder): Completable
+
+    @Query("SELECT * FROM folders where id = :id LIMIT 1")
+    fun getFolder(id: Long): Flowable<Folder>
 }

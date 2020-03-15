@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/spacing_0_5"
         android:layout_marginTop="@dimen/spacing_1"
+        android:layout_marginBottom="@dimen/spacing_0_5"
         android:background="@{selected ? @drawable/bg_rect_thin_rounded_sm_black_transparent_dark : @drawable/bg_transparent}"
         android:onClick="@{onClick}"
         android:paddingHorizontal="@dimen/spacing_1"

@@ -21,7 +21,7 @@ class AddMarkerPoiViewModel(initialState: State, private val markersRepository: 
     }
 
     fun updateMarker(marker: Marker) {
-        markersRepository.updateMarker(marker).subscribeOn(Schedulers.io()).execute { copy() }
+        markersRepository.updateMarkers(marker).subscribeOn(Schedulers.io()).execute { copy() }
     }
 
     data class State(val mode: AddMarkerPoiPresenter.Mode = AddMarkerPoiPresenter.Mode.Add) : MvRxState

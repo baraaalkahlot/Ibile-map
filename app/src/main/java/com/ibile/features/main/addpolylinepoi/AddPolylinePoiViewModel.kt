@@ -23,7 +23,7 @@ class AddPolylinePoiViewModel(
 
     fun updateMarker(marker: Marker) {
         markersRepository
-            .updateMarker(marker)
+            .updateMarkers(marker)
             .subscribeOn(Schedulers.io())
             .execute { copy(updateMarkerAsync = it) }
     }

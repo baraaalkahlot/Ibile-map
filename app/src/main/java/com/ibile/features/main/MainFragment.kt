@@ -28,7 +28,7 @@ import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
-import com.ibile.features.main.addfolder.AddFolderDialog
+import com.ibile.features.main.addfolder.AddFolderDialogFragment
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
@@ -50,7 +50,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
-    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback, AddFolderDialog.Callback {
+    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
@@ -332,10 +332,6 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
 
     private fun drawerLayoutViewEpoxyController() = simpleController {
         folderListPresenter.buildModels(this)
-    }
-
-    override fun onAddFolderDialogOkBtnClick(folder: Folder) {
-        folderListPresenter.onAddFolderViewOkBtnClick(folder)
     }
 
     private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {

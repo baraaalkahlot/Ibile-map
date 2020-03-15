@@ -1,7 +1,6 @@
 package com.ibile.features.editmarker
 
 import android.net.Uri
-import androidx.navigation.fragment.navArgs
 import com.airbnb.mvrx.*
 import com.ibile.core.BaseViewModel
 import com.ibile.data.database.entities.Marker
@@ -52,7 +51,7 @@ class EditMarkerViewModel(
     fun updateMarker(marker: Marker) {
         cleanUpDeletedMarkerImages(marker)
         markersRepository
-            .updateMarker(marker)
+            .updateMarkers(marker)
             .subscribeOn(Schedulers.io())
             .execute { copy(updateMarkerAsync = it) }
     }

@@ -233,7 +233,7 @@ open class AddPolygonPoiViewModel(
             is Mode.Edit -> {
                 val updatedMarker = (mode as Mode.Edit).marker.copy(points = points)
                 markersRepository
-                    .updateMarker(updatedMarker)
+                    .updateMarkers(updatedMarker)
                     .subscribeOn(Schedulers.io())
                     .subscribe()
                     .addTo(compositeDisposable)
