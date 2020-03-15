@@ -65,13 +65,16 @@ class EditFolderDialogFragment : BaseDialogFragment(), ViewBindingData, IconDial
         val binding = DialogEditMarkerFolderBinding.inflate(inflater)
             .apply { data = this@EditFolderDialogFragment }
         val headerViewBinding = DialogEditMarkerFolderHeaderBinding.inflate(inflater)
-            .apply { this.deleteBtnIsVisible = viewModel.state.folderId != 1L }
+            .apply {
+                this.deleteBtnIsVisible = viewModel.state.folderId != 1L
+                this.btnDeleteFolder.setOnClickListener { handleDeleteBtnClick() }
+            }
 
         return AlertDialog
             .Builder(currentContext, R.style.AlertDialog)
             .setCustomTitle(headerViewBinding.root)
             .setView(binding.root)
-            .setPositiveButton("Save", null)
+            .setPositiveButton(R.string.text_save, null)
             .setNegativeButton(R.string.text_cancel) { _, _ -> }
             .create()
             .apply {
@@ -141,6 +144,20 @@ class EditFolderDialogFragment : BaseDialogFragment(), ViewBindingData, IconDial
                 }
             }
         }
+    }
+
+    private fun handleDeleteBtnClick() {
+        AlertDialog.Builder(currentContext, R.style.AlertDialog)
+            .setMessage(R.string.text_dialog_delete_folder_message)
+            .setPositiveButton(R.string.text_yes) { _, _ ->
+                handleDeleteFolderConfirmationDialogOkBtnClick()
+            }
+            .setNegativeButton(R.string.text_no) { _, _ -> }
+            .show()
+    }
+
+    private fun handleDeleteFolderConfirmationDialogOkBtnClick() {
+        viewModel.deleteFolderWithMarkers(viewModel.state.folder)
     }
 
     override fun setOnFastChooseColorListener(position: Int, color: Int) {

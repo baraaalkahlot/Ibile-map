@@ -12,7 +12,7 @@ class MarkersRepository(private val markerDao: MarkerDao) {
 
     fun getMarker(id: Long) = markerDao.getMarker(id)
 
-    fun deleteMarker(marker: Marker) = markerDao.deleteMarker(marker)
+    fun deleteMarkers(vararg markers: Marker) = markerDao.deleteMarkers(*markers)
 
     fun getMarkersByFolderId(folderId: Long) = markerDao.getMarkersByFolderId(folderId)
 }

@@ -42,11 +42,17 @@ class EditFolderViewModel(
     fun updateFolderWithMarkers(folder: Folder, updateMarkers: (List<Marker>) -> List<Marker>) {
         markersRepository
             .getMarkersByFolderId(folder.id)
-            .flatMapCompletable {
-                val updatedMarkers = updateMarkers(it)
-                markersRepository.updateMarkers(*updatedMarkers.toTypedArray())
-            }
+            .flatMapCompletable { markersRepository.updateMarkers(*updateMarkers(it).toTypedArray()) }
             .concatWith(foldersRepository.updateFolders(folder))
+            .subscribeOn(Schedulers.io())
+            .execute { copy(updateFolderAsync = it) }
+    }
+
+    fun deleteFolderWithMarkers(folder: Folder) {
+        markersRepository
+            .getMarkersByFolderId(folder.id)
+            .flatMapCompletable { markersRepository.deleteMarkers(*it.toTypedArray()) }
+            .concatWith(foldersRepository.deleteFolders(folder))
             .subscribeOn(Schedulers.io())
             .execute { copy(updateFolderAsync = it) }
     }

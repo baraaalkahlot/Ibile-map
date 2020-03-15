@@ -24,7 +24,7 @@ interface MarkerDao {
     fun getMarker(id: Long): Single<Marker>
 
     @Delete
-    fun deleteMarker(marker: Marker): Completable
+    fun deleteMarkers(vararg marker: Marker): Completable
 
     @Query("SELECT * FROM markers where folder_id = :folderId")
     fun getMarkersByFolderId(folderId: Long): Single<List<Marker>>

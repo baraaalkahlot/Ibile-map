@@ -59,7 +59,7 @@ class EditMarkerViewModel(
     fun deleteMarker(marker: Marker) {
         if (marker.imageUris.isNotEmpty()) imageRepository.deleteFiles(marker.imageUris)
         markersRepository
-            .deleteMarker(marker)
+            .deleteMarkers(marker)
             .subscribeOn(Schedulers.io())
             .execute { copy(deleteMarkerAsync = it) }
     }

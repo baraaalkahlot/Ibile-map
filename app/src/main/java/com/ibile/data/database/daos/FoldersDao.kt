@@ -29,4 +29,7 @@ interface FoldersDao {
 
     @Query("SELECT * FROM folders where id = :id LIMIT 1")
     fun getFolder(id: Long): Flowable<Folder>
+
+    @Delete
+    fun deleteMarkers(vararg folders: Folder): Completable
 }
