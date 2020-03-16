@@ -5,21 +5,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.ObservableField
 import com.airbnb.mvrx.fragmentViewModel
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.ibile.R
 import com.ibile.core.BaseDialogFragment
 import com.ibile.core.MvRxEpoxyController
+import com.ibile.core.currentContext
 import com.ibile.core.simpleController
 import com.ibile.databinding.DialogFragmentMainExternalOverlayBinding
+import com.ibile.features.addmarkerfromlocationssearchresult.LocationSearchSelectedResultFragment
 import com.ibile.features.browsemarkers.BrowseMarkersPresenter
 import com.ibile.features.browsemarkers.BrowseMarkersViewEvents
 import com.ibile.features.browsemarkers.BrowseMarkersViewModel
 import com.ibile.features.locationssearch.LocationsSearchPresenter
 import com.ibile.features.locationssearch.LocationsSearchViewEvents
 import com.ibile.features.locationssearch.LocationsSearchViewModel
-import com.ibile.features.addmarkerfromlocationssearchresult.LocationSearchSelectedResultFragment
+import com.ibile.features.organizemarkers.OrganizeMarkersPresenter
+import com.ibile.features.organizemarkers.OrganizeMarkersViewModel
 import com.ibile.utils.extensions.navController
 
 interface ActionBarViewBindingData {
@@ -28,17 +30,10 @@ interface ActionBarViewBindingData {
     fun onLocationsSearchInputChange(value: String)
     fun onClickBrowseMarkersBtn()
     fun onClickLocationsSearchBtn()
+    fun onClickOrganizeMarkersBtn()
+    fun onOrganizeMarkersSearchInputChange(value: String)
 
-    val data: ObservableField<ActionBarViewData>
-}
-
-
-data class ActionBarViewData(val currentView: UIStateViewModel.CurrentView) {
-    val currentViewIsBrowseMarkers: Boolean
-        get() = currentView is UIStateViewModel.CurrentView.BrowseMarkers
-
-    val currentViewIsSearchLocations: Boolean
-        get() = currentView is UIStateViewModel.CurrentView.LocationsSearch
+    val data: UIStateViewModel
 }
 
 class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
@@ -47,7 +42,12 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
 
     private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
     private val presenter by lazy {
-        MainPresenter(uiStateViewModel, browseMarkersPresenter, locationsSearchPresenter)
+        MainPresenter(
+            uiStateViewModel,
+            browseMarkersPresenter,
+            locationsSearchPresenter,
+            organizeMarkersPresenter
+        )
     }
 
     private val browseMarkersViewModel: BrowseMarkersViewModel by fragmentViewModel()
@@ -55,20 +55,22 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
 
     private val locationsSearchViewModel: LocationsSearchViewModel by fragmentViewModel()
     private val locationsSearchPresenter by lazy {
-        LocationsSearchPresenter(
-            locationsSearchViewModel,
-            childFragmentManager
-        )
+        LocationsSearchPresenter(locationsSearchViewModel, childFragmentManager)
     }
 
-    override val data by lazy { presenter.actionBarViewBindingData }
+    private val organizeMarkersViewModel: OrganizeMarkersViewModel by fragmentViewModel()
+    private val organizeMarkersPresenter by lazy {
+        OrganizeMarkersPresenter(organizeMarkersViewModel, currentContext)
+    }
+
+    override val data by lazy { uiStateViewModel }
 
     override val layoutId: Int
         get() = R.layout.dialog_fragment_main_external_overlay
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NO_TITLE, android.R.style.Theme_Translucent_NoTitleBar)
+        setStyle(STYLE_NO_TITLE, R.style.FullScreenDialog)
     }
 
     override fun onCreateView(
@@ -139,6 +141,14 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
 
     override fun onClickLocationsSearchBtn() {
         presenter.onClickActionBarLocationsSearchBtn(this)
+    }
+
+    override fun onClickOrganizeMarkersBtn() {
+        presenter.onClickActionBarOrganizeMarkersBtn(this)
+    }
+
+    override fun onOrganizeMarkersSearchInputChange(value: String) {
+        presenter.onOrganizeMarkersSearchInputChange(value)
     }
 
     override fun onDestroyView() {

@@ -62,4 +62,6 @@
     <string name="text_modify_folder">Modify folder</string>
     <string name="text_dialog_delete_folder_message">Are you sure you want to delete this folder? All markers associated to this folder will be deleted permanently!</string>
     <string name="text_save">Save</string>
+    <string name="fmt_folder_markers_count">%1$s markers</string>
+    <string name="text_organize_markers_field_actions_options_msg">Pick the fields you want to apply to moved POIs</string>
 </resources>

@@ -91,7 +91,6 @@ class LocationsSearchPresenter(
 
     fun onBackPressed(navController: NavController) {
         setResult(navController, null)
-        navController.popBackStack()
     }
 
     fun onAddMarkerSuccess(navController: NavController, markerId: Long) {

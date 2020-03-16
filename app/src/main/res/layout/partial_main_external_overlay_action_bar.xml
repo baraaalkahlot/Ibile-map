@@ -5,9 +5,13 @@
 
     <data>
 
+        <import type="com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView" />
+
         <variable
             name="eventHandlers"
             type="com.ibile.features.mainexternaloverlays.ActionBarViewBindingData" />
+
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -48,7 +52,7 @@
             android:onClick="@{() -> eventHandlers.onClickBrowseMarkersBtn()}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_filter_list_24"
-            app:isVisible="@{!eventHandlers.data.currentViewIsBrowseMarkers}"
+            app:isVisible="@{!(eventHandlers.data.currentViewObservable instanceof CurrentView.BrowseMarkers)}"
             app:layout_constraintEnd_toStartOf="@id/et_browse_markers"
             app:layout_constraintStart_toEndOf="@id/btn_back_divider"
             app:layout_constraintTop_toTopOf="parent" />
@@ -69,7 +73,7 @@
             android:padding="@dimen/spacing_1"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            app:isVisible="@{eventHandlers.data.currentViewIsBrowseMarkers}"
+            app:isVisible="@{(eventHandlers.data.currentViewObservable instanceof CurrentView.BrowseMarkers)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_organize_markers"
             app:layout_constraintStart_toEndOf="@id/btn_browse_markers"
@@ -81,15 +85,20 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:contentDescription="@string/cd_organize_markers_button"
+            android:onClick="@{() -> eventHandlers.onClickOrganizeMarkersBtn()}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_format_list_bullet_24"
+            app:isVisible="@{!(eventHandlers.data.currentViewObservable instanceof CurrentView.OrganizeMarkers)}"
             app:layout_constraintStart_toEndOf="@id/et_browse_markers"
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/et_organize_markers"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginVertical="@dimen/spacing_0_5"
+            android:layout_marginStart="@dimen/spacing_0_5"
+            android:afterTextChanged="@{(text) -> eventHandlers.onOrganizeMarkersSearchInputChange(text.toString())}"
             android:autofillHints="Organize"
             android:background="@drawable/bg_rect_thin_rounded_sm_transparent"
             android:drawableStart="@drawable/ic_format_list_bullet_24"
@@ -100,6 +109,8 @@
             android:textColor="@android:color/darker_gray"
             android:textColorHint="@android:color/darker_gray"
             android:visibility="gone"
+            app:isVisible="@{(eventHandlers.data.currentViewObservable instanceof CurrentView.OrganizeMarkers)}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_search_location"
             app:layout_constraintStart_toEndOf="@id/btn_organize_markers"
             app:layout_constraintTop_toTopOf="parent" />
@@ -113,7 +124,7 @@
             android:onClick="@{() -> eventHandlers.onClickLocationsSearchBtn()}"
             android:padding="@dimen/spacing_1"
             android:src="@drawable/ic_search_24"
-            app:isVisible="@{!eventHandlers.data.currentViewIsSearchLocations}"
+            app:isVisible="@{!(eventHandlers.data.currentViewObservable instanceof CurrentView.LocationsSearch)}"
             app:layout_constraintEnd_toStartOf="@id/et_search_location"
             app:layout_constraintStart_toEndOf="@id/et_organize_markers"
             app:layout_constraintTop_toTopOf="parent" />
@@ -136,7 +147,7 @@
             android:padding="@dimen/spacing_1"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"
-            app:isVisible="@{eventHandlers.data.currentViewIsSearchLocations}"
+            app:isVisible="@{(eventHandlers.data.currentViewObservable instanceof CurrentView.LocationsSearch)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btn_search_location"

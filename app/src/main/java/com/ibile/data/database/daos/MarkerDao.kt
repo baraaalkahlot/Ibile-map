@@ -11,8 +11,11 @@ interface MarkerDao {
     @Insert
     fun insertMarker(marker: Marker): Single<Long>
 
-//    @Query("SELECT * FROM markers")
-//    fun getAllMarkers(): Flowable<List<Marker>>
+    // @Query("SELECT * FROM markers")
+    // fun getAllMarkers(): Flowable<List<Marker>>
+
+    @Insert
+    fun insertMarkers(vararg markers: Marker): Single<List<Long>>
 
     @Query("SELECT * FROM markers WHERE folder_id in (SELECT id FROM folders WHERE selected = 1)")
     fun getAllMarkers(): Flowable<List<Marker>>

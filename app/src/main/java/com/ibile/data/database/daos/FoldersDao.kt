@@ -15,7 +15,8 @@ interface FoldersDao {
     fun getAllFoldersWithMarkers(): Flowable<List<FolderWithMarkers>>
 
     @Transaction
-    @Query("SELECT * FROM folders WHERE selected = 1 AND (SELECT COUNT(*) FROM markers WHERE folder_id = folders.id) > 0")
+//    @Query("SELECT * FROM folders WHERE selected = 1 AND (SELECT COUNT(*) FROM markers WHERE folder_id = folders.id) > 0")
+    @Query("SELECT * FROM folders")
     fun getAllSelectedFoldersWithMarkers(): Flowable<List<FolderWithMarkers>>
 
     @Insert

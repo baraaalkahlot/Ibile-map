@@ -23,25 +23,27 @@ class BrowseMarkersPresenter(private val browseMarkersViewModel: BrowseMarkersVi
     fun buildModels(controller: EpoxyController, eventsHandler: BrowseMarkersViewEvents) {
         with(controller) {
             val searchQuery = browseMarkersViewModel.state.searchQuery
-            browseMarkersViewModel.state.getFoldersAsync()?.forEach { (folder, markers) ->
-                val filteredMarkers = markers.filter { it.containsQuery(searchQuery) }
-                if (filteredMarkers.isEmpty()) return@forEach
+            browseMarkersViewModel.state.getFoldersAsync()
+                ?.filter { it.folder.selected && it.markers.isNotEmpty() }
+                ?.forEach { (folder, markers) ->
+                    val filteredMarkers = markers.filter { it.containsQuery(searchQuery) }
+                    if (filteredMarkers.isEmpty()) return@forEach
 
-                markerFolderTitle {
-                    id("BrowseMarkersList_MarkersFolderItem_${folder.id}")
-                    text(folder.title)
-                }
-                filteredMarkers
-                    .forEach { marker ->
-                        markerItem {
-                            id("BrowseMarkersList_MarkerItem_${marker.id}")
-                            marker(marker)
-                            onClick { model, _, _, _ ->
-                                eventsHandler.onClickMarkerItem(model.marker().id)
+                    markerFolderTitle {
+                        id("BrowseMarkersList_MarkersFolderItem_${folder.id}")
+                        text(folder.title)
+                    }
+                    filteredMarkers
+                        .forEach { marker ->
+                            markerItem {
+                                id("BrowseMarkersList_MarkerItem_${marker.id}")
+                                marker(marker)
+                                onClick { model, _, _, _ ->
+                                    eventsHandler.onClickMarkerItem(model.marker().id)
+                                }
                             }
                         }
-                    }
-            }
+                }
         }
     }
 

@@ -5,6 +5,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="icdStyle">@style/IcdStyle.Custom</item>
+        <item name="colorControlNormal">#FFFFFF</item>
+        <item name="colorControlActivated">#009688</item>
     </style>
 
     <style name="EditMarkerSectionLabel">
@@ -56,4 +58,10 @@
         <item name="android:textColorAlertDialogListItem">@color/white</item>
     </style>
 
+    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox" />
+
+    <style name="FullScreenDialog" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 </resources>

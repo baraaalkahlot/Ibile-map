@@ -6,6 +6,8 @@ import com.ibile.data.database.entities.Marker
 class MarkersRepository(private val markerDao: MarkerDao) {
     fun insertMarker(marker: Marker) = markerDao.insertMarker(marker)
 
+    fun insertMarkers(vararg markers: Marker) = markerDao.insertMarkers(*markers)
+
     fun updateMarkers(vararg marker: Marker) = markerDao.updateMarkers(*marker)
 
     fun getAllMarkers() = markerDao.getAllMarkers()

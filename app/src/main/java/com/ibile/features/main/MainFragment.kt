@@ -3,7 +3,6 @@ package com.ibile.features.main
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
-import android.os.Parcel
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
@@ -22,13 +21,11 @@ import com.ibile.core.BaseFragment
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
-import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
-import com.ibile.features.main.addfolder.AddFolderDialogFragment
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
@@ -44,6 +41,7 @@ import com.ibile.features.main.markerslist.MarkersViewModel
 import com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView
 import com.ibile.utils.extensions.navController
 import com.ibile.utils.extensions.runWithPermissions
+import kotlinx.android.parcel.Parcelize
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -55,6 +53,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
     private val fusedLocationClient: FusedLocationProviderClient by inject()
+    private lateinit var map: GoogleMap
 
     private val drawerLayoutViewEpoxyController: MvRxEpoxyController by lazy {
         drawerLayoutViewEpoxyController()
@@ -82,14 +81,9 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         MarkersPresenter(markersViewModel, childFragmentManager)
     }
 
-    private lateinit var map: GoogleMap
-
     private val foldersViewModel: FoldersViewModel by fragmentViewModel()
     private val folderListPresenter: FolderListPresenter by lazy {
-        FolderListPresenter(
-            childFragmentManager,
-            foldersViewModel
-        )
+        FolderListPresenter(childFragmentManager, foldersViewModel)
     }
 
     override val mode: MarkerImagesPreviewFragment.Callback.Mode
@@ -243,18 +237,21 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         override fun handleBrowseMarkersBtnClick() {
             uiStateViewModel.updateActiveOverlay(Overlay.ExternalOverlay)
             val action = MainFragmentDirections
-                .actionMainFragmentToMainExternalOverlaysDialogFragment(CurrentView.BrowseMarkers())
+                .actionMainFragmentToMainExternalOverlaysDialogFragment(CurrentView.BrowseMarkers)
             navController.navigate(action)
         }
 
         override fun handleOrganizeMarkersBtnClick() {
-
+            uiStateViewModel.updateActiveOverlay(Overlay.ExternalOverlay)
+            val action = MainFragmentDirections
+                .actionMainFragmentToMainExternalOverlaysDialogFragment(CurrentView.OrganizeMarkers)
+            navController.navigate(action)
         }
 
         override fun handleSearchBtnClick() {
             uiStateViewModel.updateActiveOverlay(Overlay.ExternalOverlay)
             val action = MainFragmentDirections
-                .actionMainFragmentToMainExternalOverlaysDialogFragment(CurrentView.LocationsSearch())
+                .actionMainFragmentToMainExternalOverlaysDialogFragment(CurrentView.LocationsSearch)
             navController.navigate(action)
         }
 
@@ -335,7 +332,8 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     }
 
     private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {
-        if (uiStateViewModel.state.activeOverlay is Overlay.None) return
+        val activeOverlay = uiStateViewModel.state.activeOverlay
+        if (activeOverlay is Overlay.None || activeOverlay is Overlay.ExternalOverlay) return
 
         uiStateViewModel.updateActiveOverlay(Overlay.None)
 
@@ -480,49 +478,14 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         const val RESULT_FRAGMENT_EXTERNAL_OVERLAY = "RESULT_SELECTED_MARKER_ID"
 
         sealed class ExternalOverlaysResult : Parcelable {
-            class BrowseMarkers(val selectedMarkerId: Long?) : ExternalOverlaysResult() {
-                constructor(parcel: Parcel) : this(parcel.readSerializable() as? Long)
+            @Parcelize
+            class BrowseMarkers(val selectedMarkerId: Long?) : ExternalOverlaysResult()
 
-                override fun writeToParcel(parcel: Parcel, flags: Int) {
-                    parcel.writeSerializable(selectedMarkerId)
-                }
+            @Parcelize
+            class LocationsSearch(val createdMarkerId: Long?) : ExternalOverlaysResult()
 
-                override fun describeContents(): Int {
-                    return 0
-                }
-
-                companion object CREATOR : Parcelable.Creator<BrowseMarkers> {
-                    override fun createFromParcel(parcel: Parcel): BrowseMarkers {
-                        return BrowseMarkers(parcel)
-                    }
-
-                    override fun newArray(size: Int): Array<BrowseMarkers?> {
-                        return arrayOfNulls(size)
-                    }
-                }
-            }
-
-            class LocationsSearch(val createdMarkerId: Long?) : ExternalOverlaysResult() {
-                constructor(parcel: Parcel) : this(parcel.readSerializable() as? Long)
-
-                override fun writeToParcel(parcel: Parcel, flags: Int) {
-                    parcel.writeSerializable(createdMarkerId)
-                }
-
-                override fun describeContents(): Int {
-                    return 0
-                }
-
-                companion object CREATOR : Parcelable.Creator<LocationsSearch> {
-                    override fun createFromParcel(parcel: Parcel): LocationsSearch {
-                        return LocationsSearch(parcel)
-                    }
-
-                    override fun newArray(size: Int): Array<LocationsSearch?> {
-                        return arrayOfNulls(size)
-                    }
-                }
-            }
+            @Parcelize
+            object OrganizeMarkers : ExternalOverlaysResult()
         }
     }
 }

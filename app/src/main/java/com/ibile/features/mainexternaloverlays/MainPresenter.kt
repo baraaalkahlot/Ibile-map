@@ -1,6 +1,5 @@
 package com.ibile.features.mainexternaloverlays
 
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.airbnb.epoxy.EpoxyController
@@ -9,21 +8,20 @@ import com.ibile.features.browsemarkers.BrowseMarkersPresenter
 import com.ibile.features.browsemarkers.BrowseMarkersViewEvents
 import com.ibile.features.locationssearch.LocationsSearchPresenter
 import com.ibile.features.locationssearch.LocationsSearchViewEvents
+import com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView.*
+import com.ibile.features.organizemarkers.OrganizeMarkersPresenter
 
 class MainPresenter(
     private val uiStateViewModel: UIStateViewModel,
     private val browseMarkersPresenter: BrowseMarkersPresenter,
-    private val locationsSearchPresenter: LocationsSearchPresenter
+    private val locationsSearchPresenter: LocationsSearchPresenter,
+    private val organizeMarkersPresenter: OrganizeMarkersPresenter
 ) {
-    val actionBarViewBindingData = ObservableField<ActionBarViewData>()
-
     fun init(lifecycleOwner: LifecycleOwner) {
-        val currentView = uiStateViewModel.state.currentView
-        actionBarViewBindingData.set(ActionBarViewData(currentView))
-        when (currentView) {
-            is UIStateViewModel.CurrentView.BrowseMarkers -> browseMarkersPresenter.init()
-            is UIStateViewModel.CurrentView.LocationsSearch -> locationsSearchPresenter
-                .init(lifecycleOwner)
+        when (uiStateViewModel.state.currentView) {
+            is BrowseMarkers -> browseMarkersPresenter.init()
+            is LocationsSearch -> locationsSearchPresenter.init(lifecycleOwner)
+            is OrganizeMarkers -> organizeMarkersPresenter.init(lifecycleOwner)
         }
     }
 
@@ -32,21 +30,13 @@ class MainPresenter(
         browseMarkersViewEvents: BrowseMarkersViewEvents,
         locationsSearchViewEvents: LocationsSearchViewEvents
     ) {
-        updateActionBarViewBindingData()
         when (uiStateViewModel.state.currentView) {
-            is UIStateViewModel.CurrentView.BrowseMarkers -> browseMarkersPresenter
+            is BrowseMarkers -> browseMarkersPresenter
                 .buildModels(controller, browseMarkersViewEvents)
-            is UIStateViewModel.CurrentView.LocationsSearch -> locationsSearchPresenter
+            is LocationsSearch -> locationsSearchPresenter
                 .buildModels(controller, locationsSearchViewEvents)
+            is OrganizeMarkers -> organizeMarkersPresenter.buildModels(controller)
         }
-    }
-
-    private fun updateActionBarViewBindingData() {
-        val currentActionBarViewData = actionBarViewBindingData.get()
-        val currentView = uiStateViewModel.state.currentView
-        if (currentActionBarViewData?.currentView == currentView) return
-
-        actionBarViewBindingData.set(currentActionBarViewData?.copy(currentView = currentView))
     }
 
     fun onClickMarkerItem(markerId: Long, navController: NavController) {
@@ -54,10 +44,9 @@ class MainPresenter(
     }
 
     fun onBackPressed(navController: NavController) = when (uiStateViewModel.state.currentView) {
-        is UIStateViewModel.CurrentView.BrowseMarkers -> browseMarkersPresenter
-            .onBackPressed(navController)
-        is UIStateViewModel.CurrentView.LocationsSearch -> locationsSearchPresenter
-            .onBackPressed(navController)
+        is BrowseMarkers -> browseMarkersPresenter.onBackPressed(navController)
+        is LocationsSearch -> locationsSearchPresenter.onBackPressed(navController)
+        is OrganizeMarkers -> organizeMarkersPresenter.onBackPressed(navController)
     }
 
     fun onBrowseMarkerSearchInputChange(value: String) {
@@ -66,6 +55,10 @@ class MainPresenter(
 
     fun onLocationsSearchInputChange(value: String) {
         locationsSearchPresenter.onSearchInputChange(value)
+    }
+
+    fun onOrganizeMarkersSearchInputChange(value: String) {
+        organizeMarkersPresenter.onSearchInputChange(value)
     }
 
     fun onClickLocationsSearchResultItem(id: String) {
@@ -85,12 +78,17 @@ class MainPresenter(
 
     fun onClickActionBarBrowseMarkersBtn() {
         browseMarkersPresenter.init()
-        uiStateViewModel.updateCurrentView(UIStateViewModel.CurrentView.BrowseMarkers())
+        uiStateViewModel.updateState { copy(currentView = BrowseMarkers) }
     }
 
     fun onClickActionBarLocationsSearchBtn(lifecycleOwner: LifecycleOwner) {
         locationsSearchPresenter.init(lifecycleOwner)
-        uiStateViewModel.updateCurrentView(UIStateViewModel.CurrentView.LocationsSearch())
+        uiStateViewModel.updateState { copy(currentView = LocationsSearch) }
+    }
+
+    fun onClickActionBarOrganizeMarkersBtn(lifecycleOwner: LifecycleOwner) {
+        organizeMarkersPresenter.init(lifecycleOwner)
+        uiStateViewModel.updateState { copy(currentView = OrganizeMarkers) }
     }
 
     fun dispose() {

@@ -98,6 +98,9 @@ class MarkersPresenter(
             is MainFragment.Companion.ExternalOverlaysResult.LocationsSearch -> {
                 markersViewModel.updateState { copy(activeMarkerId = result.createdMarkerId) }
             }
+            is MainFragment.Companion.ExternalOverlaysResult.OrganizeMarkers -> {
+                // no action required for organize markers result
+            }
         }
     }
 
