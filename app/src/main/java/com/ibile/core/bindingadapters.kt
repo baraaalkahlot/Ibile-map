@@ -1,6 +1,6 @@
 package com.ibile.core
 
-import android.graphics.Color
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
@@ -56,7 +56,7 @@ object BindingAdapters : KoinComponent {
     @BindingAdapter("src_iconPackId")
     @JvmStatic
     fun setSrcFromIconPack(view: ImageView, iconPackId: Int) {
-        val drawable = get<IconPack>().getIconDrawable(iconPackId)?.mutate()?.setColor(Color.WHITE)
+        val drawable = get<IconPack>().getIconDrawable(iconPackId)?.mutate()
         view.setImageDrawable(drawable)
     }
 }

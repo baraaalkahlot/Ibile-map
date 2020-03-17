@@ -1,62 +1,83 @@
 package com.ibile.features.main.addmarkerpoi
 
+import androidx.fragment.app.FragmentManager
+import com.airbnb.mvrx.Success
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.LatLng
-import com.ibile.R
 import com.ibile.data.database.entities.Marker
-import com.ibile.databinding.PartialAddNewMarkerOverlayBinding
+import com.ibile.features.main.folderlist.FolderWithMarkersCount
+import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 
-class AddMarkerPoiPresenter(private val viewModel: AddMarkerPoiViewModel) {
-    val databindingViewData by lazy { viewModel }
+class AddMarkerPoiPresenter(
+    private val viewModel: AddMarkerPoiViewModel,
+    private val fragmentManager: FragmentManager
+) {
 
-    fun onClickOkBtn(map: GoogleMap) {
-        when (viewModel.state.mode) {
-            is Mode.Add -> viewModel
-                .addMarker(Marker.createMarker(map.cameraPosition.target))
-            is Mode.Edit -> {
-                val marker =
-                    (viewModel.state.mode as Mode.Edit).marker
-                val updatedMarker = marker.copy(points = listOf(map.cameraPosition.target))
-                viewModel.updateMarker(updatedMarker)
+    private val chooseTargetFolderDialog: MarkerActionTargetFolderSelectionDialogFragment
+        get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_CHOOSE_TARGET_FOLDER)
+                as? MarkerActionTargetFolderSelectionDialogFragment
+            ?: MarkerActionTargetFolderSelectionDialogFragment()
+
+    fun init(map: GoogleMap) {
+        if (viewModel.state.getFoldersAsyncResult !is Success)
+            viewModel.getFolders()
+        val targetFolder = viewModel.state.targetFolder
+        val marker = Marker.createMarker(map.cameraPosition.target)
+            .apply {
+                targetFolder?.let {
+                    val icon = Marker.Icon(it.iconId, true)
+                    copy(folderId = it.id, icon = icon, color = it.color)
+                } ?: copy(folderId = 1L) // default marker id
             }
-        }
+        viewModel.updateState { copy(mode = Mode.Add, marker = marker) }
     }
 
-    fun onCancel(binding: PartialAddNewMarkerOverlayBinding) {
-        reset(binding)
+    fun initEditMarkerPoint(marker: Marker, map: GoogleMap) {
+        val markerToUpdate = marker.copy(points = listOf(map.cameraPosition.target))
+        viewModel.updateState { copy(mode = Mode.Edit, marker = markerToUpdate) }
     }
 
     fun onMapMove(cameraPosition: LatLng) {
-        viewModel.markerTargetCoords.set(cameraPosition)
+        viewModel.updateState { copy(marker = marker?.copy(points = listOf(cameraPosition))) }
     }
 
-    fun init(map: GoogleMap) {
-        viewModel.updateState { copy(mode = Mode.Add) }
-        viewModel.markerTargetCoords.set(map.cameraPosition.target)
+    fun onClickMarkerTargetFolder() {
+        chooseTargetFolderDialog.show(fragmentManager, FRAGMENT_TAG_CHOOSE_TARGET_FOLDER)
     }
 
-    fun initEditMarkerPoint(
-        marker: Marker,
-        binding: PartialAddNewMarkerOverlayBinding,
-        map: GoogleMap
-    ) {
-        viewModel.updateState { copy(mode = Mode.Edit(marker)) }
-        binding.ivNewMarkerDummy.setImageBitmap(marker.icon!!.defaultBitmap)
-        viewModel.markerTargetCoords.set(map.cameraPosition.target)
+    fun onChooseMarkerTargetFolder(folderId: Long) {
+        val newTargetFolder = viewModel.state.getFoldersAsyncResult()?.find { it.id == folderId }
+        viewModel.updateState { copy(targetFolder = newTargetFolder) }
     }
 
-    private fun reset(binding: PartialAddNewMarkerOverlayBinding) {
-        viewModel.updateState { copy(mode = Mode.Add) }
-        binding.ivNewMarkerDummy
-            .setImageDrawable(binding.root.context.getDrawable(R.drawable.ic_location_marker_dummy))
+    val targetFolderOptionsList: List<FolderWithMarkersCount>
+        get() = viewModel.state.getFoldersAsyncResult() ?: listOf()
+
+    fun onClickOkBtn() {
+        when (viewModel.state.mode) {
+            is Mode.Add -> viewModel.addMarker(viewModel.state.marker!!)
+            is Mode.Edit -> viewModel.updateMarker(viewModel.state.marker!!)
+        }
     }
 
-    fun onCreateOrUpdateSuccess(marker: Marker, binding: PartialAddNewMarkerOverlayBinding) {
-        reset(binding)
+    fun onCreateOrUpdateSuccess(marker: Marker) {
+        reset()
+    }
+
+    fun onCancel() {
+        reset()
+    }
+
+    private fun reset() {
+        viewModel.updateState { copy(mode = Mode.Add, marker = null) }
     }
 
     sealed class Mode {
         object Add : Mode()
-        data class Edit(val marker: Marker) : Mode()
+        object Edit : Mode()
+    }
+
+    companion object {
+        const val FRAGMENT_TAG_CHOOSE_TARGET_FOLDER = "FRAGMENT_TAG_CHOOSE_TARGET_FOLDER"
     }
 }

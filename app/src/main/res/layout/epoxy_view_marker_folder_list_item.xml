@@ -25,9 +25,9 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_folder_list_item"
         android:onClick="@{onClick}"
         android:onLongClick="@{onLongClick}"
-        android:background="@drawable/bg_folder_list_item"
         android:padding="@dimen/spacing_0_5">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,6 +42,7 @@
                 src_iconPackId="@{folder.iconId}"
                 android:layout_width="@dimen/size_3"
                 android:layout_height="@dimen/size_3"
+                android:tint="@color/white"
                 app:layout_constraintBottom_toTopOf="@id/view_folder_color"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

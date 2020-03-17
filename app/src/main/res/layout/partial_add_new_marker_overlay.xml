@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -27,15 +28,34 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:background="@drawable/bg_rect_rounded_sm_transparent_black_light"
+            android:drawableStart="@drawable/ic_folder_24"
+            android:drawablePadding="@dimen/spacing_1"
+            android:onClick="@{() -> handler.handleTargetFolderBtnClick()}"
+            android:padding="@dimen/spacing_1"
+            android:text="@{handler.data.targetFolderObservable.title}"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            app:isVisible="@{handler.data.targetFolderIsVisible}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_add_marker_help"
+            tools:text="Default folder" />
+
         <ImageView
             android:id="@+id/iv_new_marker_dummy"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="@string/cd_add_new_marker_dummy"
-            android:src="@drawable/ic_location_marker_dummy"
+            app:imageBitmap="@{handler.data.markerObservable.icon.defaultBitmap}"
             app:layout_constraintBottom_toTopOf="@id/iv_new_marker_target"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/ic_location_marker_dummy" />
 
         <ImageView
             android:id="@+id/iv_new_marker_target"
@@ -85,7 +105,7 @@
             android:layout_marginBottom="@dimen/spacing_3"
             android:background="@color/transparent_black"
             android:padding="@dimen/spacing_1"
-            android:text="@{@string/fmt_add_marker_coords((float) handler.data.markerTargetCoords.latitude, (float) handler.data.markerTargetCoords.longitude)}"
+            android:text="@{@string/fmt_add_marker_coords((float) handler.data.markerObservable.latitude, (float) handler.data.markerObservable.longitude)}"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             android:textSize="12sp"

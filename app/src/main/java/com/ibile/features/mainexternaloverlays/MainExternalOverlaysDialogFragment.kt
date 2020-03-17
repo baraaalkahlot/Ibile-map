@@ -13,6 +13,7 @@ import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
 import com.ibile.databinding.DialogFragmentMainExternalOverlayBinding
+import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 import com.ibile.features.addmarkerfromlocationssearchresult.LocationSearchSelectedResultFragment
 import com.ibile.features.browsemarkers.BrowseMarkersPresenter
 import com.ibile.features.browsemarkers.BrowseMarkersViewEvents
@@ -20,6 +21,7 @@ import com.ibile.features.browsemarkers.BrowseMarkersViewModel
 import com.ibile.features.locationssearch.LocationsSearchPresenter
 import com.ibile.features.locationssearch.LocationsSearchViewEvents
 import com.ibile.features.locationssearch.LocationsSearchViewModel
+import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.organizemarkers.OrganizeMarkersPresenter
 import com.ibile.features.organizemarkers.OrganizeMarkersViewModel
 import com.ibile.utils.extensions.navController
@@ -38,7 +40,8 @@ interface ActionBarViewBindingData {
 
 class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
     ActionBarViewBindingData, BrowseMarkersViewEvents, LocationsSearchViewEvents,
-    LocationSearchSelectedResultFragment.ParentViewCallback {
+    LocationSearchSelectedResultFragment.ParentViewCallback,
+    MarkerActionTargetFolderSelectionDialogFragment.Callback {
 
     private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
     private val presenter by lazy {
@@ -60,7 +63,7 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
 
     private val organizeMarkersViewModel: OrganizeMarkersViewModel by fragmentViewModel()
     private val organizeMarkersPresenter by lazy {
-        OrganizeMarkersPresenter(organizeMarkersViewModel, currentContext)
+        OrganizeMarkersPresenter(organizeMarkersViewModel, currentContext, childFragmentManager)
     }
 
     override val data by lazy { uiStateViewModel }
@@ -150,6 +153,16 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
     override fun onOrganizeMarkersSearchInputChange(value: String) {
         presenter.onOrganizeMarkersSearchInputChange(value)
     }
+
+    override fun onSelectTargetFolder(folderId: Long) {
+        organizeMarkersPresenter.onSelectTargetFolder(folderId)
+    }
+
+    override val markerActionTargetFolderSelectionDialogTitle: String
+        get() = organizeMarkersPresenter.markerActionTargetFolderSelectionDialogTitle
+
+    override val markerActionTargetFolderOptionsList: List<FolderWithMarkersCount>
+        get() = organizeMarkersPresenter.markerActionTargetFolderOptionsList
 
     override fun onDestroyView() {
         super.onDestroyView()

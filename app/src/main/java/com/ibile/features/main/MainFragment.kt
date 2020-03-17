@@ -34,11 +34,13 @@ import com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiViewModel
 import com.ibile.features.main.folderlist.FolderListPresenter
+import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.main.folderlist.FoldersViewModel
 import com.ibile.features.main.markerslist.MarkerInfoDatabindingViewData
 import com.ibile.features.main.markerslist.MarkersPresenter
 import com.ibile.features.main.markerslist.MarkersViewModel
 import com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView
+import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 import com.ibile.utils.extensions.navController
 import com.ibile.utils.extensions.runWithPermissions
 import kotlinx.android.parcel.Parcelize
@@ -48,7 +50,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
-    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback {
+    GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback,
+    MarkerActionTargetFolderSelectionDialogFragment.Callback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
@@ -73,7 +76,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
 
     private val addMarkerPoiViewModel: AddMarkerPoiViewModel by fragmentViewModel()
     private val addMarkerPoiPresenter: AddMarkerPoiPresenter by lazy {
-        AddMarkerPoiPresenter(addMarkerPoiViewModel)
+        AddMarkerPoiPresenter(addMarkerPoiViewModel, childFragmentManager)
     }
 
     private val markersViewModel: MarkersViewModel by fragmentViewModel()
@@ -263,17 +266,22 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
     private val addMarkerPoiDatabindingViewData = object :
         AddMarkerPoiDatabindingViewData {
         override fun handleOkBtnClick() {
-            addMarkerPoiPresenter.onClickOkBtn(map)
+            addMarkerPoiPresenter.onClickOkBtn()
         }
 
         // TODO: should only be for addMarkerPoiPresenter, but onBackPressed will use the same
         //  functionality
         override fun handleCancelBtnClick() {
-            addMarkerPoiPresenter.onCancel(binding.addMarkerView)
+            addMarkerPoiPresenter.onCancel()
             addPolylinePoiPresenter.onCancel()
             addPolygonPoiViewModel.onCancel()
 
             markersPresenter.onCancelAddOrEditMarkerPoints()
+            uiStateViewModel.updateActiveOverlay(Overlay.None)
+        }
+
+        override fun handleTargetFolderBtnClick() {
+            addMarkerPoiPresenter.onClickMarkerTargetFolder()
         }
 
         override val data by lazy { addMarkerPoiViewModel }
@@ -339,7 +347,7 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
 
         addPolylinePoiPresenter.onCreateOrUpdateSuccess(marker)
         addPolygonPoiViewModel.onCreateOrUpdateSuccess(marker)
-        addMarkerPoiPresenter.onCreateOrUpdateSuccess(marker, binding.addMarkerView)
+        addMarkerPoiPresenter.onCreateOrUpdateSuccess(marker)
         markersPresenter.onMarkerCreatedOrUpdated(marker)
     }
 
@@ -356,10 +364,10 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         val marker = markersPresenter.onMarkerPointsUpdateInit()
         when {
             marker.isMarker -> {
-                addMarkerPoiPresenter.initEditMarkerPoint(marker, binding.addMarkerView, map)
+                addMarkerPoiPresenter.initEditMarkerPoint(marker, map)
                 uiStateViewModel
                     .updateActiveOverlay(
-                        Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit(marker))
+                        Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit)
                     )
             }
             marker.isPolyline -> {
@@ -376,6 +384,16 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
             }
         }
     }
+
+    override fun onSelectTargetFolder(folderId: Long) {
+        addMarkerPoiPresenter.onChooseMarkerTargetFolder(folderId)
+    }
+
+    override val markerActionTargetFolderSelectionDialogTitle: String
+        get() = "Change folder to..."
+
+    override val markerActionTargetFolderOptionsList: List<FolderWithMarkersCount>
+        get() = addMarkerPoiPresenter.targetFolderOptionsList
 
     override fun onMapClick(position: LatLng?) {
         markersPresenter.onMapClick()
@@ -476,6 +494,8 @@ class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
         const val BUNDLE_MAP_VIEW_KEY = "BUNDLE_MAP_VIEW_KEY"
         const val RC_ACCESS_FINE_LOCATION = 1001
         const val RESULT_FRAGMENT_EXTERNAL_OVERLAY = "RESULT_SELECTED_MARKER_ID"
+        const val FRAGMENT_TAG_NEW_MARKER_TARGET_SELECTION =
+            "FRAGMENT_TAG_NEW_MARKER_TARGET_SELECTION"
 
         sealed class ExternalOverlaysResult : Parcelable {
             @Parcelize

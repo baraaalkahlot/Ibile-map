@@ -3,6 +3,7 @@ package com.ibile.features.organizemarkers
 import android.app.AlertDialog
 import android.content.Context
 import android.view.View
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.airbnb.epoxy.EpoxyController
@@ -12,6 +13,8 @@ import com.airbnb.mvrx.UniqueOnly
 import com.ibile.R
 import com.ibile.data.database.entities.Marker
 import com.ibile.features.main.MainFragment
+import com.ibile.features.main.folderlist.FolderWithMarkersCount
+import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 import com.ibile.features.organizemarkers.OrganizeMarkersPresenter.SelectedMarkersAction.CopyToFolder
 import com.ibile.features.organizemarkers.OrganizeMarkersPresenter.SelectedMarkersAction.MoveToFolder
 import com.ibile.markerFolderTitle
@@ -27,25 +30,15 @@ import com.ibile.organizeMarkersListItem
  */
 class OrganizeMarkersPresenter(
     private val viewModel: OrganizeMarkersViewModel,
-    private val context: Context
+    private val context: Context,
+    private val fragmentManager: FragmentManager
 ) {
     private var isSubscribedToStateChanges = false
 
-    private fun getMarkersActionTargetFolderDialog(
-        selectedMarkersAction: SelectedMarkersAction,
-        onSelectItem: (selectedItemPosition: Int) -> Unit
-    ): AlertDialog {
-        val adapter = MarkersActionTargetFolderOptionsArrayAdapter(
-            context,
-            R.layout.organize_markers_action_target_folder_option,
-            viewModel.state.getFoldersWithMarkersAsyncResult()!!
-        )
-        return AlertDialog.Builder(context, R.style.AlertDialog)
-            .setTitle(selectedMarkersAction.msg)
-            .setNegativeButton(R.string.text_cancel) { _, _ -> }
-            .setAdapter(adapter) { _, which -> onSelectItem(which) }
-            .create()
-    }
+    private val markersActionTargetFolderDialog: MarkerActionTargetFolderSelectionDialogFragment
+        get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER)
+                as? MarkerActionTargetFolderSelectionDialogFragment
+            ?: MarkerActionTargetFolderSelectionDialogFragment()
 
     private fun getMarkersFieldsToUpdateOptionsDialog(
         options: Map<String, Boolean>,
@@ -100,9 +93,10 @@ class OrganizeMarkersPresenter(
             UniqueOnly("OrganizeMarkersPresenter")
         ) {
             if (it == null) return@selectSubscribe
-            getMarkersActionTargetFolderDialog(it) { position ->
-                handleMarkersActionTargetFolderSelection(position)
-            }.show()
+            markersActionTargetFolderDialog.show(
+                fragmentManager,
+                FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER
+            )
         }
 
         viewModel.selectSubscribe(
@@ -136,12 +130,22 @@ class OrganizeMarkersPresenter(
         isSubscribedToStateChanges = true
     }
 
-    private fun handleMarkersActionTargetFolderSelection(selectedFolderPosition: Int) {
+    fun onSelectTargetFolder(targetFolderId: Long) {
         val (getFoldersWithMarkersAsyncResult) = viewModel.state
         val foldersWithMarkers = getFoldersWithMarkersAsyncResult()!!
-        val selectedFolder = foldersWithMarkers[selectedFolderPosition].folder.copy()
-        viewModel.updateState { copy(markersActionTargetFolder = selectedFolder) }
+        val targetFolder = foldersWithMarkers.find { it.folder.id == targetFolderId }!!.folder
+        viewModel.updateState { copy(markersActionTargetFolder = targetFolder) }
     }
+
+    val markerActionTargetFolderSelectionDialogTitle: String
+        get() = viewModel.state.selectedMarkersAction!!.msg
+
+    val markerActionTargetFolderOptionsList: List<FolderWithMarkersCount>
+        get() = viewModel.state.getFoldersWithMarkersAsyncResult()!!.map { (folder, markers) ->
+            with(folder) {
+                FolderWithMarkersCount(title, id, iconId, color, selected, markers.size)
+            }
+        }
 
     private fun handleMarkersUpdateAction(fieldsToUpdate: Map<String, Boolean>) {
         val (_, _, selectedMarkersIds, selectedMarkersAction, markersActionTargetFolder) = viewModel.state
@@ -266,14 +270,17 @@ class OrganizeMarkersPresenter(
         viewModel.updateState { copy(searchQuery = value, selectedMarkersIds = listOf()) }
     }
 
-    companion object {
-        private fun Marker.containsQuery(query: String): Boolean = title.contains(query, true)
-                || (description ?: "").contains(query, true)
-    }
-
     sealed class SelectedMarkersAction(val msg: String) {
         object MoveToFolder : SelectedMarkersAction("Move markers to folder")
 
         object CopyToFolder : SelectedMarkersAction("Copy markers to folder")
+    }
+
+    companion object {
+        private fun Marker.containsQuery(query: String): Boolean = title.contains(query, true)
+                || (description ?: "").contains(query, true)
+
+        const val FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER =
+            "FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER"
     }
 }

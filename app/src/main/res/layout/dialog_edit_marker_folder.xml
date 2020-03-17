@@ -61,6 +61,7 @@
             android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
             android:onClick="@{data.iconBtnClickListener}"
             android:padding="@dimen/spacing_1"
+            android:tint="@color/white"
             app:layout_constraintEnd_toStartOf="@id/ib_folder_color"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_chainStyle="packed"
