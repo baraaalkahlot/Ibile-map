@@ -1,8 +1,6 @@
 package com.ibile.features.main.markerslist
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
@@ -17,7 +15,6 @@ import com.ibile.features.MarkerPhoneNumberActionsDialogDirections
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.MainFragment
 import com.ibile.utils.extensions.copyTextToClipboard
-import com.ibile.utils.extensions.startResolvableActivity
 
 class MarkersPresenter(
     private val markersViewModel: MarkersViewModel, private val fragmentManager: FragmentManager
@@ -124,7 +121,7 @@ class MarkersPresenter(
     fun onClickEditMarkerBtn() {
         markersViewModel.updateState { copy(activeMarkerId = null, marker_edit = activeMarker) }
         editMarkerDialogFragment
-            .show(this@MarkersPresenter.fragmentManager, FRAGMENT_TAG_EDIT_MARKER)
+            .show(fragmentManager, FRAGMENT_TAG_EDIT_MARKER)
     }
 
     fun onClickMarkerInfoCopyBtn(context: Context) {
@@ -133,12 +130,9 @@ class MarkersPresenter(
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    fun onClickMarkerInfoNavigationBtn(context: Context) {
-        val intent = Intent(Intent.ACTION_VIEW)
-            .setData(Uri.parse("geo:${activeMarker!!.latitude},${activeMarker!!.longitude}"))
-        val chooserIntent = Intent.createChooser(intent, "Choose an app...")
-        context.startResolvableActivity(chooserIntent)
-
+    fun onClickMarkerInfoNavigationBtn() {
+        MarkerNavigationOptionsDialogFragment.newInstance(activeMarker!!.position!!)
+            .show(fragmentManager, FRAGMENT_TAG_MARKER_NAV_OPTIONS)
     }
 
     fun onClickMarkerInfoCallBtn(navController: NavController, context: Context) {
@@ -161,5 +155,6 @@ class MarkersPresenter(
     companion object {
         const val FRAGMENT_TAG_MARKER_IMAGES_PREVIEW = "FRAGMENT_TAG_MARKER_IMAGES_PREVIEW"
         const val FRAGMENT_TAG_EDIT_MARKER = "FRAGMENT_TAG_EDIT_MARKER"
+        const val FRAGMENT_TAG_MARKER_NAV_OPTIONS = "FRAGMENT_TAG_MARKER_NAV_OPTIONS"
     }
 }

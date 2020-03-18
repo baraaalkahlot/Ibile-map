@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/black">
+
+    <ImageView
+        android:id="@+id/iv_option_icon"
+        android:layout_width="@dimen/size_4"
+        android:layout_height="@dimen/size_4"
+        android:layout_marginStart="@dimen/spacing_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/bg_circle" />
+
+    <TextView
+        android:id="@+id/tv_option_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_1"
+        android:layout_marginTop="@dimen/spacing_1"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_option_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Bolt" />
+
+    <TextView
+        android:id="@+id/tv_navigation_option"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="@id/tv_option_name"
+        app:layout_constraintStart_toStartOf="@id/tv_option_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_option_name"
+        tools:text="Open the marker location in this app" />
+
+    <View
+        android:id="@+id/view_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="@dimen/spacing_1"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_navigation_option" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
