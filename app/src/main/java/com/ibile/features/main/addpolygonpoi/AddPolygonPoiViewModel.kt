@@ -267,10 +267,7 @@ open class AddPolygonPoiViewModel(
 
     fun initEditPoints(marker: com.ibile.data.database.entities.Marker, map: GoogleMap) {
         this.map = map
-        mode =
-            Mode.Edit(
-                marker
-            )
+        mode = Mode.Edit(marker)
         currentPointCoords.set(map.cameraPosition.target)
 
         initShape()

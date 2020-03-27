@@ -157,12 +157,11 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     override fun onCameraMove() {
         val cameraPosition = map.cameraPosition.target
         mainPresenter.onCameraMove(cameraPosition)
-        if (uiStateViewModel.state.activeOverlay is Overlay.AddPolylinePoi)
-            addPolylinePoiPresenter.onMapMove(cameraPosition)
-        if (uiStateViewModel.state.activeOverlay is Overlay.AddPolygonPoi)
-            addPolygonPoiViewModel.onMapMove(cameraPosition)
-        if (uiStateViewModel.state.activeOverlay is Overlay.AddMarkerPoi)
-            addMarkerPoiPresenter.onMapMove(cameraPosition)
+        when (uiStateViewModel.state.activeOverlay) {
+            is Overlay.AddMarkerPoi -> addMarkerPoiPresenter.onMapMove(cameraPosition)
+            is Overlay.AddPolylinePoi -> addPolylinePoiPresenter.onMapMove(cameraPosition)
+            is Overlay.AddPolygonPoi -> addPolygonPoiViewModel.onMapMove(cameraPosition)
+        }
     }
 
     private val markerDragListener = object : GoogleMap.OnMarkerDragListener {
@@ -170,8 +169,9 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
         }
 
-        override fun onMarkerDragStart(marker: com.google.android.libraries.maps.model.Marker) {
-            updateActiveMarkerPoints()
+        override fun onMarkerDragStart(mapMarker: com.google.android.libraries.maps.model.Marker) {
+            val marker = markersPresenter.onMarkerPointsUpdateInit(mapMarker.tag as Long)
+            initEditMarkerPointsUpdate(marker)
         }
 
         override fun onMarkerDrag(marker: com.google.android.libraries.maps.model.Marker) {
@@ -357,32 +357,27 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     }
 
     override fun onEditMarkerDialogEditCoordinatesBtnClick() {
-        updateActiveMarkerPoints()
+        val marker = markersPresenter.onMarkerPointsUpdateInit()
+        initEditMarkerPointsUpdate(marker)
     }
 
-    private fun updateActiveMarkerPoints() {
-        val marker = markersPresenter.onMarkerPointsUpdateInit()
-        when {
+    private fun initEditMarkerPointsUpdate(marker: Marker) {
+        val overlay = when {
             marker.isMarker -> {
                 addMarkerPoiPresenter.initEditMarkerPoint(marker, map)
-                uiStateViewModel
-                    .updateActiveOverlay(
-                        Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit)
-                    )
+                Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Edit)
             }
             marker.isPolyline -> {
                 addPolylinePoiPresenter.initEditPoints(marker, map, this)
-                uiStateViewModel.updateActiveOverlay(
-                    Overlay.AddPolylinePoi(AddPolylinePoiPresenter.Mode.Edit(marker))
-                )
+                Overlay.AddPolylinePoi(AddPolylinePoiPresenter.Mode.Edit(marker))
             }
             marker.isPolygon -> {
                 addPolygonPoiViewModel.initEditPoints(marker, map)
-                uiStateViewModel.updateActiveOverlay(
-                    Overlay.AddPolygonPoi(AddPolygonPoiViewModel.Mode.Edit(marker))
-                )
+                Overlay.AddPolygonPoi(AddPolygonPoiViewModel.Mode.Edit(marker))
             }
+            else -> Overlay.None
         }
+        uiStateViewModel.updateActiveOverlay(overlay)
     }
 
     override fun onSelectTargetFolder(folderId: Long) {

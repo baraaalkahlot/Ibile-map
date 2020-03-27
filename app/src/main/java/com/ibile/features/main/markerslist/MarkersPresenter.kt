@@ -152,6 +152,12 @@ class MarkersPresenter(
         markerImagesPreviewFragment.show(fragmentManager, FRAGMENT_TAG_MARKER_IMAGES_PREVIEW)
     }
 
+    fun onMarkerPointsUpdateInit(markerId: Long): Marker {
+        val marker = markersViewModel.state.markersListAsync()?.find { it.id == markerId }!!
+        markersViewModel.updateState { copy(marker_edit = marker) }
+        return marker
+    }
+
     companion object {
         const val FRAGMENT_TAG_MARKER_IMAGES_PREVIEW = "FRAGMENT_TAG_MARKER_IMAGES_PREVIEW"
         const val FRAGMENT_TAG_EDIT_MARKER = "FRAGMENT_TAG_EDIT_MARKER"
