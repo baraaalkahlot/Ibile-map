@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/spacing_2">
+
+    <TextView
+        android:id="@+id/iv_app_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_2"
+        android:drawableStart="@drawable/ic_map_pin_24"
+        android:drawableTint="@color/red"
+        android:gravity="center_vertical"
+        android:text="@string/app_name"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:tint="@color/red"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ViewStub
+        android:id="@+id/subscription_state_model"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_2"
+        android:inflatedId="@id/subscription_state_model"
+        app:layout_constraintTop_toBottomOf="@id/iv_app_logo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

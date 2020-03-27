@@ -1,11 +1,11 @@
 package com.ibile.core
 
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -13,6 +13,7 @@ import com.ibile.core.Extensions.dp
 import com.maltaisn.icondialog.pack.IconPack
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import java.util.*
 
 @BindingAdapter("app:isVisible")
 fun isVisible(view: View, visible: Boolean) {
@@ -50,6 +51,12 @@ fun setDimension(view: View, dimension: Float) {
     lp.height = dimension.dp.toInt()
     lp.width = dimension.dp.toInt()
     view.layoutParams = lp
+}
+
+@ExperimentalStdlibApi
+@BindingAdapter("capitalize")
+fun capitalize(view: TextView, capitalize: Boolean) {
+    if (capitalize) view.text = view.text.toString().capitalize(Locale.getDefault())
 }
 
 object BindingAdapters : KoinComponent {

@@ -43,6 +43,7 @@
                 android:layout_width="@dimen/size_3"
                 android:layout_height="@dimen/size_3"
                 android:tint="@color/white"
+                android:tintMode="multiply"
                 app:layout_constraintBottom_toTopOf="@id/view_folder_color"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

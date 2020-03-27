@@ -17,7 +17,6 @@ import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Polygon
 import com.google.android.libraries.maps.model.Polyline
-import com.ibile.core.BaseFragment
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
@@ -41,13 +40,14 @@ import com.ibile.features.main.markerslist.MarkersPresenter
 import com.ibile.features.main.markerslist.MarkersViewModel
 import com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView
 import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
+import com.ibile.features.shared.subscriptionrequired.SubscriptionRequiredFragment
 import com.ibile.utils.extensions.navController
 import com.ibile.utils.extensions.runWithPermissions
 import kotlinx.android.parcel.Parcelize
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainFragment : BaseFragment(), MarkerImagesPreviewFragment.Callback,
+class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment.Callback,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
     GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback,
