@@ -20,7 +20,8 @@
         <action
             android:id="@+id/action_global_main_graph"
             app:destination="@id/main_graph"
-            app:popUpTo="@id/main_graph" />
+            app:popUpTo="@id/auth_graph"
+            app:popUpToInclusive="true" />
 
         <fragment
             android:id="@+id/signInFragment"

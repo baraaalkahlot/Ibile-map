@@ -37,7 +37,7 @@ class AddMarkerPoiViewModel(
             }
         }
         asyncSubscribe(State::getFoldersAsyncResult) {
-            val folder = it.find { folder -> folder.id == state.marker?.folderId }!!
+            val folder = it.find { folder -> folder.id == state.marker?.folderId }
             updateState { copy(targetFolder = folder) }
         }
         selectSubscribe(State::mode) {

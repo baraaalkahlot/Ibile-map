@@ -25,7 +25,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-@Entity(tableName = "markers", indices = [Index("name", unique = true)])
+@Entity(tableName = "markers")
 @TypeConverters(
     Marker.PointsTypeConverter::class,
     Marker.TypeTypeConverter::class,
