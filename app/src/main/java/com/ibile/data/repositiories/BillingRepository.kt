@@ -146,6 +146,8 @@ class BillingRepository(context: Context, private val sharedPref: SharedPref) :
         when (subscription.purchaseState) {
             Purchase.PurchaseState.PURCHASED -> handleSubscriptionIsPurchased(subscription)
             Purchase.PurchaseState.PENDING -> handleSubscriptionIsPending()
+            Purchase.PurchaseState.UNSPECIFIED_STATE ->
+                _subscriptionStatus.accept(SubscriptionStatus.InActive)
         }
     }
 
@@ -267,7 +269,7 @@ class BillingRepository(context: Context, private val sharedPref: SharedPref) :
 
     companion object {
         private const val ANNUAL_ACCESS_SKU = "ibilemaps_access_sub"
-        private const val QUARTERLY_ACCESS_SKU = "ibilemaps_access_sub_quarterly"
+        private const val QUARTERLY_ACCESS_SKU = "ibile_maps_access_sub_quartely"
         val SUBSCRIPTION_SKUS = listOf(ANNUAL_ACCESS_SKU, QUARTERLY_ACCESS_SKU)
 
         val TAG = BillingRepository::class.java.simpleName
