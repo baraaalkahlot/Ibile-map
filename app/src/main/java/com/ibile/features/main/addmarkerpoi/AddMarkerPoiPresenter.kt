@@ -5,6 +5,7 @@ import com.airbnb.mvrx.Success
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.data.database.entities.Marker
+import com.ibile.data.database.entities.Marker.Icon
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 
@@ -23,11 +24,10 @@ class AddMarkerPoiPresenter(
             viewModel.getFolders()
         val targetFolder = viewModel.state.targetFolder
         val marker = Marker.createMarker(map.cameraPosition.target)
-            .apply {
-                targetFolder?.let {
-                    val icon = Marker.Icon(it.iconId, true)
-                    copy(folderId = it.id, icon = icon, color = it.color)
-                } ?: copy(folderId = 1L) // default marker id
+            .run {
+                targetFolder
+                    ?.let { copy(folderId = it.id, icon = Icon(it.iconId, true), color = it.color) }
+                    ?: this
             }
         viewModel.updateState { copy(mode = Mode.Add, marker = marker) }
     }
