@@ -165,13 +165,24 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     }
 
     private val markerDragListener = object : GoogleMap.OnMarkerDragListener {
-        override fun onMarkerDragEnd(marker: com.google.android.libraries.maps.model.Marker) {
+        private var marker: Marker? = null
 
+        override fun onMarkerDragEnd(mapMarker: com.google.android.libraries.maps.model.Marker) {
+            mapMarker.position = marker?.position
         }
 
+        // long clicking a marker calls this method, and the map marker instance gets hidden
+        // through markersPresenter since markers position won't be changed through dragging it but
+        // through editMarkerPresenter (addMarkerPresenter). This causes onMarkerDragEnd to be called
+        // after marker is hidden.
+        // The map marker instance's position shifts a bit from the original position, however
+        // (GoogleMap's behaviour). Position, therefore, has to be set back to the apps [Marker]'s
+        // position in onMarkerDragEnd
         override fun onMarkerDragStart(mapMarker: com.google.android.libraries.maps.model.Marker) {
-            val marker = markersPresenter.onMarkerPointsUpdateInit(mapMarker.tag as Long)
-            initEditMarkerPointsUpdate(marker)
+            markersPresenter.onMarkerPointsUpdateInit(mapMarker.tag as Long).apply {
+                marker = this
+                initEditMarkerPointsUpdate(this)
+            }
         }
 
         override fun onMarkerDrag(marker: com.google.android.libraries.maps.model.Marker) {

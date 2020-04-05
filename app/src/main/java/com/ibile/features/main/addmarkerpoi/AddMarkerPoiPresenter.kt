@@ -33,6 +33,7 @@ class AddMarkerPoiPresenter(
     }
 
     fun initEditMarkerPoint(marker: Marker, map: GoogleMap) {
+        map.animateCamera(marker.cameraUpdate, 500, null)
         val markerToUpdate = marker.copy(points = listOf(map.cameraPosition.target))
         viewModel.updateState { copy(mode = Mode.Edit, marker = markerToUpdate) }
     }

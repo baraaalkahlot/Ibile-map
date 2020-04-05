@@ -37,7 +37,7 @@ class MarkersViewModel(initialState: State, private val markersRepository: Marke
     data class State(
         val activeMarkerId: Long? = null,
         val markersListAsync: Async<List<Marker>> = Uninitialized,
-        val marker_edit: Marker? = null
+        val editMarkerId: Long? = null
     ) : MvRxState
 
     companion object : MvRxViewModelFactory<MarkersViewModel, State> {

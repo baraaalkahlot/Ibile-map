@@ -1,6 +1,7 @@
 package com.ibile.features.main.markerslist
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
@@ -24,6 +25,9 @@ class MarkersPresenter(
             val (activeMarkerId, markersListAsync) = markersViewModel.state
             return markersListAsync()?.find { element -> element.id == activeMarkerId }
         }
+
+    private val markers: List<Marker>?
+        get() = markersViewModel.state.markersListAsync()
 
     private val markerImagesPreviewFragment: MarkerImagesPreviewFragment
         get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_MARKER_IMAGES_PREVIEW)
@@ -62,7 +66,7 @@ class MarkersPresenter(
                     marker(marker)
                     map(map)
                     isActive(state.activeMarkerId == marker.id)
-                    isVisible(marker.id != state.marker_edit?.id)
+                    isVisible(marker.id != state.editMarkerId)
                     onMarkerAdded { onMarkerAdded(it) }
                     this.onUnbind { _, view -> view.removeMarker() }
                 }
@@ -79,11 +83,11 @@ class MarkersPresenter(
     }
 
     fun onMarkerCreatedOrUpdated(marker: Marker) {
-        markersViewModel.updateState { copy(activeMarkerId = marker.id, marker_edit = null) }
+        markersViewModel.updateState { copy(activeMarkerId = marker.id, editMarkerId = null) }
     }
 
     fun onEditMarkerComplete(result: Long?) {
-        markersViewModel.updateState { copy(activeMarkerId = result, marker_edit = null) }
+        markersViewModel.updateState { copy(activeMarkerId = result, editMarkerId = null) }
         editMarkerDialogFragment.dismiss()
     }
 
@@ -102,10 +106,15 @@ class MarkersPresenter(
     }
 
     fun onMarkerPointsUpdateInit(): Marker {
-        if (editMarkerDialogFragment.dialog?.isShowing == true)
-            editMarkerDialogFragment.dismiss()
-        return markersViewModel.state.marker_edit!!
+        editMarkerDialogFragment.dismiss()
+        val marker = markers?.find { it.id == markersViewModel.state.editMarkerId }!!
+        return marker.copy()
+    }
 
+    fun onMarkerPointsUpdateInit(markerId: Long): Marker {
+        val marker = markers?.find { it.id == markerId }!!
+        markersViewModel.updateState { copy(activeMarkerId = null, editMarkerId = markerId) }
+        return marker.copy()
     }
 
     fun onClickAddMarker() {
@@ -114,14 +123,13 @@ class MarkersPresenter(
 
     fun onCancelAddOrEditMarkerPoints() {
         markersViewModel.updateState {
-            copy(marker_edit = null, activeMarkerId = markersViewModel.state.marker_edit?.id)
+            copy(editMarkerId = null, activeMarkerId = markersViewModel.state.editMarkerId)
         }
     }
 
     fun onClickEditMarkerBtn() {
-        markersViewModel.updateState { copy(activeMarkerId = null, marker_edit = activeMarker) }
-        editMarkerDialogFragment
-            .show(fragmentManager, FRAGMENT_TAG_EDIT_MARKER)
+        markersViewModel.updateState { copy(activeMarkerId = null, editMarkerId = activeMarkerId) }
+        editMarkerDialogFragment.show(fragmentManager, FRAGMENT_TAG_EDIT_MARKER)
     }
 
     fun onClickMarkerInfoCopyBtn(context: Context) {
@@ -150,12 +158,6 @@ class MarkersPresenter(
     fun onClickMarkerInfoImage(index: Int) {
         clickedMarkerImageIndex = index
         markerImagesPreviewFragment.show(fragmentManager, FRAGMENT_TAG_MARKER_IMAGES_PREVIEW)
-    }
-
-    fun onMarkerPointsUpdateInit(markerId: Long): Marker {
-        val marker = markersViewModel.state.markersListAsync()?.find { it.id == markerId }!!
-        markersViewModel.updateState { copy(marker_edit = marker) }
-        return marker
     }
 
     companion object {
