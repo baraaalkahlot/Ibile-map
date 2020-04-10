@@ -7,6 +7,19 @@
         <item name="icdStyle">@style/IcdStyle.Custom</item>
         <item name="colorControlNormal">#FFFFFF</item>
         <item name="colorControlActivated">#009688</item>
+        <item name="alertDialogTheme">@style/AlertDialog</item>
+        <item name="android:alertDialogTheme">@style/AlertDialog</item>
+    </style>
+
+    <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/dark_gray</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorAlertDialogListItem">@color/white</item>
+    </style>
+
+    <style name="FullScreenDialog" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 
     <style name="EditMarkerSectionLabel">
@@ -50,18 +63,5 @@
 
     <style name="IcdCancelSearchIconStyle.Custom">
         <item name="tint">@android:color/white</item>
-    </style>
-
-    <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:background">@color/dark_gray</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorAlertDialogListItem">@color/white</item>
-    </style>
-
-    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox" />
-
-    <style name="FullScreenDialog" parent="AppTheme">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>

@@ -15,7 +15,7 @@ abstract class SubscriptionRequiredFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         subscriptionRequiredViewModel.asyncSubscribe(SubscriptionRequiredViewModel.State::subscriptionStatus) {
             if (!it.isActive) {
-                navController.navigate(NavGraphDirections.actionGlobalSubscriptionFragment())
+//                navController.navigate(NavGraphDirections.actionGlobalSubscriptionFragment())
             }
         }
     }

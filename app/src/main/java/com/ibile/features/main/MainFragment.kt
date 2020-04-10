@@ -1,6 +1,7 @@
 package com.ibile.features.main
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.Parcelable
@@ -32,6 +33,10 @@ import com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel
 import com.ibile.features.main.addpolylinepoi.AddPolyLinePoiDatabindingViewData
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiViewModel
+import com.ibile.features.main.datasharing.DataSharingHandler
+import com.ibile.features.main.datasharing.DataSharingViewModel
+import com.ibile.utils.views.OptionWithIconArrayAdapter
+import com.ibile.features.main.datasharing.ShareOptionsDialogFragment
 import com.ibile.features.main.folderlist.FolderListPresenter
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.main.folderlist.FoldersViewModel
@@ -51,12 +56,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
     GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback,
-    MarkerActionTargetFolderSelectionDialogFragment.Callback {
+    MarkerActionTargetFolderSelectionDialogFragment.Callback, ShareOptionsDialogFragment.Callback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
     private val fusedLocationClient: FusedLocationProviderClient by inject()
-    private lateinit var map: GoogleMap
+    internal lateinit var map: GoogleMap
 
     private val drawerLayoutViewEpoxyController: MvRxEpoxyController by lazy {
         drawerLayoutViewEpoxyController()
@@ -87,6 +92,13 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     private val foldersViewModel: FoldersViewModel by fragmentViewModel()
     private val folderListPresenter: FolderListPresenter by lazy {
         FolderListPresenter(childFragmentManager, foldersViewModel)
+    }
+
+    // TODO: use koin lifecycle to inject this
+    // viewmodel should be creatable from handler
+    private val dataSharingViewModel: DataSharingViewModel by fragmentViewModel()
+    private val dataSharingHandler: DataSharingHandler by lazy {
+        DataSharingHandler(this, dataSharingViewModel)
     }
 
     override val mode: MarkerImagesPreviewFragment.Callback.Mode
@@ -270,7 +282,8 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         }
 
         override fun handleShareBtnClick() {
-
+            val activeMarkerId = markersPresenter.onClickActionBarShareBtn()
+            dataSharingHandler.init(activeMarkerId)
         }
     }
 
@@ -401,6 +414,20 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     override val markerActionTargetFolderOptionsList: List<FolderWithMarkersCount>
         get() = addMarkerPoiPresenter.targetFolderOptionsList
 
+    override val optionItems_ShareDataOptionsDialogFragment: List<OptionWithIconArrayAdapter.ItemOptionWithIcon>
+        get() = dataSharingHandler.optionItems_ShareDataOptionsDialogFragment
+
+    override val title_ShareDataOptionsDialogFragment: String
+        get() = dataSharingHandler.title_ShareDataOptionsDialogFragment
+
+    override fun onCancel_ShareDataOptionsDialogFragment() {
+        dataSharingHandler.onCancel_ShareDataOptionsDialogFragment()
+    }
+
+    override fun onSelectOption_ShareDataOptionsDialogFragment(optionIndex: Int) {
+        dataSharingHandler.onSelectOption_ShareDataOptionsDialogFragment(optionIndex)
+    }
+
     override fun onMapClick(position: LatLng?) {
         markersPresenter.onMapClick()
     }
@@ -443,6 +470,11 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
                 mainPresenter.onGrantLocationPermission()
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        dataSharingHandler.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onResume() {

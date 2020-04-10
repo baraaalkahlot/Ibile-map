@@ -160,6 +160,10 @@ class MarkersPresenter(
         markerImagesPreviewFragment.show(fragmentManager, FRAGMENT_TAG_MARKER_IMAGES_PREVIEW)
     }
 
+    fun onClickActionBarShareBtn(): Long? {
+        return markersViewModel.state.activeMarkerId
+    }
+
     companion object {
         const val FRAGMENT_TAG_MARKER_IMAGES_PREVIEW = "FRAGMENT_TAG_MARKER_IMAGES_PREVIEW"
         const val FRAGMENT_TAG_EDIT_MARKER = "FRAGMENT_TAG_EDIT_MARKER"

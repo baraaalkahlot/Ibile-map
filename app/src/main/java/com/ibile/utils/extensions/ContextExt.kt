@@ -1,6 +1,7 @@
 package com.ibile.utils.extensions
 
 import android.content.*
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.webkit.MimeTypeMap
@@ -17,15 +18,21 @@ fun Context.createImageFile(
     extension: String = "jpg", fileName: String = timeStampString()
 ): File? {
     val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    return try {
-        File.createTempFile("${extension}_${fileName}_", ".$extension", storageDir)
-    } catch (exception: IOException) {
-        null
-    }
+    return File.createTempFile("${extension}_${fileName}_", ".$extension", storageDir)
 }
 
 fun Context.getProviderUri(file: File): Uri =
     FileProvider.getUriForFile(this, FILE_PROVIDER_AUTHORITY, file)
+
+fun Context.grantUriPermissions(uri: Uri, intent: Intent, flags: Int) {
+    packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+        .apply {
+            forEach {
+                val packageName = it.activityInfo.packageName
+                grantUriPermission(packageName, uri, flags)
+            }
+        }
+}
 
 fun ContentResolver.copyContentUriToFile(uri: Uri, file: File): File {
     openInputStream(uri)?.use { input ->
