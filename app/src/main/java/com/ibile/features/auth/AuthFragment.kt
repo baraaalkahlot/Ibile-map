@@ -21,11 +21,6 @@ import com.ibile.utils.extensions.navController
 abstract class AuthFragment : BaseFragment() {
     val viewModel: AuthViewModel by fragmentViewModel()
 
-    override fun onStart() {
-        super.onStart()
-        if (viewModel.currentUser != null) handleAuthSuccess()
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {

@@ -241,7 +241,7 @@ open class AddPolygonPoiViewModel(
         }
     }
 
-    fun onCreateOrUpdateSuccess(marker: com.ibile.data.database.entities.Marker) {
+    fun onCreateOrUpdateSuccess() {
         reset()
     }
 

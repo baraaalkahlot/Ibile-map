@@ -61,7 +61,7 @@ class AddMarkerPoiPresenter(
         }
     }
 
-    fun onCreateOrUpdateSuccess(marker: Marker) {
+    fun onCreateOrUpdateSuccess() {
         reset()
     }
 

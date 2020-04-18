@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.BaseMvRxFragment
 import com.airbnb.mvrx.MvRx
 import com.ibile.R
+import com.ibile.utils.extensions.navController
 
 abstract class BaseFragment : BaseMvRxFragment() {
 
@@ -58,5 +60,9 @@ abstract class BaseFragment : BaseMvRxFragment() {
     protected fun navigateTo(@IdRes actionId: Int, arg: Parcelable? = null) {
         val bundle = arg?.let { Bundle().apply { putParcelable(MvRx.KEY_ARG, it) } }
         findNavController().navigate(actionId, bundle)
+    }
+
+    protected fun NavDirections.navigate() {
+        navController.navigate(this)
     }
 }

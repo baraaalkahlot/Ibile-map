@@ -78,4 +78,5 @@
     <string name="subscription_inactive_msg_title">You do not have an active subscription</string>
     <string name="subscription_inactive_msg">An active subscription is required to use Ibile Maps. Please subscribe to one of the plans below to continue.</string>
     <string name="subscription_inactive_free_trial_msg">You are eligible for 2 months free trial! Select one of the plans below to enjoy your free trial</string>
+    <string name="text_imported_marker">Imported marker</string>
 </resources>

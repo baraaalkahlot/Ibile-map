@@ -1,7 +1,6 @@
 package com.ibile.features.main.markerslist
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
@@ -82,8 +81,8 @@ class MarkersPresenter(
         markersViewModel.updateState { copy(activeMarkerId = null) }
     }
 
-    fun onMarkerCreatedOrUpdated(marker: Marker) {
-        markersViewModel.updateState { copy(activeMarkerId = marker.id, editMarkerId = null) }
+    fun onMarkerCreatedOrUpdated(markerId: Long) {
+        markersViewModel.updateState { copy(activeMarkerId = markerId, editMarkerId = null) }
     }
 
     fun onEditMarkerComplete(result: Long?) {

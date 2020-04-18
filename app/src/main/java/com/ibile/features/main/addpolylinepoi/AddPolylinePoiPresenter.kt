@@ -22,7 +22,7 @@ class AddPolylinePoiPresenter(private val viewModel: AddPolylinePoiViewModel) {
         viewModel.updateState { AddPolylinePoiViewModel.State() }
     }
 
-    fun onCreateOrUpdateSuccess(marker: Marker) {
+    fun onCreateOrUpdateSuccess() {
         reset()
     }
 

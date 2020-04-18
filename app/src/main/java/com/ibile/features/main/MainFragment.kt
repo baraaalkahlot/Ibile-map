@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.databinding.ObservableField
-import androidx.lifecycle.Observer
+import androidx.lifecycle.observe
 import com.airbnb.mvrx.fragmentViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.libraries.maps.GoogleMap
@@ -18,12 +18,14 @@ import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Polygon
 import com.google.android.libraries.maps.model.Polyline
+import com.google.firebase.auth.FirebaseAuth
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
+import com.ibile.features.createimportedmarker.CreateImportedMarkerFragment
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
@@ -35,7 +37,6 @@ import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiViewModel
 import com.ibile.features.main.datasharing.DataSharingHandler
 import com.ibile.features.main.datasharing.DataSharingViewModel
-import com.ibile.utils.views.OptionWithIconArrayAdapter
 import com.ibile.features.main.datasharing.ShareOptionsDialogFragment
 import com.ibile.features.main.folderlist.FolderListPresenter
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
@@ -48,6 +49,7 @@ import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFo
 import com.ibile.features.shared.subscriptionrequired.SubscriptionRequiredFragment
 import com.ibile.utils.extensions.navController
 import com.ibile.utils.extensions.runWithPermissions
+import com.ibile.utils.views.OptionWithIconArrayAdapter
 import kotlinx.android.parcel.Parcelize
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -106,6 +108,11 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // TODO: feed this in through a VM/repo
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            MainFragmentDirections.actionMainFragmentToAuthGraph().navigate()
+            return
+        }
         drawerLayoutViewEpoxyController.onRestoreInstanceState(savedInstanceState)
         markersPresenter.init()
         folderListPresenter.init()
@@ -340,12 +347,20 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        navController.currentBackStackEntry?.savedStateHandle
-            ?.getLiveData<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
-            ?.observe(viewLifecycleOwner, Observer { t ->
-                markersPresenter.onExternalOverlayResult(t)
-                uiStateViewModel.updateActiveOverlay(Overlay.None)
-            })
+        with(navController.currentBackStackEntry!!.savedStateHandle) {
+            getLiveData<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
+                .observe(viewLifecycleOwner) {
+                    markersPresenter.onExternalOverlayResult(it)
+                    uiStateViewModel.updateActiveOverlay(Overlay.None)
+                    remove<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
+                }
+
+            getLiveData<Long>(CreateImportedMarkerFragment.RESULT_KEY_CREATED_MARKER_ID)
+                .observe(viewLifecycleOwner) {
+                    markersPresenter.onMarkerCreatedOrUpdated(it)
+                    remove<Long>(CreateImportedMarkerFragment.RESULT_KEY_CREATED_MARKER_ID)
+                }
+        }
     }
 
     override fun invalidate() {
@@ -359,20 +374,20 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
             addPolylinePoiPresenter.buildModels(map, this)
     }
 
-    private fun drawerLayoutViewEpoxyController() = simpleController {
-        folderListPresenter.buildModels(this)
-    }
-
     private fun handleOnMarkerCreatedOrUpdated(marker: Marker) {
         val activeOverlay = uiStateViewModel.state.activeOverlay
         if (activeOverlay is Overlay.None || activeOverlay is Overlay.ExternalOverlay) return
 
         uiStateViewModel.updateActiveOverlay(Overlay.None)
 
-        addPolylinePoiPresenter.onCreateOrUpdateSuccess(marker)
-        addPolygonPoiViewModel.onCreateOrUpdateSuccess(marker)
-        addMarkerPoiPresenter.onCreateOrUpdateSuccess(marker)
-        markersPresenter.onMarkerCreatedOrUpdated(marker)
+        addPolylinePoiPresenter.onCreateOrUpdateSuccess()
+        addPolygonPoiViewModel.onCreateOrUpdateSuccess()
+        addMarkerPoiPresenter.onCreateOrUpdateSuccess()
+        markersPresenter.onMarkerCreatedOrUpdated(marker.id)
+    }
+
+    private fun drawerLayoutViewEpoxyController() = simpleController {
+        folderListPresenter.buildModels(this)
     }
 
     override fun onComplete(markerId: Long?) {
@@ -524,16 +539,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         drawerLayoutViewEpoxyController.cancelPendingModelBuild()
         super.onDestroyView()
         addPolygonPoiViewModel.setMap(null)
-        navController.currentBackStackEntry?.savedStateHandle
-            ?.remove<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
     }
 
     companion object {
         const val BUNDLE_MAP_VIEW_KEY = "BUNDLE_MAP_VIEW_KEY"
         const val RC_ACCESS_FINE_LOCATION = 1001
         const val RESULT_FRAGMENT_EXTERNAL_OVERLAY = "RESULT_SELECTED_MARKER_ID"
-        const val FRAGMENT_TAG_NEW_MARKER_TARGET_SELECTION =
-            "FRAGMENT_TAG_NEW_MARKER_TARGET_SELECTION"
 
         sealed class ExternalOverlaysResult : Parcelable {
             @Parcelize

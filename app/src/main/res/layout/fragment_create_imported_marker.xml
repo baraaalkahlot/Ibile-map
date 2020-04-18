@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.libraries.maps.MapView
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            map:cameraZoom="15" />
+
+        <LinearLayout
+            android:id="@+id/ll_action_bar_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="@dimen/spacing_1"
+            android:layout_marginEnd="@dimen/spacing_1"
+            android:background="@drawable/bg_rect_thin_rounded_sm_black_transparent_dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/cd_back_btn"
+                android:gravity="center"
+                android:padding="@dimen/spacing_1"
+                android:src="@drawable/ic_arrow_back_24" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/transparent_white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_1_5"
+                android:text="@string/text_title_new_marker"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                tools:text="New Marker" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="@dimen/spacing_1"
+            android:background="@drawable/bg_transparent_large_stroke_rounded_top"
+            app:layout_constraintBottom_toTopOf="@id/ll_result_details_container"
+            app:layout_constraintTop_toBottomOf="@id/ll_action_bar_container" />
+
+        <LinearLayout
+            android:id="@+id/ll_result_details_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_1"
+            android:layout_marginEnd="@dimen/spacing_1"
+            android:layout_marginBottom="@dimen/spacing_1"
+            android:background="@drawable/bg_black_rounded_bottom"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/spacing_1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tv_location_primary_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_imported_marker"
+                android:textColor="@android:color/white"
+                tools:text="Oshodi/Isolo" />
+
+            <Button
+                android:id="@+id/btn_create_marker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_1"
+                android:background="@drawable/bg_rect_thin_rounded_sm_transparent"
+                android:padding="@dimen/spacing_2"
+                android:text="@string/text_btn_create"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
