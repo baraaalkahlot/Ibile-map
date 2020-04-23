@@ -350,15 +350,13 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         with(navController.currentBackStackEntry!!.savedStateHandle) {
             getLiveData<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
                 .observe(viewLifecycleOwner) {
-                    markersPresenter.onExternalOverlayResult(it)
                     uiStateViewModel.updateActiveOverlay(Overlay.None)
-                    remove<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
+                    markersPresenter.onExternalOverlayResult(it)
                 }
 
             getLiveData<Long>(CreateImportedMarkerFragment.RESULT_KEY_CREATED_MARKER_ID)
                 .observe(viewLifecycleOwner) {
                     markersPresenter.onMarkerCreatedOrUpdated(it)
-                    remove<Long>(CreateImportedMarkerFragment.RESULT_KEY_CREATED_MARKER_ID)
                 }
         }
     }
@@ -539,6 +537,10 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         drawerLayoutViewEpoxyController.cancelPendingModelBuild()
         super.onDestroyView()
         addPolygonPoiViewModel.setMap(null)
+        with(navController.currentBackStackEntry!!.savedStateHandle) {
+            remove<ExternalOverlaysResult>(RESULT_FRAGMENT_EXTERNAL_OVERLAY)
+            remove<Long>(CreateImportedMarkerFragment.RESULT_KEY_CREATED_MARKER_ID)
+        }
     }
 
     companion object {

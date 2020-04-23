@@ -10,8 +10,8 @@ import com.airbnb.mvrx.withState
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.ibile.core.addTo
-import com.ibile.features.main.MainFragment
 import com.ibile.features.addmarkerfromlocationssearchresult.LocationSearchSelectedResultFragment
+import com.ibile.features.main.MainFragment
 import com.ibile.placesResultItem
 import com.ibile.searchPlacesResultsState
 import com.jakewharton.rxrelay2.PublishRelay
@@ -101,11 +101,10 @@ class LocationsSearchPresenter(
     }
 
     private fun setResult(navController: NavController, result: Long?) {
-        navController
-            .previousBackStackEntry?.savedStateHandle?.set(
-                MainFragment.RESULT_FRAGMENT_EXTERNAL_OVERLAY,
-                MainFragment.Companion.ExternalOverlaysResult.LocationsSearch(result)
-            )
+        navController.previousBackStackEntry?.savedStateHandle?.set(
+            MainFragment.RESULT_FRAGMENT_EXTERNAL_OVERLAY,
+            MainFragment.Companion.ExternalOverlaysResult.LocationsSearch(result)
+        )
     }
 
     fun onSelectedResultViewBackPressed() {

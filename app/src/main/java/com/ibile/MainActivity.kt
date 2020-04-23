@@ -41,9 +41,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        handleNewIntent(intent)
+    }
 
+    private fun handleNewIntent(intent: Intent) {
         if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)) return
-        val action = NavGraphDirections.actionGlobalNewIntentHandlerFragment(intent)
+        val action = NavGraphDirections.actionGlobalImportGraph(intent)
         navController.navigate(action)
     }
 }

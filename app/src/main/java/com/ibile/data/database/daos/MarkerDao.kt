@@ -17,18 +17,18 @@ interface MarkerDao {
     @Insert
     fun insertMarkers(vararg markers: Marker): Single<List<Long>>
 
+    @Update
+    fun updateMarkers(vararg marker: Marker): Completable
+
     @Query("SELECT * FROM markers WHERE folder_id in (SELECT id FROM folders WHERE selected = 1)")
     fun getAllMarkers(): Flowable<List<Marker>>
 
-    @Update
-    fun updateMarkers(vararg marker: Marker): Completable
+    @Query("SELECT * FROM markers where folder_id = :folderId")
+    fun getMarkersByFolderId(folderId: Long): Single<List<Marker>>
 
     @Query("SELECT * FROM markers where id = :id LIMIT 1")
     fun getMarker(id: Long): Single<Marker>
 
     @Delete
     fun deleteMarkers(vararg marker: Marker): Completable
-
-    @Query("SELECT * FROM markers where folder_id = :folderId")
-    fun getMarkersByFolderId(folderId: Long): Single<List<Marker>>
 }

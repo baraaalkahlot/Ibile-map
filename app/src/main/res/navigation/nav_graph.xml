@@ -9,36 +9,17 @@
         app:destination="@id/subscriptionFragment" />
 
     <action
-        android:id="@+id/action_global_newIntentHandlerFragment"
-        app:destination="@id/newIntentHandlerFragment" />
+        android:id="@+id/action_global_import_graph"
+        app:destination="@id/data_import_graph">
+        <argument
+            android:name="intent"
+            app:argType="android.content.Intent" />
+    </action>
 
     <fragment
         android:id="@+id/subscriptionFragment"
         android:name="com.ibile.features.subscription.SubscriptionFragment"
         android:label="SubscriptionFragment" />
-
-    <fragment
-        android:id="@+id/newIntentHandlerFragment"
-        android:name="com.ibile.features.intenthandler.NewIntentHandlerFragment"
-        android:label="NewIntentHandlerFragment">
-        <argument
-            android:name="intent"
-            app:argType="android.content.Intent" />
-        <action
-            android:id="@+id/action_newIntentHandlerFragment_to_createImportedMarkerFragment"
-            app:destination="@id/createImportedMarkerFragment"
-            app:popUpTo="@id/newIntentHandlerFragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/createImportedMarkerFragment"
-        android:name="com.ibile.features.createimportedmarker.CreateImportedMarkerFragment"
-        android:label="CreateImportedMarkerFragment">
-        <argument
-            android:name="importedMarkerCoords"
-            app:argType="com.google.android.libraries.maps.model.LatLng" />
-    </fragment>
 
     <navigation
         android:id="@+id/auth_graph"
@@ -121,5 +102,40 @@
                 android:name="markerId"
                 app:argType="long" />
         </dialog>
+    </navigation>
+
+    <navigation
+        android:id="@+id/data_import_graph"
+        app:startDestination="@id/dataImportHandlerFragment">
+        <fragment
+            android:id="@+id/dataImportHandlerFragment"
+            android:name="com.ibile.features.dataimport.DataImportHandlerFragment"
+            android:label="DataImportHandlerFragment">
+            <argument
+                android:name="intent"
+                app:argType="android.content.Intent" />
+            <action
+                android:id="@+id/action_dataImportHandlerFragment_to_createImportedMarkerFragment"
+                app:destination="@id/createImportedMarkerFragment"
+                app:popUpTo="@id/dataImportHandlerFragment"
+                app:popUpToInclusive="true" />
+            <action
+                android:id="@+id/action_dataImportHandlerFragment_to_importConfirmationDialogFragment"
+                app:destination="@id/importConfirmationDialogFragment"
+                app:popUpTo="@id/dataImportHandlerFragment"
+                app:popUpToInclusive="true" />
+        </fragment>
+        <fragment
+            android:id="@+id/createImportedMarkerFragment"
+            android:name="com.ibile.features.createimportedmarker.CreateImportedMarkerFragment"
+            android:label="CreateImportedMarkerFragment">
+            <argument
+                android:name="importedMarkerCoords"
+                app:argType="com.google.android.libraries.maps.model.LatLng" />
+        </fragment>
+        <dialog
+            android:id="@+id/importConfirmationDialogFragment"
+            android:name="com.ibile.features.dataimport.ImportConfirmationDialogFragment"
+            android:label="ImportConfirmationDialogFragment" />
     </navigation>
 </navigation>

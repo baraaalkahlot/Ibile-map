@@ -5,7 +5,6 @@ import com.ibile.core.BaseViewModel
 import com.ibile.data.database.entities.FolderWithMarkers
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.FoldersRepository
-import com.jakewharton.rxrelay2.PublishRelay
 import org.koin.android.ext.android.get
 
 data class BrowseMarkersViewModelState(
@@ -21,7 +20,7 @@ class BrowseMarkersViewModel(
 
     fun getAllFolders() {
         foldersRepository
-            .getAllSelectedFoldersWithMarkers()
+            .getAllFoldersWithMarkers()
             .toObservable()
             .execute { copy(getFoldersAsync = it) }
     }

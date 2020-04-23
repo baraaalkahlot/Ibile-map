@@ -15,7 +15,8 @@ import org.koin.dsl.module
 val appModule = module {
     single { Database.build(androidContext()) }
     single { MarkersRepository(get<Database>().markerDao()) }
-    single { FoldersRepository(get<Database>().foldersDao()) }
+    single { FoldersRepository(get<Database>().foldersDao(), get<Database>().foldersWithMarkersDao()) }
+
     single { Places.createClient(androidContext()) }
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }
     single { (androidContext() as Application).iconPack }

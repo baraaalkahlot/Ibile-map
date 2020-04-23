@@ -20,7 +20,7 @@ class OrganizeMarkersViewModel(
 
     fun getFoldersWithMarkers() {
         foldersRepository
-            .getAllSelectedFoldersWithMarkers()
+            .getAllFoldersWithMarkers()
             .toObservable()
             .subscribeOn(Schedulers.io())
             .execute { copy(getFoldersWithMarkersAsyncResult = it) }

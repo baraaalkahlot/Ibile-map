@@ -18,12 +18,6 @@ class FoldersViewModel(initialState: State, private val foldersRepository: Folde
             .execute { copy(getFoldersAsync = it) }
     }
 
-    fun addFolder(folder: Folder) {
-        foldersRepository.addFolder(folder)
-            .subscribeOn(Schedulers.io())
-            .execute { copy(addFolderAsync = it) }
-    }
-
     fun updateFolders(vararg folder: Folder) {
         foldersRepository.updateFolders(*folder)
             .subscribeOn(Schedulers.io())

@@ -49,7 +49,7 @@ class Exporter(
                 "Color",
                 "Phone number",
                 "Timestamp",
-                "Pin icon code"
+                "Icon id"
             )
             val rows = mutableListOf(headerRow)
             folders.forEach { (folder, markers) ->
@@ -83,7 +83,7 @@ class Exporter(
                 if (!exists()) mkdirs()
             }
             val kmlFile = File(exportFolder, "doc.kml")
-            serializer.serialize(folders, kmlFile, name)
+            serializer.serialize(folders, kmlFile, name, false)
             folders.flatMap { it.markers }.flatMap { it.imageUris }
                 .map { it.toFile() }.forEach { it.copyTo(File(exportFolder, it.name)) }
             exportFile = zipFolder(exportFolder)

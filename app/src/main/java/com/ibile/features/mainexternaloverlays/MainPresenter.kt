@@ -45,8 +45,8 @@ class MainPresenter(
 
     fun onBackPressed(navController: NavController) = when (uiStateViewModel.state.currentView) {
         is BrowseMarkers -> browseMarkersPresenter.onBackPressed(navController)
-        is LocationsSearch -> locationsSearchPresenter.onBackPressed(navController)
         is OrganizeMarkers -> organizeMarkersPresenter.onBackPressed(navController)
+        is LocationsSearch -> locationsSearchPresenter.onBackPressed(navController)
     }
 
     fun onBrowseMarkerSearchInputChange(value: String) {

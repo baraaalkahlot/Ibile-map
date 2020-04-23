@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ibile.data.database.daos.FoldersDao
+import com.ibile.data.database.daos.FoldersWithMarkersDao
 import com.ibile.data.database.daos.MarkerDao
 import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
@@ -17,6 +18,8 @@ abstract class Database : RoomDatabase() {
     abstract fun markerDao(): MarkerDao
 
     abstract fun foldersDao(): FoldersDao
+
+    abstract fun foldersWithMarkersDao(): FoldersWithMarkersDao
 
     companion object {
         fun build(context: Context): com.ibile.data.database.Database {
