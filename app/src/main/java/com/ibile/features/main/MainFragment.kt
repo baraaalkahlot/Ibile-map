@@ -1,6 +1,7 @@
 package com.ibile.features.main
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
@@ -41,6 +42,9 @@ import com.ibile.features.main.datasharing.ShareOptionsDialogFragment
 import com.ibile.features.main.folderlist.FolderListPresenter
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.main.folderlist.FoldersViewModel
+import com.ibile.features.main.mapfiles.MapFilesOptionsContainerDialogFragment
+import com.ibile.features.main.mapfiles.MapFilesController
+import com.ibile.features.main.mapfiles.MapFilesViewModel
 import com.ibile.features.main.markerslist.MarkerInfoDatabindingViewData
 import com.ibile.features.main.markerslist.MarkersPresenter
 import com.ibile.features.main.markerslist.MarkersViewModel
@@ -58,7 +62,8 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
     GoogleMap.OnCameraMoveListener, EditMarkerDialogFragment.Callback,
-    MarkerActionTargetFolderSelectionDialogFragment.Callback, ShareOptionsDialogFragment.Callback {
+    MarkerActionTargetFolderSelectionDialogFragment.Callback, ShareOptionsDialogFragment.Callback,
+    MapFilesOptionsContainerDialogFragment.Callback {
 
     private lateinit var binding: FragmentMainBinding
     private lateinit var mapView: MapView
@@ -101,6 +106,11 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     private val dataSharingViewModel: DataSharingViewModel by fragmentViewModel()
     private val dataSharingHandler: DataSharingHandler by lazy {
         DataSharingHandler(this, dataSharingViewModel)
+    }
+
+    private val mapFilesViewModel: MapFilesViewModel by fragmentViewModel()
+    private val mapFilesController: MapFilesController by lazy {
+        MapFilesController(this, mapFilesViewModel)
     }
 
     override val mode: MarkerImagesPreviewFragment.Callback.Mode
@@ -385,6 +395,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     }
 
     private fun drawerLayoutViewEpoxyController() = simpleController {
+        mapFilesController.buildModels(this)
         folderListPresenter.buildModels(this)
     }
 
@@ -439,6 +450,14 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
     override fun onSelectOption_ShareDataOptionsDialogFragment(optionIndex: Int) {
         dataSharingHandler.onSelectOption_ShareDataOptionsDialogFragment(optionIndex)
+    }
+
+    override fun getDialog_FileOptionsDialogFragment(): Dialog {
+        return mapFilesController.getDialog_FileOptionsDialogFragment()
+    }
+
+    override fun onCancelDialog_FileOptionsDialogFragment() {
+        mapFilesController.onCancelDialog_FileOptionsDialogFragment()
     }
 
     override fun onMapClick(position: LatLng?) {

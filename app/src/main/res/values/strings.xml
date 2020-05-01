@@ -81,4 +81,9 @@
     <string name="text_imported_marker">Imported marker</string>
     <string name="dialog_message_confirm_import">Do you want to import the contents of this file?</string>
     <string name="toast_msg_data_import_started">Data import in progress…</string>
+    <string name="title_dialog_file_options">File options</string>
+    <string name="title_dialog_map_file_rename">Enter new name</string>
+    <string name="title_dialog_create_new_map_file">Enter the new map\'s name</string>
+    <string name="msg_dialog_confirm_delete_map_file">This action will delete the map file from your device forever. All the marker inside that file will be lost. Are you sure?</string>
+    <string name="msg_dialog_delete_map_file_success">Map file deleted successfully</string>
 </resources>

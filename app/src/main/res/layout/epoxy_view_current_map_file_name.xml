@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="name"
+            type="String" />
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <TextView
+        android:id="@+id/tv_current_map_file_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_baseline_sd_storage_24"
+        android:drawablePadding="@dimen/spacing_1_5"
+        android:gravity="center_vertical"
+        android:onClick="@{onClick}"
+        android:padding="@dimen/spacing_2"
+        android:text="@{name}"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+</layout>

@@ -13,7 +13,8 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    single { Database.build(androidContext()) }
+    single { MapFilesRepository(androidContext(), get()) }
+    single { Database.build(androidContext(), get(), get()) }
     single { MarkersRepository(get<Database>().markerDao()) }
     single { FoldersRepository(get<Database>().foldersDao(), get<Database>().foldersWithMarkersDao()) }
 

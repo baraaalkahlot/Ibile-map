@@ -22,7 +22,7 @@ class FolderListPresenter(
     fun buildModels(controller: EpoxyController) {
         with(controller) {
             markerFolderTitle {
-                id("DrawerView_Title_Folders")
+                id("DrawerViewSectionTitle_Folders")
                 text("Folders")
             }
             viewModel.state.getFoldersAsync()?.let {

@@ -1,5 +1,7 @@
+
 package com.ibile.utils.extensions
 
+import android.app.Activity
 import android.content.*
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,6 +12,7 @@ import com.ibile.utils.FILE_PROVIDER_AUTHORITY
 import com.ibile.utils.timeStampString
 import java.io.File
 import java.io.IOException
+import kotlin.reflect.KClass
 
 const val BUFFER_SIZE = 8 * 1024
 
@@ -54,4 +57,11 @@ fun Context.startResolvableActivity(intent: Intent) {
     if (intent.resolveActivity(this.packageManager) != null) {
         this.startActivity(intent)
     }
+}
+
+fun Context.restartApp(activityClass: KClass<out Activity>) {
+    val intent = Intent(this, activityClass.java)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    startActivity(intent)
+    Runtime.getRuntime().exit(0)
 }
