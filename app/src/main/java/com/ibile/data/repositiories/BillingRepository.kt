@@ -268,9 +268,9 @@ class BillingRepository(context: Context, private val sharedPref: SharedPref) :
     }
 
     companion object {
-        private const val ANNUAL_ACCESS_SKU = "ibilemaps_access_sub"
-        private const val QUARTERLY_ACCESS_SKU = "ibile_maps_access_sub_quartely"
-        val SUBSCRIPTION_SKUS = listOf(ANNUAL_ACCESS_SKU, QUARTERLY_ACCESS_SKU)
+        private const val APP_ACCESS_ANNUAL_SKU = "ibilemaps_access_sub"
+        private const val APP_ACCESS_MONTHLY_SKU = "ibilemaps_app_sub_monthly"
+        private val SUBSCRIPTION_SKUS = listOf(APP_ACCESS_ANNUAL_SKU, APP_ACCESS_MONTHLY_SKU)
 
         val TAG = BillingRepository::class.java.simpleName
     }

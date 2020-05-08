@@ -77,7 +77,7 @@
     <string name="subscription_active_msg">You can now continue to use Ibile Maps</string>
     <string name="subscription_inactive_msg_title">You do not have an active subscription</string>
     <string name="subscription_inactive_msg">An active subscription is required to use Ibile Maps. Please subscribe to one of the plans below to continue.</string>
-    <string name="subscription_inactive_free_trial_msg">You are eligible for 2 months free trial! Select one of the plans below to enjoy your free trial</string>
+    <string name="subscription_inactive_free_trial_msg">You are eligible for 7 days free trial! Select one of the plans below to start enjoying your free trial. Billing would begin at the end of the trial period.</string>
     <string name="text_imported_marker">Imported marker</string>
     <string name="dialog_message_confirm_import">Do you want to import the contents of this file?</string>
     <string name="toast_msg_data_import_started">Data import in progress…</string>
