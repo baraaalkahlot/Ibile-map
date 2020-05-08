@@ -5,6 +5,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.github.alexfu.androidautoversion'
 
 def secretsProperties = new Properties()
 secretsProperties.load(new FileInputStream(rootProject.file("secrets.properties")))
@@ -21,8 +22,8 @@ android {
         applicationId "com.ibile"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 8
-        versionName "1"
+        versionCode androidAutoVersion.versionCode
+        versionName androidAutoVersion.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {

@@ -58,6 +58,22 @@ import kotlinx.android.parcel.Parcelize
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+/**
+ * Main Application Entry Screen.
+ *
+ * This Fragment consists of many sub-screens and thus employs a Presenter/Controller pattern for
+ * delegating features of those sub-screens.
+ *
+ * While the Fragment looks like a god class, its major functionality is delegating to the Controller
+ * classes and this is hardly unavoidable. Additionally, there are a lot of different arch patterns
+ * employed by the features due to how complicated this main screen is. This also formed the basis of
+ * how features across the app are implemented.
+ *
+ * An arch pattern that has however seemed to be efficient and easy to implement is based on MVI-pattern
+ * and is implemented in later features including [DataSharingHandler] and [MapFilesController]. This
+ * leaves a huge technical debt of refactoring the other features (across the app as well) to this
+ * pattern.
+ */
 class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment.Callback,
     GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnPolylineClickListener, GoogleMap.OnPolygonClickListener,
