@@ -12,7 +12,7 @@
             type="com.bumptech.glide.request.RequestOptions" />
     </data>
 
-    <ImageView
+    <com.jsibbold.zoomage.ZoomageView
         android:id="@+id/iv_marker_image_full"
         imageUri="@{uri}"
         requestOptions="@{requestOptions}"
