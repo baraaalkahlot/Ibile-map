@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icons width="24" height="24">
-    <icon width="50" height="50" id="3000" drawableResId="@drawable/ic_map_pin" category="7" tags="place,building,pin"  />
+    <icon width="50" height="50" id="3000" drawableResId="@drawable/ic_map_pin" category="0" tags="place,building,pin"  />
 </icons>
