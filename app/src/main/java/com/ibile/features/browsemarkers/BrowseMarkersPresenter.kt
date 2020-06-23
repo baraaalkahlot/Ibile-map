@@ -49,6 +49,7 @@ class BrowseMarkersPresenter(private val browseMarkersViewModel: BrowseMarkersVi
 
     private fun Marker.containsQuery(query: String): Boolean = title.contains(query, true)
             || (description ?: "").contains(query, true)
+            || formattedCreatedAt.contains(query, true)
 
     fun onClickMarkerItem(markerId: Long, navController: NavController) {
         setResult(navController, markerId)
