@@ -46,6 +46,13 @@ class DataSharingViewModel(
         setState { copy(markerId = markerId, viewCommand = command) }
     }
 
+    fun initOrganize(markerId: Long?){
+        val command = if (markerId == null) Command.ShowInitialShareOptionsDialog
+        else Command.ShowEntityDataExportOptionsDialog(Entity.Marker)
+
+        setState { copy(markerId = markerId, viewCommand = command) }
+    }
+
     fun onCancelShareOperation() {
         reset()
     }
@@ -193,6 +200,7 @@ class DataSharingViewModel(
             val folder = state.getAllFoldersAsyncResult()!![folderIndex]
             folder.folder.title to listOf(folder)
         }
+
     }
 
 
@@ -222,6 +230,7 @@ class DataSharingViewModel(
 
     data class State(
         val markerId: Long? = null,
+        val markerIds: List<Long>? = null,
         val getAllFoldersAsyncResult: Async<List<FolderWithMarkers>> = Uninitialized,
         val viewCommand: Command? = null,
         val exportAsyncResult: Async<Intent> = Uninitialized,

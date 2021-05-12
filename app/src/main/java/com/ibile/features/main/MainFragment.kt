@@ -146,7 +146,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         drawerLayoutViewEpoxyController.onRestoreInstanceState(savedInstanceState)
         markersPresenter.init()
         folderListPresenter.init()
-        Log.d("CHECKING OTHERS", "TO know what calls")
+
     }
 
      fun getInstance(): MainFragment {

@@ -12,6 +12,7 @@
             name="handler"
             type="com.ibile.features.main.MainDataBindingViewData" />
 
+
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout
@@ -57,6 +58,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:selected="@{handler.data.locationButtonIsActive}" />
+
+
+
 
 
             <ImageButton

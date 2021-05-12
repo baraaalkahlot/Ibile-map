@@ -254,7 +254,7 @@ class OrganizeMarkersPresenter(
 
 
 
-       dataSharingHandler.init(selectedMarkers[0].id)
+       dataSharingHandler.initOrganize(selectedMarkers[0].id)
 
 
     }

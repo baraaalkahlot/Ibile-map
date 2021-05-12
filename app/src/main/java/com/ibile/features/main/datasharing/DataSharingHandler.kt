@@ -53,6 +53,11 @@ class DataSharingHandler(val fragment: Fragment, private val viewModel: DataShar
         viewModel.init(activeMarkerId)
     }
 
+
+    fun initOrganize(activeMarkerId: Long?){
+        viewModel.initOrganize(activeMarkerId)
+
+    }
     @Suppress("UNUSED_PARAMETER")
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_DATA_SHARING) viewModel.onCompleteOrCancelShareOperation()
