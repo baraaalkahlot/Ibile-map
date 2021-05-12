@@ -2,6 +2,7 @@ package com.ibile.features.main.datasharing
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.util.Log
 import android.util.Xml
 import com.airbnb.mvrx.*
 import com.ibile.core.BaseViewModel
@@ -15,6 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.get
 import org.koin.core.KoinComponent
+import org.koin.ext.getScopeName
 
 class DataSharingViewModel(
     initialState: State,
@@ -37,8 +39,10 @@ class DataSharingViewModel(
     }
 
     fun init(markerId: Long?) {
+
         val command = if (markerId == null) Command.ShowInitialShareOptionsDialog
         else Command.ShowInitialShareOptionsWithMarkerOptionsDialog
+
         setState { copy(markerId = markerId, viewCommand = command) }
     }
 
@@ -242,6 +246,7 @@ class DataSharingViewModel(
                     object Marker : Entity()
                     object AllFilesAndFolder : Entity()
                     data class Folder(val folderIndex: Int) : Entity()
+
                 }
             }
 

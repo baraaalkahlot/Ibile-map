@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -90,10 +91,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         drawerLayoutViewEpoxyController()
     }
 
-    private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
-    private val mainPresenter: MainPresenter by lazy {
-        MainPresenter(uiStateViewModel, fusedLocationClient)
-    }
+
 
     private val addPolygonPoiViewModel: AddPolygonPoiViewModel by viewModel()
 
@@ -124,6 +122,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         DataSharingHandler(this, dataSharingViewModel)
     }
 
+
+    private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
+    private val mainPresenter: MainPresenter by lazy {
+        MainPresenter(uiStateViewModel, fusedLocationClient)
+    }
+
     private val mapFilesViewModel: MapFilesViewModel by fragmentViewModel()
     private val mapFilesController: MapFilesController by lazy {
         MapFilesController(this, mapFilesViewModel)
@@ -142,8 +146,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         drawerLayoutViewEpoxyController.onRestoreInstanceState(savedInstanceState)
         markersPresenter.init()
         folderListPresenter.init()
+        Log.d("CHECKING OTHERS", "TO know what calls")
     }
 
+     fun getInstance(): MainFragment {
+         return this
+      }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -166,8 +174,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         binding.partialAddPolylinePoi.handler = addPolyLinePoiDatabindingViewData
         binding.partialAddPolygonPoi.addShapeViewModel = addPolygonPoiViewModel
 
+
+
         return binding.root
     }
+
+
 
     private fun initializeMapView(mapView: MapView, savedInstanceState: Bundle?) {
         this.mapView = mapView
@@ -315,10 +327,14 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         }
 
         override fun handleShareBtnClick() {
+
+
             val activeMarkerId = markersPresenter.onClickActionBarShareBtn()
             dataSharingHandler.init(activeMarkerId)
+
         }
     }
+
 
     private val addMarkerPoiDatabindingViewData = object :
         AddMarkerPoiDatabindingViewData {

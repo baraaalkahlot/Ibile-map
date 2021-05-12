@@ -2,6 +2,7 @@ package com.ibile.features.main.datasharing
 
 import android.net.Uri
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.core.net.toFile
 import com.ibile.data.database.entities.FolderWithMarkers
 import com.ibile.data.database.entities.Marker
@@ -21,7 +22,40 @@ class DataSerializer(private val serializer: XmlSerializer) {
         name: String,
         standalone: Boolean = true
     ) {
+        Log.d("OKAYCHECK", "EXPORTER CALLS WITHIN SerializeMarker Original ")
         FileWriter(file).use { write(it, name, foldersWithMarkers, standalone) }
+    }
+
+    fun serializeMarker(
+        foldersWithMarkers: List<Marker>,
+        file: File,
+        name: String,
+        standalone: Boolean = true
+    ) {
+        Log.d("OKAYCHECK", "EXPORTER CALLS WITHIN SerializeMarker ")
+        FileWriter(file).use { writeMarkers(it, name, foldersWithMarkers, standalone) }
+    }
+
+    private fun writeMarkers(
+        writer: Writer,
+        name: String,
+        data: List<Marker>,
+        standalone: Boolean
+    ) {
+        with(serializer) {
+            setOutput(writer)
+            startDocument("UTF-8", null)
+            setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true)
+            setPrefix("", "http://www.opengis.net/kml/2.2")
+
+            tag("kml", "http://www.opengis.net/kml/2.2") {
+                tag("Document") {
+                    tag("name") { text(name) }
+                    data.forEach { writeMarker(it, standalone) }
+                }
+            }
+            endDocument()
+        }
     }
 
     private fun write(

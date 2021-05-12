@@ -9,7 +9,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/spacing_0_5">
+        android:padding="@dimen/spacing_0_5"
+       >
 
         <include
             android:id="@+id/action_bar"
