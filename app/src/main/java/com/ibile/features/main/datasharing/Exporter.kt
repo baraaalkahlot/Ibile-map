@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.core.net.toFile
 import com.ibile.data.database.entities.FolderWithMarkers
+import com.ibile.data.database.entities.Marker
 import com.ibile.utils.extensions.getProviderUri
 import com.ibile.utils.extensions.grantUriPermissions
 import de.siegmar.fastcsv.writer.CsvWriter
@@ -27,6 +29,16 @@ class Exporter(
     fun exportKml(folders: List<FolderWithMarkers>, name: String) =
         export("im_pois_${timestampString}.kml") {
             serializer.serialize(folders, this, name)
+        }
+    
+    
+    fun exportKmlMarker(markers: List<Marker>, name: String) = 
+
+        export("im_pois_${timestampString}.kml"){
+
+            serializer.serializeMarker(markers, this, name)
+
+
         }
 
     fun exportSnapshotBitmap(bitmap: Bitmap): Single<Intent> =
@@ -113,15 +125,20 @@ class Exporter(
     }
 
     private fun export(fileName: String, block: File.() -> Unit): Single<Intent> {
+
+        Log.d("OKAYCHECK", "EXPORTER CALLS WITHIN EXPORT $fileName ")
         return Single.create { emitter ->
+            Log.d("OKAYCHECK", "EXPORTER CALLS WITHIN EXPORT $fileName ")
             exportFile = File(baseDir, fileName)
             block(exportFile)
             val exportIntent = createExportIntent(exportFile)
             emitter.onSuccess(exportIntent)
+
         }
     }
 
     private fun createExportIntent(file: File): Intent {
+        Log.d("OKAYCHECK", "EXPORTER CALLS WITHIN create export Intent ")
         val fileUri = context.getProviderUri(file)
         val shareIntent = Intent(Intent.ACTION_SEND)
             .putExtra(Intent.EXTRA_STREAM, fileUri)

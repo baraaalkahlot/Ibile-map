@@ -13,6 +13,7 @@ import com.airbnb.mvrx.UniqueOnly
 import com.ibile.R
 import com.ibile.data.database.entities.Marker
 import com.ibile.features.main.MainFragment
+import com.ibile.features.main.datasharing.DataSharingHandler
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 import com.ibile.features.organizemarkers.OrganizeMarkersPresenter.SelectedMarkersAction.CopyToFolder
@@ -31,7 +32,8 @@ import com.ibile.organizeMarkersListItem
 class OrganizeMarkersPresenter(
     private val viewModel: OrganizeMarkersViewModel,
     private val context: Context,
-    private val fragmentManager: FragmentManager
+    private val fragmentManager: FragmentManager,
+    private val dataSharingHandler: DataSharingHandler
 ) {
     private var isSubscribedToStateChanges = false
 
@@ -39,6 +41,9 @@ class OrganizeMarkersPresenter(
         get() = fragmentManager.findFragmentByTag(FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER)
                 as? MarkerActionTargetFolderSelectionDialogFragment
             ?: MarkerActionTargetFolderSelectionDialogFragment()
+
+
+
 
     private fun getMarkersFieldsToUpdateOptionsDialog(
         options: Map<String, Boolean>,
@@ -221,6 +226,8 @@ class OrganizeMarkersPresenter(
     private fun handleActionBtnsViewClick(clickedView: View) {
         when (clickedView.id) {
             R.id.btn_select_all_markers -> handleSelectAllMarkersBtnClick()
+
+            R.id.btn_share_organize -> handleShare()
             R.id.btn_copy_selected_markers -> viewModel.updateState {
                 copy(selectedMarkersAction = CopyToFolder)
             }
@@ -233,6 +240,23 @@ class OrganizeMarkersPresenter(
                 viewModel.deleteMarkers(selectedMarkers)
             }.show()
         }
+    }
+
+
+    private fun  handleShare(){
+
+
+
+
+
+        val selectedMarkers =
+            displayedMarkers.filter { viewModel.state.selectedMarkersIds.contains(it.id) }
+
+
+
+       dataSharingHandler.initOrganize(selectedMarkers[0].id)
+
+
     }
 
     private fun handleSelectAllMarkersBtnClick() {
@@ -283,4 +307,6 @@ class OrganizeMarkersPresenter(
         const val FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER =
             "FRAGMENT_TAG_MARKERS_ACTION_TARGET_FOLDER"
     }
+
+
 }

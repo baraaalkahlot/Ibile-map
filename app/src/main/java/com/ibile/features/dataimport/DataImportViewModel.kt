@@ -27,15 +27,19 @@ class DataImportViewModel(
 ) :
     BaseViewModel<State>(initialState) {
 
+
     init {
         // not ideal to use this here, but since there is no view controller subscribed by the
         // time this completes, this is the simplest option for now. Context is also from DI/app,
         // which makes it slightly safe. Safest option is to tie this viewmodel with the activity
         // (hard to do with MvRx) and issue commands from there.
         asyncSubscribe(State::dataImportAsyncResult, {
-            Toast.makeText(context, "Data import failed", Toast.LENGTH_SHORT).show()
+
+            //Toast.makeText(context, "Data import failed", Toast.LENGTH_SHORT).show()
+
         }) {
-            Toast.makeText(context, "Data import completed successfully!", Toast.LENGTH_SHORT).show()
+
+           // Toast.makeText(context, "Data import completed successfully!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -58,12 +62,32 @@ class DataImportViewModel(
     }
 
     fun onClickImportConfirmationDialogPositive() {
+
+
         setState { copy(viewCommand = ViewCommand.DismissImportConfirmationDialog) }
         when (state.dataMimeType) {
             CSV_MIME_TYPE -> handleCsvImport()
             KML_MIME_TYPE -> handleKmlImport()
             KMZ_MIME_TYPE -> handleKmzImport()
         }
+    }
+
+
+    fun handleProgressBar(progressBarHandler: ProgressBarHandler){
+
+        progressBarHandler.show()
+
+        asyncSubscribe(State::dataImportAsyncResult, {
+
+            Toast.makeText(context, "Data import failed ", Toast.LENGTH_SHORT).show()
+            progressBarHandler.hide()
+
+        }) {
+
+            Toast.makeText(context, "Data import completed successfully!", Toast.LENGTH_SHORT).show()
+            progressBarHandler.hide()
+        }
+
     }
 
     fun onClickImportConfirmationDialogNegative() {
@@ -149,6 +173,8 @@ class DataImportViewModel(
             object Exit : ViewCommand()
             object ShowImportConfirmationDialog : ViewCommand()
             object DismissImportConfirmationDialog : ViewCommand()
+
+            object  finishedLoading: ViewCommand()
         }
 
         const val CSV_MIME_TYPE = "text/comma-separated-values"

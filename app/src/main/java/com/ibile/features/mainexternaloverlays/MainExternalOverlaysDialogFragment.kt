@@ -21,10 +21,14 @@ import com.ibile.features.browsemarkers.BrowseMarkersViewModel
 import com.ibile.features.locationssearch.LocationsSearchPresenter
 import com.ibile.features.locationssearch.LocationsSearchViewEvents
 import com.ibile.features.locationssearch.LocationsSearchViewModel
+import com.ibile.features.main.datasharing.DataSharingHandler
+import com.ibile.features.main.datasharing.DataSharingViewModel
+import com.ibile.features.main.datasharing.ShareOptionsDialogFragment
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.organizemarkers.OrganizeMarkersPresenter
 import com.ibile.features.organizemarkers.OrganizeMarkersViewModel
 import com.ibile.utils.extensions.navController
+import com.ibile.utils.views.OptionWithIconArrayAdapter
 
 interface ActionBarViewBindingData {
     fun onClickBackBtn()
@@ -41,7 +45,7 @@ interface ActionBarViewBindingData {
 class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
     ActionBarViewBindingData, BrowseMarkersViewEvents, LocationsSearchViewEvents,
     LocationSearchSelectedResultFragment.ParentViewCallback,
-    MarkerActionTargetFolderSelectionDialogFragment.Callback {
+    MarkerActionTargetFolderSelectionDialogFragment.Callback, ShareOptionsDialogFragment.Callback  {
 
     private val uiStateViewModel: UIStateViewModel by fragmentViewModel()
     private val presenter by lazy {
@@ -51,6 +55,11 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
             locationsSearchPresenter,
             organizeMarkersPresenter
         )
+    }
+
+    private val dataSharingViewModel: DataSharingViewModel by fragmentViewModel()
+    private val dataSharingHandler: DataSharingHandler by lazy {
+        DataSharingHandler(this, dataSharingViewModel)
     }
 
     private val browseMarkersViewModel: BrowseMarkersViewModel by fragmentViewModel()
@@ -63,7 +72,7 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
 
     private val organizeMarkersViewModel: OrganizeMarkersViewModel by fragmentViewModel()
     private val organizeMarkersPresenter by lazy {
-        OrganizeMarkersPresenter(organizeMarkersViewModel, currentContext, childFragmentManager)
+        OrganizeMarkersPresenter(organizeMarkersViewModel, currentContext, childFragmentManager, dataSharingHandler)
     }
 
     override val data by lazy { uiStateViewModel }
@@ -174,4 +183,17 @@ class MainExternalOverlaysDialogFragment : BaseDialogFragment(),
 
     override val sessionToken: AutocompleteSessionToken
         get() = presenter.locationsSearchSessionToken
+
+    override val optionItems_ShareDataOptionsDialogFragment: List<OptionWithIconArrayAdapter.ItemOptionWithIcon>
+        get() = dataSharingHandler.optionItems_ShareDataOptionsDialogFragment
+    override val title_ShareDataOptionsDialogFragment: String
+        get() = dataSharingHandler.title_ShareDataOptionsDialogFragment
+
+    override fun onCancel_ShareDataOptionsDialogFragment() {
+        dataSharingHandler.onCancel_ShareDataOptionsDialogFragment()
+    }
+
+    override fun onSelectOption_ShareDataOptionsDialogFragment(optionIndex: Int) {
+        dataSharingHandler.onSelectOption_ShareDataOptionsDialogFragment(optionIndex)
+    }
 }

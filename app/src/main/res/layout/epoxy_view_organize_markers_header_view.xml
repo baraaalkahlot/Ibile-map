@@ -31,6 +31,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
+        <ImageButton
+            android:id="@+id/btn_share_organize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_share_button"
+            android:padding="@dimen/spacing_0_5"
+            android:src="@drawable/ic_share_24"
+            android:background="@null"
+            app:isVisible="@{actionBtnsAreVisible}"
+            android:onClick="@{onClick}"
+            android:layout_marginEnd="@dimen/spacing_2"
+            app:layout_constraintEnd_toStartOf="@id/btn_move_selected_markers"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageButton
             android:id="@+id/btn_move_selected_markers"
             android:layout_width="wrap_content"

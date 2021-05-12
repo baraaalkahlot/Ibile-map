@@ -8,6 +8,7 @@ import com.ibile.features.browsemarkers.BrowseMarkersPresenter
 import com.ibile.features.browsemarkers.BrowseMarkersViewEvents
 import com.ibile.features.locationssearch.LocationsSearchPresenter
 import com.ibile.features.locationssearch.LocationsSearchViewEvents
+import com.ibile.features.main.datasharing.DataSharingHandler
 import com.ibile.features.mainexternaloverlays.UIStateViewModel.CurrentView.*
 import com.ibile.features.organizemarkers.OrganizeMarkersPresenter
 
@@ -16,6 +17,7 @@ class MainPresenter(
     private val browseMarkersPresenter: BrowseMarkersPresenter,
     private val locationsSearchPresenter: LocationsSearchPresenter,
     private val organizeMarkersPresenter: OrganizeMarkersPresenter
+
 ) {
     fun init(lifecycleOwner: LifecycleOwner) {
         when (uiStateViewModel.state.currentView) {

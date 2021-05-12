@@ -1,5 +1,6 @@
 package com.ibile.features.main.mapfiles
 
+import android.util.Log
 import com.airbnb.mvrx.*
 import com.ibile.R
 import com.ibile.core.BaseViewModel
@@ -97,6 +98,8 @@ class MapFilesViewModel(
     }
 
     fun onClickDeleteMapFileConfirm() {
+
+
         val mapFile = (state.command as Command.ShowMapFileDeleteConfirmation).mapFile
         mapFilesRepository
             .deleteMapFile(mapFile)

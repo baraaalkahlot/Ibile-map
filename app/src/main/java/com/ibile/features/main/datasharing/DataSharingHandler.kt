@@ -1,6 +1,8 @@
 package com.ibile.features.main.datasharing
 
 import android.content.Intent
+import android.util.Log
+import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.UniqueOnly
 import com.ibile.R
 import com.ibile.data.database.entities.FolderWithMarkers
@@ -9,7 +11,7 @@ import com.ibile.features.main.datasharing.DataSharingViewModel.Companion.Comman
 import com.ibile.utils.extensions.startResolvableActivityForResult
 import com.ibile.utils.views.OptionWithIconArrayAdapter.ItemOptionWithIcon
 
-class DataSharingHandler(val fragment: MainFragment, private val viewModel: DataSharingViewModel) :
+class DataSharingHandler(val fragment: Fragment, private val viewModel: DataSharingViewModel) :
     ShareOptionsDialogFragment.Callback {
 
     init {
@@ -18,6 +20,8 @@ class DataSharingHandler(val fragment: MainFragment, private val viewModel: Data
             DataSharingViewModel.State::viewCommand,
             deliveryMode = UniqueOnly(this.javaClass.name)
         ) {
+
+
             if (it == null) return@selectSubscribe
             when (it) {
                 is Command.ShowInitialShareOptionsDialog,
@@ -32,6 +36,8 @@ class DataSharingHandler(val fragment: MainFragment, private val viewModel: Data
     }
 
     private fun showShareOptionsDialogFragment(command: Command) {
+
+
         val tag = command.javaClass.name
 
         val dialogFragment =
@@ -42,16 +48,23 @@ class DataSharingHandler(val fragment: MainFragment, private val viewModel: Data
     }
 
     fun init(activeMarkerId: Long?) {
+
+
         viewModel.init(activeMarkerId)
     }
 
+
+    fun initOrganize(activeMarkerId: Long?){
+        viewModel.initOrganize(activeMarkerId)
+
+    }
     @Suppress("UNUSED_PARAMETER")
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_DATA_SHARING) viewModel.onCompleteOrCancelShareOperation()
     }
 
     private fun takeMapSnapshot() {
-        fragment.map.snapshot { bitmap -> viewModel.onCompleteTakeMapShot(bitmap) }
+        (fragment as MainFragment).map.snapshot { bitmap -> viewModel.onCompleteTakeMapShot(bitmap) }
     }
 
     override val optionItems_ShareDataOptionsDialogFragment: List<ItemOptionWithIcon>
