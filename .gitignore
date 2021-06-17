@@ -12,6 +12,4 @@
 /captures
 .externalNativeBuild
 .cxx
-app/libs
-secrets.properties
 /.idea/intellij-javadocs-4.0.1.xml
