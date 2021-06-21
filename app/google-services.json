@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "352801796460-j19la423jo08qoml1virbsaf24ngfcce.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "f7af4dda30f18119435650a245b4377ecc3a11c6"
+          }
+        },
+        {
+          "client_id": "352801796460-msiq7v1r1339dsapega7j1jvp6kl6lk0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "186a434451885c82cde9b26e10cb05abf4308fbe"
+          }
+        },
+        {
           "client_id": "352801796460-r66epes7v9np8bta5remjvm1nvqgblc2.apps.googleusercontent.com",
           "client_type": 3
         }

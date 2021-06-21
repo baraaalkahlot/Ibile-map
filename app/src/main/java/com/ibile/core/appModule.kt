@@ -16,7 +16,12 @@ val appModule = module {
     single { MapFilesRepository(androidContext(), get()) }
     single { Database.build(androidContext(), get(), get()) }
     single { MarkersRepository(get<Database>().markerDao()) }
-    single { FoldersRepository(get<Database>().foldersDao(), get<Database>().foldersWithMarkersDao()) }
+    single {
+        FoldersRepository(
+            get<Database>().foldersDao(),
+            get<Database>().foldersWithMarkersDao()
+        )
+    }
 
     single { Places.createClient(androidContext()) }
     single { LocationServices.getFusedLocationProviderClient(androidContext()) }

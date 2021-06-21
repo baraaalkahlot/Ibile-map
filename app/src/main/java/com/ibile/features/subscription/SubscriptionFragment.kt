@@ -17,6 +17,8 @@ class SubscriptionFragment : BaseFragment() {
     private val viewModel: SubscriptionViewModel by fragmentViewModel()
 
     override fun epoxyController(): MvRxEpoxyController = simpleController {
+
+
         val stateModel = if (viewModel.state.subscriptionState()?.isActive == true) {
             SubscriptionActiveStateBindingModel_()
                 .id("SubscriptionActiveState")

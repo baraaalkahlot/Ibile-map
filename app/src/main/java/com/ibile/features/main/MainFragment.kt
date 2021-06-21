@@ -154,7 +154,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
       }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMainBinding.inflate(inflater, container, false)
 
         initializeMapView(binding.mapView, savedInstanceState)

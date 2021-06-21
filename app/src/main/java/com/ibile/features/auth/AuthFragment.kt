@@ -52,6 +52,7 @@ abstract class AuthFragment : BaseFragment() {
     }
 
     protected fun handleAuthSuccess() {
+
         val direction = AuthGraphDirections.actionGlobalMainGraph()
         navController.navigate(direction)
     }

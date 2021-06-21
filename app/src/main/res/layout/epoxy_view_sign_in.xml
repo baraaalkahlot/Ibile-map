@@ -137,6 +137,7 @@
             android:layout_width="0dp"
             android:layout_height="1px"
             android:layout_marginHorizontal="@dimen/spacing_2"
+            android:visibility="gone"
             android:background="@android:color/black"
             app:layout_constraintBottom_toBottomOf="@id/tv_or"
             app:layout_constraintEnd_toStartOf="@id/tv_or"
@@ -148,6 +149,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_2"
+            android:visibility="gone"
+
             android:text="@string/text_or"
             android:textAllCaps="true"
             app:layout_constraintEnd_toEndOf="parent"
@@ -159,6 +162,8 @@
             android:layout_height="1px"
             android:layout_marginHorizontal="@dimen/spacing_2"
             android:background="@android:color/black"
+            android:visibility="gone"
+
             app:layout_constraintBottom_toBottomOf="@id/tv_or"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_or"
@@ -172,6 +177,7 @@
             android:layout_marginHorizontal="@dimen/spacing_2"
             android:layout_marginTop="@dimen/spacing_2"
             android:background="@color/white"
+            android:visibility="gone"
             android:enabled="@{!inProgress}"
             android:onClick="@{onClick}"
             android:text="@string/text_sign_in_with_google"

@@ -15,6 +15,14 @@ kapt {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Users\\AlMOHANDS\\Work_projects\\Ibile\\bahaa_test.jks')
+            storePassword '123456'
+            keyAlias 'bahaa_alias'
+            keyPassword '123456'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
@@ -22,8 +30,8 @@ android {
         applicationId "com.ibile"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode androidAutoVersion.versionCode
-        versionName androidAutoVersion.versionName
+        versionCode 1
+        versionName "0.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
@@ -36,12 +44,17 @@ android {
         }
         resValue "string", "google_maps_api_key", secretsProperties['GOOGLE_MAPS_API_KEY']
         buildConfigField("String", "GOOGLE_SIGN_IN_CLIENT_ID", secretsProperties['GOOGLE_SIGN_IN_CLIENT_ID'])
+        signingConfig signingConfigs.debug
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -61,6 +74,7 @@ android {
 }
 
 dependencies {
+
     def lifecycle_version = "2.2.0"
     def room_version = "2.2.3"
     def activity_version = "1.1.0"
@@ -68,7 +82,7 @@ dependencies {
     def rxjava_version = "3.0.0-RC7"
     def mvrx_version = "2.0.0-alpha2"
     def epoxy_version = "3.9.0"
-    def koin_version = "2.1.0-alpha-8"
+    def koin_version = "2.1.3"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -113,21 +127,22 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils-sdk-v3-compat:0.1'
     // for some weird reasons, all these have to be pulled in for the places-sdk to work
     implementation 'com.google.android.gms:play-services-clearcut:17.0.0'
-    implementation 'com.android.volley:volley:1.1.1'
+    implementation 'com.android.volley:volley:1.2.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation 'com.github.androidseb:android-google-maps-floating-marker-titles:master'
 
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
+    implementation platform('com.google.firebase:firebase-bom:28.0.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
     implementation name: 'icondialog', ext: 'aar'
     implementation "com.maltaisn:iconpack-default:1.0.0"
     implementation 'petrov.kristiyan:colorpicker-library:1.1.10'
 
-    implementation 'com.google.firebase:firebase-auth:19.3.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
 
     implementation 'com.android.billingclient:billing:2.1.0'
@@ -137,4 +152,5 @@ dependencies {
     implementation 'com.github.smart-fun:XmlToJson:1.4.5'
 
     implementation 'com.jsibbold:zoomage:1.3.1'
+
 }
