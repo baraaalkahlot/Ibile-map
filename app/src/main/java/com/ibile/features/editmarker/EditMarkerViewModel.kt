@@ -1,8 +1,16 @@
 package com.ibile.features.editmarker
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.airbnb.mvrx.*
+import com.google.android.libraries.maps.model.LatLng
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
+import com.ibile.USERS_COLLECTION
+import com.ibile.USERS_MARKERS
 import com.ibile.core.BaseViewModel
+import com.ibile.data.database.entities.ConvertedFirebaseMarker
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.FoldersRepository
 import com.ibile.data.repositiories.ImageRepository
@@ -28,7 +36,8 @@ class EditMarkerViewModel(
     initialState: EditMarkerViewModelState,
     private val markersRepository: MarkersRepository,
     private val imageRepository: ImageRepository,
-    private val foldersRepository: FoldersRepository
+    private val foldersRepository: FoldersRepository,
+    private val context: Context
 ) : BaseViewModel<EditMarkerViewModelState>(initialState) {
 
     fun getMarker(markerId: Long) {
@@ -66,6 +75,8 @@ class EditMarkerViewModel(
             .updateMarkers(marker)
             .subscribeOn(Schedulers.io())
             .execute { copy(updateMarkerAsync = it) }
+        Log.d("wasd", "updateMarker: test2")
+        updateOrAddMarker(marker, 0L)
     }
 
     fun deleteMarker(marker: Marker) {
@@ -74,6 +85,20 @@ class EditMarkerViewModel(
             .deleteMarkers(marker)
             .subscribeOn(Schedulers.io())
             .execute { copy(deleteMarkerAsync = it) }
+
+
+        val db = FirebaseFirestore.getInstance()
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection("file")
+            .document(marker.folderId.toString())
+            .collection(USERS_MARKERS)
+            .document(marker.id.toString())
+            .delete()
+
     }
 
     private fun cleanUpDeletedMarkerImages(marker: Marker) {
@@ -101,7 +126,13 @@ class EditMarkerViewModel(
             viewModelContext: ViewModelContext, state: EditMarkerViewModelState
         ): EditMarkerViewModel {
             val fragment = (viewModelContext as FragmentViewModelContext).fragment
-            return EditMarkerViewModel(state, fragment.get(), fragment.get(), fragment.get())
+            return EditMarkerViewModel(
+                state,
+                fragment.get(),
+                fragment.get(),
+                fragment.get(),
+                viewModelContext.activity
+            )
         }
 
         override fun initialState(viewModelContext: ViewModelContext): EditMarkerViewModelState? {
@@ -111,5 +142,56 @@ class EditMarkerViewModel(
         }
 
         const val ARG_MARKER_ID = "ARG_MARKER_ID"
+    }
+
+    private fun updateOrAddMarker(marker: Marker, markerId: Long) {
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        marker.apply {
+            val arrayOfGeoPoint: ArrayList<GeoPoint> = arrayListOf()
+            for (p: LatLng? in points) {
+                arrayOfGeoPoint.add(GeoPoint(p?.latitude!!, p.longitude))
+            }
+
+            val arrayOfImagePath: ArrayList<String> = arrayListOf()
+
+            for (i: Uri? in imageUris) {
+                arrayOfImagePath.add(i.toString())
+            }
+
+
+            Log.d("wasd", "updateOrAddMarker: hey i'm here!!")
+            val convertedFirebaseMarker = ConvertedFirebaseMarker(
+                id = id,
+                points = arrayOfGeoPoint,
+                type = type,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+                description = description,
+                color = color,
+                icon = icon?.id,
+                phoneNumber = phoneNumber,
+                imageUris = arrayOfImagePath,
+                folderId = folderId
+            )
+            val db = FirebaseFirestore.getInstance()
+
+            val schemaId = if (markerId == 0L) id else markerId
+
+            db.collection(USERS_COLLECTION)
+                .document(userEmail!!)
+                .collection("file")
+                .document(folderId.toString())
+                .collection(USERS_MARKERS)
+                .document(schemaId.toString())
+                .set(convertedFirebaseMarker)
+                .addOnSuccessListener {
+                    Log.d("wasd", "success")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("wasd", "Error adding document", e)
+                }
+        }
     }
 }

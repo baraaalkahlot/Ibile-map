@@ -56,7 +56,7 @@ class AddMarkerPoiPresenter(
 
     fun onClickOkBtn() {
         when (viewModel.state.mode) {
-            is Mode.Add -> viewModel.addMarker(viewModel.state.marker!!)
+            is Mode.Add -> viewModel.addMarker(viewModel.state.marker!! , viewModel.state.targetFolder)
             is Mode.Edit -> viewModel.updateMarker(viewModel.state.marker!!)
         }
     }

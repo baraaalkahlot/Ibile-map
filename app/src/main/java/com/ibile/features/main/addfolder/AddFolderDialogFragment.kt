@@ -86,6 +86,8 @@ class AddFolderDialogFragment : BaseDialogFragment(), IconDialog.Callback,
             return
         }
         viewModel.addFolder(folder)
+        this.dismiss()
+
     }
 
     override fun onIconDialogIconsSelected(dialog: IconDialog, icons: List<Icon>) {

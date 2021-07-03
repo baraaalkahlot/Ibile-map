@@ -15,14 +15,7 @@ kapt {
 }
 
 android {
-    signingConfigs {
-        debug {
-            storeFile file('C:\\Users\\AlMOHANDS\\Work_projects\\Ibile\\bahaa_test.jks')
-            storePassword '123456'
-            keyAlias 'bahaa_alias'
-            keyPassword '123456'
-        }
-    }
+
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
@@ -138,6 +131,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+
 
     implementation name: 'icondialog', ext: 'aar'
     implementation "com.maltaisn:iconpack-default:1.0.0"

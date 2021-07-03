@@ -17,5 +17,7 @@ class MarkersRepository(private val markerDao: MarkerDao) {
     fun getMarkersByFolderId(folderId: Long) = markerDao.getMarkersByFolderId(folderId)
 
     fun deleteMarkers(vararg markers: Marker) = markerDao.deleteMarkers(*markers)
+
+    fun dropMarkersTable() = markerDao.dropMarkerTable()
 }
 

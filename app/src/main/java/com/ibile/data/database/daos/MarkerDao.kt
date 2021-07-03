@@ -8,16 +8,16 @@ import io.reactivex.Single
 
 @Dao
 interface MarkerDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMarker(marker: Marker): Single<Long>
 
     // @Query("SELECT * FROM markers")
     // fun getAllMarkers(): Flowable<List<Marker>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMarkers(vararg markers: Marker): Single<List<Long>>
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateMarkers(vararg marker: Marker): Completable
 
     @Query("SELECT * FROM markers WHERE folder_id in (SELECT id FROM folders WHERE selected = 1)")
@@ -31,4 +31,7 @@ interface MarkerDao {
 
     @Delete
     fun deleteMarkers(vararg marker: Marker): Completable
+
+    @Query("DELETE FROM markers")
+    fun dropMarkerTable()
 }

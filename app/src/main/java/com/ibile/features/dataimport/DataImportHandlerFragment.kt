@@ -1,6 +1,7 @@
 package com.ibile.features.dataimport
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.navigation.fragment.navArgs
 import com.airbnb.mvrx.UniqueOnly
@@ -35,7 +36,10 @@ class DataImportHandlerFragment : BaseFragment() {
                         .actionDataImportHandlerFragmentToImportConfirmationDialogFragment()
                         .navigate()
                 }
-                is ViewCommand.Exit -> navController.popBackStack()
+                is ViewCommand.Exit -> {
+                    Log.d("AAA", "onViewCreated: stage 1 here")
+                    navController.popBackStack()
+                }
             }
         }
     }

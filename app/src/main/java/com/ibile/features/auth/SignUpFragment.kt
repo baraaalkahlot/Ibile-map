@@ -12,9 +12,13 @@ import com.ibile.utils.extensions.navController
 
 class SignUpFragment : AuthFragment() {
 
+    private var email: String? = null
+
+
     override fun epoxyController(): MvRxEpoxyController =
         simpleController(viewModel) { (_, createAccountAsyncResult) ->
-            if (createAccountAsyncResult is Success) return@simpleController handleAuthSuccess()
+            if (createAccountAsyncResult is Success) //return@simpleController
+            handleAuthSuccess(false , email?:"")
 
             createAccount {
                 id("CreateAccount")
@@ -37,6 +41,8 @@ class SignUpFragment : AuthFragment() {
     private fun handleCreateAccountBtnClick() {
         val (email, password) = viewModel.state.formData
         if (email.isBlank() || password.isBlank()) return
+        this.email = email
+
         viewModel.createAccount(email, password)
     }
 

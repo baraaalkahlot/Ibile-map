@@ -42,6 +42,7 @@ class SubscriptionFragment : BaseFragment() {
                 subscriptionsSkusList
             )
         }
+
         modelGroup(R.layout.fragment_subscription, stateModel)
     }
 }

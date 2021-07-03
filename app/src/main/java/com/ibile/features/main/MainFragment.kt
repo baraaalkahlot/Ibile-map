@@ -2,7 +2,9 @@ package com.ibile.features.main
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.Parcelable
@@ -11,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.ObservableField
 import androidx.lifecycle.observe
 import com.airbnb.mvrx.fragmentViewModel
@@ -21,9 +24,12 @@ import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Polygon
 import com.google.android.libraries.maps.model.Polyline
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
+import com.ibile.data.database.daos.FoldersDao
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
@@ -43,8 +49,8 @@ import com.ibile.features.main.datasharing.ShareOptionsDialogFragment
 import com.ibile.features.main.folderlist.FolderListPresenter
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
 import com.ibile.features.main.folderlist.FoldersViewModel
-import com.ibile.features.main.mapfiles.MapFilesOptionsContainerDialogFragment
 import com.ibile.features.main.mapfiles.MapFilesController
+import com.ibile.features.main.mapfiles.MapFilesOptionsContainerDialogFragment
 import com.ibile.features.main.mapfiles.MapFilesViewModel
 import com.ibile.features.main.markerslist.MarkerInfoDatabindingViewData
 import com.ibile.features.main.markerslist.MarkersPresenter
@@ -86,11 +92,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     private lateinit var mapView: MapView
     private val fusedLocationClient: FusedLocationProviderClient by inject()
     internal lateinit var map: GoogleMap
+    val db = Firebase.firestore.collection("users")
+
 
     private val drawerLayoutViewEpoxyController: MvRxEpoxyController by lazy {
         drawerLayoutViewEpoxyController()
     }
-
 
 
     private val addPolygonPoiViewModel: AddPolygonPoiViewModel by viewModel()
@@ -139,9 +146,28 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // TODO: feed this in through a VM/repo
+
         if (FirebaseAuth.getInstance().currentUser == null) {
             MainFragmentDirections.actionMainFragmentToAuthGraph().navigate()
             return
+        } else {
+            val sharedPreferences: SharedPreferences =
+                requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+
+            sharedPreferences.getString("user_email", "")?.let {
+                db.document(it).get()
+                    .addOnSuccessListener { result ->
+                        // Log.d(TAG, "${document.id} => ${document.data}")
+                        if (result.get("isActive") == false) {
+                            MainFragmentDirections.actionMainFragmentToAuthGraph().navigate()
+                            return@addOnSuccessListener
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        //   Log.w(TAG, "Error getting documents.", exception)
+
+                    }
+            }
         }
         drawerLayoutViewEpoxyController.onRestoreInstanceState(savedInstanceState)
         markersPresenter.init()
@@ -149,9 +175,10 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
     }
 
-     fun getInstance(): MainFragment {
-         return this
-      }
+    fun getInstance(): MainFragment {
+        return this
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -178,7 +205,6 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
         return binding.root
     }
-
 
 
     private fun initializeMapView(mapView: MapView, savedInstanceState: Bundle?) {
@@ -255,9 +281,47 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         }
 
         override fun handleAddMarkerBtnClick() {
+            Log.d("wasd", "handleAddMarkerBtnClick: ")
             addMarkerPoiPresenter.init(map)
             markersPresenter.onClickAddMarker()
             uiStateViewModel.updateActiveOverlay(Overlay.AddMarkerPoi(AddMarkerPoiPresenter.Mode.Add))
+        }
+
+
+        override fun handleLogout() {
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Confirm message")
+                .setMessage("Are you want to logout from the app?")
+                .setPositiveButton(android.R.string.ok) { dialog, which ->
+
+
+                    /*   requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+                           .getString("user_email", "")?.let {
+                               db.document( it )
+                                   .set(hashMapOf("isActive" to false)).addOnSuccessListener {
+
+
+                                   }.addOnFailureListener {
+                                       Toast.makeText(
+                                           requireContext(),
+                                           "Error while logout,please try again",
+                                           Toast.LENGTH_LONG
+                                       ).show()
+                                   }
+                           }*/
+
+
+                    FirebaseAuth.getInstance().signOut()
+                    requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE).edit()
+                        .remove("user_email").apply()
+
+                    MainFragmentDirections.actionMainFragmentToAuthGraph()
+                        .navigate()
+
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .create().show()
         }
 
         override fun handleAddPolylineBtnClick() {
@@ -340,6 +404,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         AddMarkerPoiDatabindingViewData {
         override fun handleOkBtnClick() {
             addMarkerPoiPresenter.onClickOkBtn()
+            Log.d("wasd", "handleOkBtnClick: ")
         }
 
         // TODO: should only be for addMarkerPoiPresenter, but onBackPressed will use the same
@@ -513,6 +578,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     }
 
     private fun onMarkerClick(id: Long) {
+        Log.d("wasd", "onMarkerClick: ")
         val activeOverlay = uiStateViewModel.state.activeOverlay
         if (activeOverlay !is Overlay.None) return
         markersPresenter.onClickMarker(id)

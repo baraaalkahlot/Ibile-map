@@ -9,7 +9,6 @@ import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Completable
 import io.reactivex.Observable
 import java.io.File
-import java.lang.RuntimeException
 import java.util.*
 
 class MapFilesRepository(

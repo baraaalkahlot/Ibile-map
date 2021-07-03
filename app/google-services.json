@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "352801796460-5ael0nkasaokflv366g0hh853jbas5qo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "62f23b9d6506c5f7f885bb9fd15702a810baa902"
+          }
+        },
+        {
           "client_id": "352801796460-j19la423jo08qoml1virbsaf24ngfcce.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -36,6 +44,22 @@
           "android_info": {
             "package_name": "com.ibile",
             "certificate_hash": "186a434451885c82cde9b26e10cb05abf4308fbe"
+          }
+        },
+        {
+          "client_id": "352801796460-qk5k005vi11b9e998m1deo8dobcf5nv1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "66cb3f52d5b94deee359a2b458f9c0ad4ecb61ec"
+          }
+        },
+        {
+          "client_id": "352801796460-t0ukemsp1a38oh8c7mrcncuch2ht9vvs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "b2d16f5e36d7d0da68419eed4c1e63c3b2f8f08e"
           }
         },
         {

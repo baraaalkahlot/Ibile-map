@@ -35,7 +35,7 @@ import java.util.*
 data class Marker(
     val points: List<LatLng?>,
     val type: Type,
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
     @ColumnInfo(name = "name") var name: String? = null,
     @ColumnInfo(name = "created_at")
     var createdAt: Date = getCurrentDateTime(),

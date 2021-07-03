@@ -7,6 +7,7 @@ interface MainDataBindingViewData {
     fun handleAddMarkerBtnClick()
     fun handleAddPolylineBtnClick()
     fun handleAddPolygonBtnClick()
+    fun handleLogout()
 
     val data: UIStateViewModel
 }

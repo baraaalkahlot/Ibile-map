@@ -11,9 +11,16 @@ import com.ibile.signIn
 import com.ibile.utils.extensions.navController
 
 class SignInFragment : AuthFragment() {
+
+    private var email: String? = null
+
     override fun epoxyController(): MvRxEpoxyController =
         simpleController(viewModel) { (_, signInAsyncResult) ->
-            if (signInAsyncResult is Success) return@simpleController handleAuthSuccess()
+            if (signInAsyncResult is Success) //return@simpleController
+            handleAuthSuccess(
+                true,
+                email ?: ""
+            )
 
             signIn {
                 id("FragmentSignIn")
@@ -36,6 +43,7 @@ class SignInFragment : AuthFragment() {
     private fun handleSignInBtnClick() {
         val (email, password) = viewModel.state.formData
         if (email.isBlank() || password.isBlank()) return
+        this.email = email
         viewModel.signInAccount(email, password)
     }
 

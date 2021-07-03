@@ -1,7 +1,13 @@
 package com.ibile.features.main.editfolder
 
+import android.content.Context
+import android.util.Log
 import androidx.databinding.ObservableField
 import com.airbnb.mvrx.*
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.ibile.USERS_COLLECTION
+import com.ibile.USERS_MARKERS
 import com.ibile.core.BaseViewModel
 import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
@@ -13,7 +19,8 @@ import org.koin.android.ext.android.get
 class EditFolderViewModel(
     initialState: State,
     private val foldersRepository: FoldersRepository,
-    private val markersRepository: MarkersRepository
+    private val markersRepository: MarkersRepository,
+    private val context: Context
 ) :
     BaseViewModel<EditFolderViewModel.State>(initialState) {
 
@@ -37,6 +44,25 @@ class EditFolderViewModel(
             .updateFolders(folder)
             .subscribeOn(Schedulers.io())
             .execute { copy(updateFolderAsync = it) }
+
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection("file")
+            .document(folder.id.toString())
+            .set(folder)
+            .addOnSuccessListener {
+                Log.d("wasd", "success")
+            }
+            .addOnFailureListener { e ->
+                Log.w("wasd", "Error adding document", e)
+            }
+        Log.d("wasd", "updateFolder: ")
+
     }
 
     fun updateFolderWithMarkers(folder: Folder, updateMarkers: (List<Marker>) -> List<Marker>) {
@@ -46,6 +72,29 @@ class EditFolderViewModel(
             .concatWith(foldersRepository.updateFolders(folder))
             .subscribeOn(Schedulers.io())
             .execute { copy(updateFolderAsync = it) }
+
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        val folderDoc = db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection("file")
+            .document(folder.id.toString())
+
+        folderDoc.set(folder)
+
+        folderDoc.collection(USERS_MARKERS)
+            .get().addOnCompleteListener { values ->
+                for (item: QueryDocumentSnapshot in values.result!!) {
+                    folderDoc.collection(USERS_MARKERS).document(item.id)
+                        .update(
+                            "icon", folder.iconId,
+                            "color", folder.color
+                        )
+                }
+            }
     }
 
     fun deleteFolderWithMarkers(folder: Folder) {
@@ -55,6 +104,24 @@ class EditFolderViewModel(
             .concatWith(foldersRepository.deleteFolders(folder))
             .subscribeOn(Schedulers.io())
             .execute { copy(updateFolderAsync = it) }
+
+
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection("file")
+            .document(folder.id.toString())
+            .delete()
+            .addOnSuccessListener {
+                Log.d("wasd", "success")
+            }
+            .addOnFailureListener { e ->
+                Log.w("wasd", "Error adding document", e)
+            }
     }
 
     data class State(
@@ -69,9 +136,14 @@ class EditFolderViewModel(
         override fun create(
             viewModelContext: ViewModelContext,
             state: State
-        ): EditFolderViewModel? {
+        ): EditFolderViewModel {
             val fragment = (viewModelContext as FragmentViewModelContext).fragment
-            return EditFolderViewModel(state, fragment.get(), fragment.get())
+            return EditFolderViewModel(
+                state,
+                fragment.get(),
+                fragment.get(),
+                viewModelContext.activity
+            )
         }
 
         override fun initialState(viewModelContext: ViewModelContext): State? {

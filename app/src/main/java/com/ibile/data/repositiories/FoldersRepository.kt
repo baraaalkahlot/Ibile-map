@@ -24,4 +24,7 @@ class FoldersRepository(
     fun updateFolders(vararg folder: Folder) = foldersDao.updateFolders(*folder)
 
     fun deleteFolders(vararg folders: Folder): Completable = foldersDao.deleteMarkers(*folders)
+
+    fun dropFolderTable() = foldersDao.dropFoldersTable()
+
 }

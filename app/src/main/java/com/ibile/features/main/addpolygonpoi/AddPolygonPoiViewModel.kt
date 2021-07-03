@@ -2,6 +2,8 @@ package com.ibile.features.main.addpolygonpoi
 
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
+import android.util.Log
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
@@ -9,10 +11,16 @@ import androidx.lifecycle.ViewModel
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
 import com.google.maps.android.SphericalUtil
 import com.ibile.R
+import com.ibile.USERS_COLLECTION
+import com.ibile.USERS_MARKERS
 import com.ibile.core.addTo
 import com.ibile.core.bitmapFromVectorDrawable
+import com.ibile.data.database.entities.ConvertedFirebaseMarker
 import com.ibile.data.repositiories.MarkersRepository
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -224,11 +232,12 @@ open class AddPolygonPoiViewModel(
         when (mode) {
             is Mode.Add -> {
                 val newMarker = com.ibile.data.database.entities.Marker.createPolygon(points)
-                markersRepository
+                val id = markersRepository
                     .insertMarker(newMarker)
                     .subscribeOn(Schedulers.io())
-                    .subscribe()
-                    .addTo(compositeDisposable)
+                    .blockingGet()
+                Log.d("wasd", "handleSaveBtnClick: poly id = $id")
+                addToFirebase(newMarker, id)
             }
             is Mode.Edit -> {
                 val updatedMarker = (mode as Mode.Edit).marker.copy(points = points)
@@ -237,6 +246,7 @@ open class AddPolygonPoiViewModel(
                     .subscribeOn(Schedulers.io())
                     .subscribe()
                     .addTo(compositeDisposable)
+                updateToFirebase(updatedMarker)
             }
         }
     }
@@ -287,5 +297,95 @@ open class AddPolygonPoiViewModel(
     sealed class Mode {
         object Add : Mode()
         data class Edit(val marker: com.ibile.data.database.entities.Marker) : Mode()
+    }
+
+
+    private fun addToFirebase(
+        marker: com.ibile.data.database.entities.Marker,
+        markerId: Long
+    ) {
+        val convertedFirebaseMarker: ConvertedFirebaseMarker
+        marker.apply {
+            val arrayOfGeoPoint: ArrayList<GeoPoint> = arrayListOf()
+            for (p: LatLng? in points) {
+                arrayOfGeoPoint.add(GeoPoint(p?.latitude!!, p.longitude))
+            }
+
+            val arrayOfImagePath: ArrayList<String> = arrayListOf()
+
+            for (i: Uri? in imageUris) {
+                arrayOfImagePath.add(i.toString())
+            }
+
+            convertedFirebaseMarker = ConvertedFirebaseMarker(
+                id = markerId,
+                points = arrayOfGeoPoint,
+                type = type,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+                description = description,
+                color = color,
+                icon = icon?.id,
+                phoneNumber = phoneNumber,
+                imageUris = arrayOfImagePath,
+                folderId = folderId
+            )
+        }
+
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+        val db = FirebaseFirestore.getInstance()
+        val doc: DocumentReference = db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection("file")
+            .document(marker.folderId.toString())
+
+
+        doc.collection(USERS_MARKERS)
+            .document(markerId.toString())
+            .set(convertedFirebaseMarker)
+    }
+
+
+    private fun updateToFirebase(marker: com.ibile.data.database.entities.Marker) {
+        val convertedFirebaseMarker: ConvertedFirebaseMarker
+        marker.apply {
+            val arrayOfGeoPoint: ArrayList<GeoPoint> = arrayListOf()
+            for (p: LatLng? in points) {
+                arrayOfGeoPoint.add(GeoPoint(p?.latitude!!, p.longitude))
+            }
+
+            val arrayOfImagePath: ArrayList<String> = arrayListOf()
+
+            for (i: Uri? in imageUris) {
+                arrayOfImagePath.add(i.toString())
+            }
+
+            Log.d("wasd", "updateToFirebase: marker edited succesfully")
+            convertedFirebaseMarker = ConvertedFirebaseMarker(
+                id = id,
+                points = arrayOfGeoPoint,
+                type = type,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+                description = description,
+                color = color,
+                icon = icon?.id,
+                phoneNumber = phoneNumber,
+                imageUris = arrayOfImagePath,
+                folderId = folderId
+            )
+        }
+
+        val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+        val db = FirebaseFirestore.getInstance()
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection("file")
+            .document(marker.folderId.toString())
+            .collection(USERS_MARKERS)
+            .document(marker.id.toString())
+            .set(convertedFirebaseMarker)
     }
 }

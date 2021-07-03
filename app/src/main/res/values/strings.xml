@@ -86,4 +86,5 @@
     <string name="title_dialog_create_new_map_file">Enter the new map\'s name</string>
     <string name="msg_dialog_confirm_delete_map_file">This action will delete the map file from your device forever. All the marker inside that file will be lost. Are you sure?</string>
     <string name="msg_dialog_delete_map_file_success">Map file deleted successfully</string>
+    <string name="forget_password">Forget password?</string>
 </resources>

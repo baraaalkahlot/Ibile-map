@@ -27,4 +27,6 @@ class ImageRepository(private val context: Context) {
     fun deleteFiles(uris: List<Uri>) = Observable.fromCallable {
         uris.forEach { uri -> uri.toFile().delete() }
     }
+
+
 }

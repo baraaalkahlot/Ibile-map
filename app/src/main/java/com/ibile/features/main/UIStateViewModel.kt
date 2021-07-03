@@ -5,6 +5,7 @@ import androidx.databinding.ObservableField
 import com.airbnb.mvrx.MvRxState
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.core.BaseViewModel
+import com.ibile.data.repositiories.FoldersRepository
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
 import com.ibile.features.main.addpolygonpoi.AddPolygonPoiViewModel
 import com.ibile.features.main.addpolylinepoi.AddPolylinePoiPresenter
@@ -16,7 +17,9 @@ data class UIStateViewModelState(
 ) :
     MvRxState
 
-class UIStateViewModel(initialState: UIStateViewModelState) :
+class UIStateViewModel(
+    initialState: UIStateViewModelState
+) :
     BaseViewModel<UIStateViewModelState>(initialState) {
 
     val activeOverlayObservable = ObservableField<Overlay>(Overlay.None)
@@ -33,6 +36,9 @@ class UIStateViewModel(initialState: UIStateViewModelState) :
     fun addPolyShapeBtnIsVisible(activeOverlay: Overlay): Boolean {
         return activeOverlay is Overlay.AddMarkerPoi && activeOverlay.mode is AddMarkerPoiPresenter.Mode.Add
     }
+
+
+
 
     sealed class Overlay {
         object None : Overlay()

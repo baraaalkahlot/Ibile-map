@@ -1,6 +1,6 @@
 package com.ibile.features.main.mapfiles
 
-import android.util.Log
+import android.content.Context
 import com.airbnb.mvrx.*
 import com.ibile.R
 import com.ibile.core.BaseViewModel
@@ -15,7 +15,8 @@ import java.util.*
 class MapFilesViewModel(
     initialState: State,
     private val mapFilesRepository: MapFilesRepository,
-    private val sharedPref: SharedPref
+    private val sharedPref: SharedPref,
+    private val context: Context
 ) :
     BaseViewModel<MapFilesViewModel.State>(initialState) {
 
@@ -67,6 +68,8 @@ class MapFilesViewModel(
         }
     }
 
+
+    //TODO Rename the file
     fun onClickRenameMapFileViewPositiveBtn(value: String) {
         val updatedMapFile = getCurrentMapFile()!!.copy(name = value)
         mapFilesRepository
@@ -75,6 +78,7 @@ class MapFilesViewModel(
             .execute { copy() }
     }
 
+    //TODO Create new file
     fun onClickCreateNewMapViewPositiveBtn(mapName: String) {
         val mapFile = MapFile(mapName, UUID.randomUUID().toString())
         mapFilesRepository
@@ -82,6 +86,7 @@ class MapFilesViewModel(
             .withDefaultScheduler()
             .toSingleDefault(mapFile)
             .execute { copy(createMapFileAsyncResult = it) }
+
     }
 
     fun onSelectMapFileOption(optionIndex: Int) {
@@ -97,6 +102,8 @@ class MapFilesViewModel(
         }
     }
 
+
+    //TODO Delete file
     fun onClickDeleteMapFileConfirm() {
 
 
@@ -132,7 +139,12 @@ class MapFilesViewModel(
     companion object : MvRxViewModelFactory<MapFilesViewModel, State> {
         override fun create(viewModelContext: ViewModelContext, state: State): MapFilesViewModel {
             val fragment = (viewModelContext as FragmentViewModelContext).fragment
-            return MapFilesViewModel(state, fragment.get(), fragment.get())
+            return MapFilesViewModel(
+                state,
+                fragment.get(),
+                fragment.get(),
+                viewModelContext.activity
+            )
         }
 
         private val DEFAULT_MAP_FILE_OPTIONS = listOf(

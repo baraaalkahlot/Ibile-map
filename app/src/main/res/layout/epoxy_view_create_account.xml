@@ -29,6 +29,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:background="#8BDFDFDF"
         android:layout_height="match_parent">
 
         <TextView
@@ -89,9 +90,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_title_create_an_account" />
 
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:passwordToggleEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/et_create_account_email">
+
         <EditText
             android:id="@+id/et_create_account_password"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/spacing_2"
             android:layout_marginTop="@dimen/spacing_2"
@@ -101,9 +112,9 @@
             android:inputType="textPassword"
             android:textColor="@android:color/black"
             android:textCursorDrawable="@null"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_create_account_email" />
+ />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/btn_create_account"
@@ -118,7 +129,7 @@
             android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_create_account_password" />
+            app:layout_constraintTop_toBottomOf="@id/text_input_layout_password" />
 
         <TextView
             android:id="@+id/tv_create_account_error"
@@ -139,6 +150,7 @@
             android:layout_height="1px"
             android:layout_marginHorizontal="@dimen/spacing_2"
             android:background="@android:color/black"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/tv_or"
             app:layout_constraintEnd_toStartOf="@id/tv_or"
             app:layout_constraintStart_toStartOf="parent"
@@ -151,8 +163,10 @@
             android:layout_marginTop="@dimen/spacing_2"
             android:text="@string/text_or"
             android:textAllCaps="true"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintTop_toBottomOf="@id/tv_create_account_error" />
 
         <View
@@ -160,7 +174,9 @@
             android:layout_height="1px"
             android:layout_marginHorizontal="@dimen/spacing_2"
             android:background="@android:color/black"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/tv_or"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_or"
             app:layout_constraintTop_toTopOf="@id/tv_or" />
@@ -176,6 +192,7 @@
             android:enabled="@{!inProgress}"
             android:onClick="@{onClick}"
             android:text="@string/text_sign_up_with_google"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_or" />
