@@ -10,6 +10,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.ibile.USERS_COLLECTION
 import com.ibile.USERS_MARKERS
 import com.ibile.core.BaseViewModel
+import com.ibile.data.SharedPref
 import com.ibile.data.database.entities.ConvertedFirebaseMarker
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.FoldersRepository
@@ -37,6 +38,7 @@ class EditMarkerViewModel(
     private val markersRepository: MarkersRepository,
     private val imageRepository: ImageRepository,
     private val foldersRepository: FoldersRepository,
+    private val sharedPref: SharedPref,
     private val context: Context
 ) : BaseViewModel<EditMarkerViewModelState>(initialState) {
 
@@ -93,7 +95,7 @@ class EditMarkerViewModel(
 
         db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection("file")
+            .collection(sharedPref.currentMapFileId.toString())
             .document(marker.folderId.toString())
             .collection(USERS_MARKERS)
             .document(marker.id.toString())
@@ -128,6 +130,7 @@ class EditMarkerViewModel(
             val fragment = (viewModelContext as FragmentViewModelContext).fragment
             return EditMarkerViewModel(
                 state,
+                fragment.get(),
                 fragment.get(),
                 fragment.get(),
                 fragment.get(),
@@ -181,7 +184,7 @@ class EditMarkerViewModel(
 
             db.collection(USERS_COLLECTION)
                 .document(userEmail!!)
-                .collection("file")
+                .collection(sharedPref.currentMapFileId.toString())
                 .document(folderId.toString())
                 .collection(USERS_MARKERS)
                 .document(schemaId.toString())

@@ -9,6 +9,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.ibile.USERS_COLLECTION
 import com.ibile.USERS_MARKERS
 import com.ibile.core.BaseViewModel
+import com.ibile.data.SharedPref
 import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.FoldersRepository
@@ -20,6 +21,7 @@ class EditFolderViewModel(
     initialState: State,
     private val foldersRepository: FoldersRepository,
     private val markersRepository: MarkersRepository,
+    private val sharedPref: SharedPref,
     private val context: Context
 ) :
     BaseViewModel<EditFolderViewModel.State>(initialState) {
@@ -52,7 +54,7 @@ class EditFolderViewModel(
 
         db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection("file")
+            .collection(sharedPref.currentMapFileId.toString())
             .document(folder.id.toString())
             .set(folder)
             .addOnSuccessListener {
@@ -80,7 +82,7 @@ class EditFolderViewModel(
 
         val folderDoc = db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection("file")
+            .collection(sharedPref.currentMapFileId.toString())
             .document(folder.id.toString())
 
         folderDoc.set(folder)
@@ -113,7 +115,7 @@ class EditFolderViewModel(
 
         db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection("file")
+            .collection(sharedPref.currentMapFileId.toString())
             .document(folder.id.toString())
             .delete()
             .addOnSuccessListener {
@@ -140,6 +142,7 @@ class EditFolderViewModel(
             val fragment = (viewModelContext as FragmentViewModelContext).fragment
             return EditFolderViewModel(
                 state,
+                fragment.get(),
                 fragment.get(),
                 fragment.get(),
                 viewModelContext.activity

@@ -20,6 +20,7 @@ import com.ibile.USERS_COLLECTION
 import com.ibile.USERS_MARKERS
 import com.ibile.core.addTo
 import com.ibile.core.bitmapFromVectorDrawable
+import com.ibile.data.SharedPref
 import com.ibile.data.database.entities.ConvertedFirebaseMarker
 import com.ibile.data.repositiories.MarkersRepository
 import io.reactivex.disposables.CompositeDisposable
@@ -27,7 +28,8 @@ import io.reactivex.schedulers.Schedulers
 
 open class AddPolygonPoiViewModel(
     private val context: Context,
-    private val markersRepository: MarkersRepository
+    private val markersRepository: MarkersRepository,
+    private val sharedPref: SharedPref
 ) : ViewModel() {
     private var map: GoogleMap? = null
 
@@ -337,7 +339,7 @@ open class AddPolygonPoiViewModel(
         val db = FirebaseFirestore.getInstance()
         val doc: DocumentReference = db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection("file")
+            .collection(sharedPref.currentMapFileId.toString())
             .document(marker.folderId.toString())
 
 
@@ -382,7 +384,7 @@ open class AddPolygonPoiViewModel(
         val db = FirebaseFirestore.getInstance()
         db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection("file")
+            .collection(sharedPref.currentMapFileId.toString())
             .document(marker.folderId.toString())
             .collection(USERS_MARKERS)
             .document(marker.id.toString())

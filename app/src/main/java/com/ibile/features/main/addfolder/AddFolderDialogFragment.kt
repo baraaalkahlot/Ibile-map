@@ -12,6 +12,7 @@ import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
 import com.ibile.databinding.DialogAddMarkerFolderBinding
+import com.ibile.features.main.mapfiles.MapFilesViewModel
 import com.ibile.features.main.utils.ColorPickerWrapper
 import com.ibile.features.main.utils.ColorPickerWrapper.Options
 import com.maltaisn.icondialog.IconDialog
@@ -25,6 +26,7 @@ class AddFolderDialogFragment : BaseDialogFragment(), IconDialog.Callback,
     ColorPicker.OnFastChooseColorListener {
 
     private val viewModel: AddFolderViewModel by fragmentViewModel()
+    private val mapFilesViewModel: MapFilesViewModel by fragmentViewModel()
 
     override val iconDialogIconPack: IconPack by inject()
 
@@ -85,7 +87,8 @@ class AddFolderDialogFragment : BaseDialogFragment(), IconDialog.Callback,
             this.dismiss()
             return
         }
-        viewModel.addFolder(folder)
+        val mapFile = mapFilesViewModel.getCurrentMapFile()
+        viewModel.addFolder(folder , mapFile)
         this.dismiss()
 
     }

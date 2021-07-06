@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "352801796460-ehgeuunic7tuj5eu08f9pqmu4fak9ajq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibile",
+            "certificate_hash": "b70264621c7dd0bd7a27fe0dc6e6911a54f35ff5"
+          }
+        },
+        {
           "client_id": "352801796460-j19la423jo08qoml1virbsaf24ngfcce.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

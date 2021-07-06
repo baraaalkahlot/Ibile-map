@@ -7,11 +7,13 @@ import com.google.android.libraries.maps.model.LatLng
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.database.entities.Marker.Icon
 import com.ibile.features.main.folderlist.FolderWithMarkersCount
+import com.ibile.features.main.mapfiles.MapFilesViewModel
 import com.ibile.features.markeractiontargetfolderselection.MarkerActionTargetFolderSelectionDialogFragment
 
 class AddMarkerPoiPresenter(
     private val viewModel: AddMarkerPoiViewModel,
-    private val fragmentManager: FragmentManager
+    private val fragmentManager: FragmentManager,
+    private val mapFilesViewModel: MapFilesViewModel
 ) {
 
     private val chooseTargetFolderDialog: MarkerActionTargetFolderSelectionDialogFragment
@@ -56,7 +58,7 @@ class AddMarkerPoiPresenter(
 
     fun onClickOkBtn() {
         when (viewModel.state.mode) {
-            is Mode.Add -> viewModel.addMarker(viewModel.state.marker!! , viewModel.state.targetFolder)
+            is Mode.Add -> viewModel.addMarker(viewModel.state.marker!! , viewModel.state.targetFolder ,mapFilesViewModel.getCurrentMapFile())
             is Mode.Edit -> viewModel.updateMarker(viewModel.state.marker!!)
         }
     }

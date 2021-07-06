@@ -4,6 +4,7 @@ import com.airbnb.mvrx.*
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.ibile.core.BaseViewModel
+import com.ibile.data.SharedPref
 import com.ibile.data.repositiories.AuthRepository
 import com.ibile.data.repositiories.FoldersRepository
 import com.ibile.data.repositiories.MarkersRepository
@@ -15,7 +16,8 @@ class AuthViewModel(
     initialState: State,
     private val markersRepository: MarkersRepository,
     private val authRepository: AuthRepository,
-    private val foldersRepository: FoldersRepository
+    private val foldersRepository: FoldersRepository,
+    private val sharedPref: SharedPref
 ) :
     BaseViewModel<AuthViewModel.State>(initialState) {
 
@@ -55,6 +57,11 @@ class AuthViewModel(
     val currentUser: FirebaseUser?
         get() = authRepository.currentUser
 
+
+    val currentMapFileId: String
+        get() = sharedPref.currentMapFileId.toString()
+
+
     data class State(
         val formData: FormData = FormData("", ""),
         val authAsyncResult: Async<Unit> = Uninitialized
@@ -67,6 +74,7 @@ class AuthViewModel(
             val fragment = (viewModelContext as FragmentViewModelContext).fragment
             return AuthViewModel(
                 state,
+                fragment.get(),
                 fragment.get(),
                 fragment.get(),
                 fragment.get()

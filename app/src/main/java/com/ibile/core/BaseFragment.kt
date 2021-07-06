@@ -2,6 +2,7 @@ package com.ibile.core
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,7 @@ abstract class BaseFragment : BaseMvRxFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
+        Log.d("wasd", "onCreateView: base fragment")
         return inflater.inflate(layoutId, container, false)
     }
 

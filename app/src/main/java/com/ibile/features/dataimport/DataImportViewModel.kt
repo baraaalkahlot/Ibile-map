@@ -94,6 +94,8 @@ class DataImportViewModel(
         /* no-op */
     }
 
+
+    //TODO Clone data from file and uplode it to firebase
     @SuppressLint("CheckResult")
     private fun handleCsvImport() {
         val uri = state.dataUri

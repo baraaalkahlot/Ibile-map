@@ -1,12 +1,17 @@
 package com.ibile.features.main.mapfiles
 
 import android.content.Context
+import android.util.Log
 import com.airbnb.mvrx.*
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ibile.R
+import com.ibile.USERS_COLLECTION
 import com.ibile.core.BaseViewModel
 import com.ibile.data.SharedPref
 import com.ibile.data.repositiories.MapFile
 import com.ibile.data.repositiories.MapFilesRepository
+import com.ibile.features.auth.AuthFragment
 import com.ibile.features.main.mapfiles.FileOptionsAndMapFilesArrayAdapter.MapFilesOptionsItem
 import com.ibile.utils.extensions.withDefaultScheduler
 import org.koin.android.ext.android.get
@@ -17,8 +22,10 @@ class MapFilesViewModel(
     private val mapFilesRepository: MapFilesRepository,
     private val sharedPref: SharedPref,
     private val context: Context
-) :
-    BaseViewModel<MapFilesViewModel.State>(initialState) {
+) : BaseViewModel<MapFilesViewModel.State>(initialState) {
+
+    val userEmail = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)
+        .getString("user_email", "empty")
 
     private val mapFiles: List<MapFile>?
         get() = state.getMapFilesAsyncResult()
@@ -76,21 +83,61 @@ class MapFilesViewModel(
             .updateMapFile(updatedMapFile)
             .withDefaultScheduler()
             .execute { copy() }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection(currentMapFileId)
+            .document(currentMapFileId)
+            .set(updatedMapFile)
     }
 
     //TODO Create new file
     fun onClickCreateNewMapViewPositiveBtn(mapName: String) {
         val mapFile = MapFile(mapName, UUID.randomUUID().toString())
-        mapFilesRepository
-            .addNewMapFile(mapFile)
-            .withDefaultScheduler()
-            .toSingleDefault(mapFile)
-            .execute { copy(createMapFileAsyncResult = it) }
+
+        val db = FirebaseFirestore.getInstance()
+        val mainCollection = db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+
+
+        mainCollection.collection(mapFile.id)
+            .document(mapFile.id)
+            .set(mapFile)
+
+        mainCollection.get().addOnCompleteListener { values ->
+            if (values.isSuccessful) {
+                Log.d("wasd", "onClickCreateNewMapViewPositiveBtn: ohhh yeah")
+                val document: DocumentSnapshot = values.result!!
+                val list: ArrayList<String> = if (document.get("id") != null) {
+                    document.get("id") as ArrayList<String>
+                } else {
+                    arrayListOf()
+                }
+
+                list.add(mapFile.id)
+
+                val data = mapOf(
+                    "id" to list,
+                    "isActive" to document.get("isActive")
+                )
+                mainCollection.set(data)
+
+                mapFilesRepository
+                    .addNewMapFile(mapFile)
+                    .withDefaultScheduler()
+                    .toSingleDefault(mapFile)
+                    .execute { copy(createMapFileAsyncResult = it) }
+            }
+
+        }
 
     }
 
+
     fun onSelectMapFileOption(optionIndex: Int) {
         val mapFile = (state.command as Command.ShowMapFileOptions).mapFile
+
         when (optionIndex) {
             0 -> { // switch map file
                 currentMapFileId = mapFile.id
@@ -103,9 +150,13 @@ class MapFilesViewModel(
     }
 
 
+    fun writeFilesToLocal(mapFiles: List<MapFile>, parent: AuthFragment) {
+        Log.d("wasd", "writeFilesToLocal: start")
+        mapFilesRepository.myUpdateMapFiles(mapFiles, parent)
+    }
+
     //TODO Delete file
     fun onClickDeleteMapFileConfirm() {
-
 
         val mapFile = (state.command as Command.ShowMapFileDeleteConfirmation).mapFile
         mapFilesRepository
@@ -113,7 +164,42 @@ class MapFilesViewModel(
             .withDefaultScheduler()
             .doOnComplete { setState { copy(command = Command.ShowMapFileDeleteSuccessMsg) } }
             .execute { copy() }
+
+        val db = FirebaseFirestore.getInstance()
+        val collection = db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection(mapFile.id)
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail)
+            .get()
+            .addOnCompleteListener { values ->
+                val document: DocumentSnapshot = values.result!!
+                if (document.get("id") != null) {
+                    val list = document.get("id") as ArrayList<String>
+
+                    val copyList = arrayListOf<String>()
+                    for (i in list) {
+                        if (i != mapFile.id)
+                            copyList.add(i)
+                    }
+
+
+                    val data = mapOf(
+                        "id" to copyList,
+                        "isActive" to document.get("isActive")
+                    )
+                    db.collection(USERS_COLLECTION).document(userEmail).set(data)
+                }
+            }
+
+        collection.get().addOnCompleteListener { values ->
+            for (doc in values.result!!) {
+                collection.document(doc.id).delete()
+            }
+        }
     }
+
 
     fun onCancelMapsFilesAction() {
         setState { copy(command = null) }

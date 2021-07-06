@@ -104,12 +104,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
     private val addPolylinePoiViewModel: AddPolylinePoiViewModel by fragmentViewModel()
     private val addPolylinePoiPresenter: AddPolylinePoiPresenter by lazy {
-        AddPolylinePoiPresenter(addPolylinePoiViewModel)
+        AddPolylinePoiPresenter(addPolylinePoiViewModel, mapFilesViewModel)
     }
 
     private val addMarkerPoiViewModel: AddMarkerPoiViewModel by fragmentViewModel()
     private val addMarkerPoiPresenter: AddMarkerPoiPresenter by lazy {
-        AddMarkerPoiPresenter(addMarkerPoiViewModel, childFragmentManager)
+        AddMarkerPoiPresenter(addMarkerPoiViewModel, childFragmentManager, mapFilesViewModel)
     }
 
     private val markersViewModel: MarkersViewModel by fragmentViewModel()
@@ -147,10 +147,13 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         super.onCreate(savedInstanceState)
         // TODO: feed this in through a VM/repo
 
+        Log.d("wasd", "onCreate: mainfragment")
         if (FirebaseAuth.getInstance().currentUser == null) {
             MainFragmentDirections.actionMainFragmentToAuthGraph().navigate()
+            Log.d("wasd", "onCreate: main in ")
             return
         } else {
+            Log.d("wasd", "onCreate: main else ")
             val sharedPreferences: SharedPreferences =
                 requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
 
@@ -169,6 +172,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
                     }
             }
         }
+        Log.d("wasd", "onCreate: main out ")
         drawerLayoutViewEpoxyController.onRestoreInstanceState(savedInstanceState)
         markersPresenter.init()
         folderListPresenter.init()
@@ -182,6 +186,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        Log.d("wasd", "onCreateView: main")
         binding = FragmentMainBinding.inflate(inflater, container, false)
 
         initializeMapView(binding.mapView, savedInstanceState)
@@ -208,6 +213,8 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
 
     private fun initializeMapView(mapView: MapView, savedInstanceState: Bundle?) {
+
+
         this.mapView = mapView
 
         val mapViewBundle = savedInstanceState?.getBundle(BUNDLE_MAP_VIEW_KEY)
