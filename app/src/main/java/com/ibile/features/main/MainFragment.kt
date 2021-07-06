@@ -29,7 +29,6 @@ import com.google.firebase.ktx.Firebase
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
-import com.ibile.data.database.daos.FoldersDao
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
@@ -104,7 +103,7 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
     private val addPolylinePoiViewModel: AddPolylinePoiViewModel by fragmentViewModel()
     private val addPolylinePoiPresenter: AddPolylinePoiPresenter by lazy {
-        AddPolylinePoiPresenter(addPolylinePoiViewModel, mapFilesViewModel)
+        AddPolylinePoiPresenter(addPolylinePoiViewModel)
     }
 
     private val addMarkerPoiViewModel: AddMarkerPoiViewModel by fragmentViewModel()
@@ -333,12 +332,12 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
 
         override fun handleAddPolylineBtnClick() {
             uiStateViewModel.updateActiveOverlay(Overlay.AddPolylinePoi(AddPolylinePoiPresenter.Mode.Add))
-            addPolylinePoiPresenter.init(this@MainFragment, map)
+            addPolylinePoiPresenter.init(this@MainFragment, map, mapFilesViewModel.getCurrentMapFile())
         }
 
         override fun handleAddPolygonBtnClick() {
             uiStateViewModel.updateActiveOverlay(Overlay.AddPolygonPoi(AddPolygonPoiViewModel.Mode.Add))
-            addPolygonPoiViewModel.init(map)
+            addPolygonPoiViewModel.init(map, mapFilesViewModel.getCurrentMapFile())
         }
 
         override val data: UIStateViewModel by lazy { uiStateViewModel }

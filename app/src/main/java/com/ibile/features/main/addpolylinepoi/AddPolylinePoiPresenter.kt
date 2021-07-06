@@ -5,18 +5,19 @@ import com.airbnb.epoxy.EpoxyController
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.LatLng
 import com.ibile.data.database.entities.Marker
-import com.ibile.features.main.mapfiles.MapFilesViewModel
+import com.ibile.data.repositiories.MapFile
 
 class AddPolylinePoiPresenter(
-    private val viewModel: AddPolylinePoiViewModel,
-    private val mapFilesViewModel: MapFilesViewModel
+    private val viewModel: AddPolylinePoiViewModel
 ) {
     private val databindingViewDataProvider by lazy { DatabindingViewDataProvider() }
+    private var mapFile: MapFile? = null
 
     val databindingViewData
         get() = databindingViewDataProvider.data
 
-    fun init(lifecycleOwner: LifecycleOwner, map: GoogleMap) {
+    fun init(lifecycleOwner: LifecycleOwner, map: GoogleMap, mapFile: MapFile?) {
+        this.mapFile = mapFile
         databindingViewDataProvider.init(viewModel, lifecycleOwner)
         val cameraPosition = map.cameraPosition.target
         viewModel.updateState { copy(cameraPosition = cameraPosition, mode = Mode.Add) }
@@ -91,7 +92,7 @@ class AddPolylinePoiPresenter(
     fun onClickSaveBtn() = when (viewModel.state.mode) {
         is Mode.Add -> viewModel.addMarker(
             Marker.createPolyline(viewModel.state.points),
-            mapFilesViewModel.getCurrentMapFile()
+            mapFile
         )
         is Mode.Edit -> {
             val marker = (viewModel.state.mode as Mode.Edit).marker

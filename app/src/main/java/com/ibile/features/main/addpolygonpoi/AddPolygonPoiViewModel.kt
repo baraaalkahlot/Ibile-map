@@ -12,9 +12,11 @@ import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.model.*
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.maps.android.SphericalUtil
+import com.ibile.DEFAULT_DB_NAME
 import com.ibile.R
 import com.ibile.USERS_COLLECTION
 import com.ibile.USERS_MARKERS
@@ -22,6 +24,7 @@ import com.ibile.core.addTo
 import com.ibile.core.bitmapFromVectorDrawable
 import com.ibile.data.SharedPref
 import com.ibile.data.database.entities.ConvertedFirebaseMarker
+import com.ibile.data.repositiories.MapFile
 import com.ibile.data.repositiories.MarkersRepository
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -36,6 +39,8 @@ open class AddPolygonPoiViewModel(
     private val compositeDisposable: CompositeDisposable = CompositeDisposable()
     private var mode: Mode =
         Mode.Add
+
+    private var mapFile: MapFile? = null
 
     // when drawing the polygon, if the points are less than 3, no shape is drawn if the polygon
     // shape is used. This polyline is used in that case to indicate the least polygon path
@@ -52,14 +57,17 @@ open class AddPolygonPoiViewModel(
         get() = activePointIndexObservable.get()
         set(value) = activePointIndexObservable.set(value)
 
-    fun init(map: GoogleMap?) {
+    fun init(map: GoogleMap?, mapFile: MapFile?) {
+        Log.d("wasd", "init: mapfile name ${mapFile?.name}")
+        this.mapFile = mapFile
         this.map = map
-        mode =
-            Mode.Add
+        mode = Mode.Add
         initShape()
     }
 
     private fun initShape() {
+        Log.d("wasd", "initShape: mapfile name ${mapFile?.name}")
+
         map?.let {
             polygonPath = it.addPolygon(polygonOptions(it.cameraPosition.target))
             polygonPathPolyline = it.addPolyline(PolylineOptions().width(3f).color(Color.WHITE))
@@ -269,7 +277,7 @@ open class AddPolygonPoiViewModel(
         points.clear()
 
         activePointIndex = -1
-        init(null)
+        init(null , mapFile)
     }
 
     override fun onCleared() {
@@ -346,6 +354,46 @@ open class AddPolygonPoiViewModel(
         doc.collection(USERS_MARKERS)
             .document(markerId.toString())
             .set(convertedFirebaseMarker)
+            .addOnSuccessListener {
+                Log.d("wasd", "success")
+
+                val mainCollection = db.collection(USERS_COLLECTION)
+                    .document(userEmail)
+
+                Log.d(
+                    "wasd",
+                    "addFolder: current db name = ${mapFile?.dbName}"
+                )
+
+                if (mapFile == null) return@addOnSuccessListener
+
+                mainCollection.collection(sharedPref.currentMapFileId.toString())
+                    .document(sharedPref.currentMapFileId.toString())
+                    .set(mapFile!!)
+
+                mainCollection.get().addOnCompleteListener { values ->
+                    if (values.isSuccessful) {
+                        Log.d("wasd", "onClickCreateNewMapViewPositiveBtn: ohhh yeah")
+                        val document: DocumentSnapshot = values.result!!
+                        val list: java.util.ArrayList<String> = if (document.get("id") != null) {
+                            document.get("id") as java.util.ArrayList<String>
+                        } else {
+                            arrayListOf()
+                        }
+
+                        for (i in list) {
+                            if (i == sharedPref.currentMapFileId.toString() || mapFile!!.dbName != DEFAULT_DB_NAME) return@addOnCompleteListener
+                        }
+                        list.add(sharedPref.currentMapFileId.toString())
+
+                        val data = mapOf(
+                            "id" to list,
+                            "isActive" to document.get("isActive")
+                        )
+                        mainCollection.set(data)
+                    }
+                }
+            }
     }
 
 

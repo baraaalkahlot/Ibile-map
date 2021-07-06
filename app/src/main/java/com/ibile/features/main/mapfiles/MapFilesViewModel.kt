@@ -155,6 +155,7 @@ class MapFilesViewModel(
         mapFilesRepository.myUpdateMapFiles(mapFiles, parent)
     }
 
+
     //TODO Delete file
     fun onClickDeleteMapFileConfirm() {
 
