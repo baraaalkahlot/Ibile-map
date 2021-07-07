@@ -103,6 +103,8 @@ class AddFolderViewModel(
             .subscribeOn(Schedulers.io())
             .blockingGet()
         state.addFolderAsync
+
+        Log.d("wasd", "addFolderToRoomOnly: sucess id = $id")
     }
 
     data class State(

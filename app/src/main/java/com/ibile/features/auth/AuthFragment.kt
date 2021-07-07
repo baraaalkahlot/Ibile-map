@@ -9,8 +9,6 @@ import android.text.Editable
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.fragmentViewModel
@@ -51,12 +49,13 @@ abstract class AuthFragment : BaseFragment() {
     private val addMarkerPoiViewModel: AddMarkerPoiViewModel by fragmentViewModel()
     private val mapFilesViewModel: MapFilesViewModel by fragmentViewModel()
 
-    private val listener = MutableLiveData(false)
-
     val db = Firebase.firestore.collection("users")
     private var index = 0
 
     private var index2 = 0
+
+    private var index3 = 0
+
     val listOfMapFile = arrayListOf<MapFile>()
 
 
@@ -109,15 +108,9 @@ abstract class AuthFragment : BaseFragment() {
                             viewModel.deleteTables()
                         }
 
-                        cloneDataFromFirebase()
-                        listener.observe(viewLifecycleOwner, Observer {
-                            if (it) {
-                                Log.d("wasd", "handleAuthSuccess: start")
+                        Log.d("wasd", "handleAuthSuccess: start")
                                 //write the return files from firebase to local gson file
                                 readMapFilesFromFirebase()
-                            }
-                        })
-
                     } else {
                         showAlertDialog(" Sign in is pending manual approval.\n Pls contact the App admin to approve Sign in faster. \nAdmin contact details\n PHONE: +2348059612889 (WhatsApp Messages or Calls)\n EMAIL: olayenieo@gmail.com")
                     }
@@ -148,16 +141,26 @@ abstract class AuthFragment : BaseFragment() {
 
 
     // Clone data from Firebase
-    private fun cloneDataFromFirebase() {
+    private fun cloneDataFromFirebase(idList: ArrayList<String>) {
 
+        if (idList.isEmpty()){
+            val direction = AuthGraphDirections.actionGlobalMainGraph()
+            navController.navigate(direction)
+            return
+        }
+
+
+        if (index3 > idList.size - 1) {
+            return
+        }
         val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
             .getString("user_email", "empty")
 
         val db = FirebaseFirestore.getInstance()
-        Log.d("wasd", "currentMapFileId: ${viewModel.currentMapFileId}")
+        Log.d("wasd", "index 3 = $index3 and id = ${idList[index3]} ")
         val mainCollection: CollectionReference = db.collection(USERS_COLLECTION)
             .document(userEmail!!)
-            .collection(viewModel.currentMapFileId)
+            .collection(idList[index3])
 
         val folders = ArrayList<Folder>()
         mainCollection.get()
@@ -168,23 +171,29 @@ abstract class AuthFragment : BaseFragment() {
                         folders.add(folder)
                         folderViewModel.addFolderToRoomOnly(folder)
                     } catch (e: RuntimeException) {
+                        Log.e("wasd", "cloneDataFromFirebase: catch ${e.printStackTrace()}")
                         e.printStackTrace()
                     }
                 }
 
-                loopThrowFolders(folders, mainCollection)
+                loopThrowFolders(folders, mainCollection, idList)
                 Log.d("wasd", "cloneDataFromFirebase: end")
-
-                listener.value = true
-
             }
     }
 
 
-    private fun loopThrowFolders(folders: ArrayList<Folder>, mainCollection: CollectionReference) {
+    private fun loopThrowFolders(
+        folders: ArrayList<Folder>,
+        mainCollection: CollectionReference,
+        idList: ArrayList<String>
+    ) {
 
         if (index > folders.size - 1) {
-            Log.d("wasd", "loopThrowFolders: end")
+            index3++
+            Log.d("wasd", "loopThrowFolders: end with index = $index3")
+            if (index3 > idList.size - 1) getFileMapDataById(idList)
+            else
+                cloneDataFromFirebase(idList)
             return
         }
 
@@ -249,7 +258,7 @@ abstract class AuthFragment : BaseFragment() {
 
                     index++
                     loopThrowFolders(
-                        folders, mainCollection
+                        folders, mainCollection, idList
                     )
 
                 }
@@ -278,7 +287,7 @@ abstract class AuthFragment : BaseFragment() {
                     }
                 }
                 Log.d("wasd", "readMapFilesFromFirebase: list size ${list.size}")
-                getFileMapDataById(list)
+                cloneDataFromFirebase(list)
             }
     }
 

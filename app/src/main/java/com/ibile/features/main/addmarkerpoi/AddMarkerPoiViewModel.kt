@@ -78,6 +78,7 @@ class AddMarkerPoiViewModel(
             .insertMarker(marker)
             .subscribeOn(Schedulers.io())
             .blockingGet()
+        Log.d("wasd", "addMarkerToRoomOnly: id = $id")
     }
 
     fun updateMarker(marker: Marker) {
