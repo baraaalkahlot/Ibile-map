@@ -19,12 +19,10 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.libraries.maps.model.LatLng
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.ibile.AuthGraphDirections
 import com.ibile.BuildConfig
 import com.ibile.USERS_COLLECTION
 import com.ibile.USERS_MARKERS
@@ -34,12 +32,14 @@ import com.ibile.data.database.entities.ConvertedFirebaseMarker
 import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.MapFile
+import com.ibile.data.repositiories.MapFilesRepository
 import com.ibile.features.main.addfolder.AddFolderViewModel
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
 import com.ibile.features.main.mapfiles.MapFilesViewModel
-import com.ibile.utils.extensions.navController
+import com.ibile.utils.extensions.restartApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 abstract class AuthFragment : BaseFragment() {
@@ -58,6 +58,7 @@ abstract class AuthFragment : BaseFragment() {
 
     val listOfMapFile = arrayListOf<MapFile>()
 
+    var defaultMapFileId: String = ""
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -105,12 +106,13 @@ abstract class AuthFragment : BaseFragment() {
                     // Log.d(TAG, "${document.id} => ${document.data}")
                     if (result.get("isActive") == true) {
                         CoroutineScope(IO).launch {
-                            viewModel.deleteTables()
-                        }
+                            val delete = async {
+                                viewModel.deleteTables()
+                            }
+                            delete.await()
+                            readMapFilesFromFirebase()
 
-                        Log.d("wasd", "handleAuthSuccess: start")
-                                //write the return files from firebase to local gson file
-                                readMapFilesFromFirebase()
+                        }
                     } else {
                         showAlertDialog(" Sign in is pending manual approval.\n Pls contact the App admin to approve Sign in faster. \nAdmin contact details\n PHONE: +2348059612889 (WhatsApp Messages or Calls)\n EMAIL: olayenieo@gmail.com")
                     }
@@ -138,7 +140,7 @@ abstract class AuthFragment : BaseFragment() {
 
 
     }
-
+/*
 
     // Clone data from Firebase
     private fun cloneDataFromFirebase(idList: ArrayList<String>) {
@@ -176,24 +178,145 @@ abstract class AuthFragment : BaseFragment() {
                     }
                 }
 
-                loopThrowFolders(folders, mainCollection, idList)
-                Log.d("wasd", "cloneDataFromFirebase: end")
+                loopThrowFolders(folders, mainCollection, idList, idList[index3])
             }
     }
 
 
-    private fun loopThrowFolders(
-        folders: ArrayList<Folder>,
-        mainCollection: CollectionReference,
-        idList: ArrayList<String>
-    ) {
+    fun readMapFilesFromFirebase() {
+        var list = java.util.ArrayList<String>()
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .get().addOnCompleteListener { values ->
+
+                if (values.isSuccessful) {
+                    val document = values.result!!
+                    list = if (document.get("id") != null) {
+                        document.get("id") as java.util.ArrayList<String>
+                    } else {
+                        arrayListOf()
+                    }
+                }
+                Log.d("wasd", "readMapFilesFromFirebase: list size ${list.size}")
+                cloneDataFromFirebase(list)
+            }
+    }*/
+
+
+    fun readMapFilesFromFirebase() {
+        var list = java.util.ArrayList<String>()
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .get().addOnCompleteListener { values ->
+
+                if (values.isSuccessful) {
+                    val document = values.result!!
+                    list = if (document.get("id") != null) {
+                        document.get("id") as java.util.ArrayList<String>
+                    } else {
+                        arrayListOf()
+                    }
+                }
+                Log.d("wasd", "readMapFilesFromFirebase: list size ${list.size}")
+                getFileMapDataById(list)
+            }
+    }
+
+
+    private fun getFileMapDataById(list: java.util.ArrayList<String>): java.util.ArrayList<MapFile> {
+
+        if (index2 > list.size - 1) {
+            Log.d("wasd", "getFileMapDataById: end size ${listOfMapFile.size}")
+            Log.d("wasd", "readMapFilesFromFirebase: mapFiles size ${list.size}")
+            getFoldersAndMarkersForCurrentFile(listOfMapFile)
+            return listOfMapFile
+        }
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+        val db = FirebaseFirestore.getInstance()
+        val doc = db.collection(USERS_COLLECTION).document(userEmail!!)
+
+        doc.collection(list[index2]).document(list[index2]).get()
+            .addOnCompleteListener { values ->
+                if (values.isSuccessful) {
+                    val data = values.result?.toObject(MapFile::class.java)
+                    Log.d("wasd", "readMapFilesFromFirebase: data = ${data?.name}")
+                    data?.let { listOfMapFile.add(it) }
+                }
+                Log.d("wasd", "getFileMapDataById: current index2 = $index2")
+                index2++
+                getFileMapDataById(list)
+            }
+
+        return listOfMapFile
+    }
+
+
+    private fun getFoldersAndMarkersForCurrentFile(listOfMapFile: ArrayList<MapFile>) {
+        if (listOfMapFile.isEmpty()) requireContext().restartApp(requireActivity()::class)
+
+        for (i in listOfMapFile) {
+            if (i.dbName == MapFilesRepository.DEFAULT_DB_NAME) {
+                defaultMapFileId = i.id
+                break
+            }
+        }
+
+        if (defaultMapFileId.isEmpty()) defaultMapFileId = listOfMapFile[0].id
+
+
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        val folders = ArrayList<Folder>()
+
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection(defaultMapFileId)
+            .get()
+            .addOnCompleteListener { values ->
+                for (item: QueryDocumentSnapshot in values.result!!) {
+                    try {
+                        val folder = item.toObject(Folder::class.java)
+                        folders.add(folder)
+                        folderViewModel.addFolderToRoomOnly(folder)
+                    } catch (e: RuntimeException) {
+                        Log.e("wasd", "cloneDataFromFirebase: catch ${e.printStackTrace()}")
+                        e.printStackTrace()
+                    }
+                }
+
+                loopThrowFolders(folders, listOfMapFile)
+            }
+    }
+
+
+    private fun loopThrowFolders(folders: ArrayList<Folder>, listOfMapFile: ArrayList<MapFile>) {
+
+        val db = FirebaseFirestore.getInstance()
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        val mainCollection = db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection(defaultMapFileId)
+
 
         if (index > folders.size - 1) {
-            index3++
-            Log.d("wasd", "loopThrowFolders: end with index = $index3")
-            if (index3 > idList.size - 1) getFileMapDataById(idList)
-            else
-                cloneDataFromFirebase(idList)
+            mapFilesViewModel.writeFilesToLocal(listOfMapFile, this, defaultMapFileId)
             return
         }
 
@@ -213,11 +336,6 @@ abstract class AuthFragment : BaseFragment() {
 
                         val marker = item.toObject(ConvertedFirebaseMarker::class.java)
 
-
-                        Log.d(
-                            "wasd",
-                            "loopThrowFolders: map file id = ${viewModel.currentMapFileId}  process index = $index  folder id = ${folders[index].id} marker id = ${marker.id}"
-                        )
 
                         val arrayOfGeoPoint: ArrayList<LatLng> = arrayListOf()
                         for (p in marker.points) {
@@ -257,69 +375,12 @@ abstract class AuthFragment : BaseFragment() {
                     )
 
                     index++
-                    loopThrowFolders(
-                        folders, mainCollection, idList
-                    )
+                    loopThrowFolders(folders, listOfMapFile)
 
                 }
 
             }
     }
-
-
-    fun readMapFilesFromFirebase() {
-        var list = java.util.ArrayList<String>()
-        val db = FirebaseFirestore.getInstance()
-
-        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            .getString("user_email", "empty")
-
-        db.collection(USERS_COLLECTION)
-            .document(userEmail!!)
-            .get().addOnCompleteListener { values ->
-
-                if (values.isSuccessful) {
-                    val document = values.result!!
-                    list = if (document.get("id") != null) {
-                        document.get("id") as java.util.ArrayList<String>
-                    } else {
-                        arrayListOf()
-                    }
-                }
-                Log.d("wasd", "readMapFilesFromFirebase: list size ${list.size}")
-                cloneDataFromFirebase(list)
-            }
-    }
-
-
-    private fun getFileMapDataById(list: java.util.ArrayList<String>): java.util.ArrayList<MapFile> {
-
-        if (index2 > list.size - 1) {
-            Log.d("wasd", "getFileMapDataById: end size ${listOfMapFile.size}")
-            Log.d("wasd", "readMapFilesFromFirebase: mapFiles size ${list.size}")
-            mapFilesViewModel.writeFilesToLocal(listOfMapFile , this)
-            return listOfMapFile
-        }
-        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
-            .getString("user_email", "empty")
-        val db = FirebaseFirestore.getInstance()
-        val doc = db.collection(USERS_COLLECTION).document(userEmail!!)
-
-        doc.collection(list[index2]).document(list[index2]).get()
-            .addOnCompleteListener { values ->
-                if (values.isSuccessful) {
-                    val data = values.result?.toObject(MapFile::class.java)
-                    Log.d("wasd", "readMapFilesFromFirebase: data = ${data?.name}")
-                    data?.let { listOfMapFile.add(it) }
-                }
-                Log.d("wasd", "getFileMapDataById: current index2 = $index2")
-                index2++
-                getFileMapDataById(list)
-            }
-
-        return listOfMapFile
-    }
-
 
     private fun showAlertDialog(msg: String) {
 

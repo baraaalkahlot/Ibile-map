@@ -88,7 +88,8 @@ class OrganizeMarkersPresenter(
 
     fun init(lifecycleOwner: LifecycleOwner) {
         if (viewModel.state.getFoldersWithMarkersAsyncResult !is Success)
-            viewModel.getFoldersWithMarkers()
+            viewModel.
+            getFoldersWithMarkers()
 
         if (isSubscribedToStateChanges) return
 

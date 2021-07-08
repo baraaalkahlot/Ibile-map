@@ -38,22 +38,9 @@ class MapFilesRepository(
         sharedPref.currentMapFileId = defaultMap.id
         mapsDataJsonFile.writer().use { gson.toJson(listOf(defaultMap), MAP_FILES_TYPE_TOKEN, it) }
 
-        Log.d(
-            "wasd",
-            "initializeMapFiles: writer -> name =  ${defaultMap.name}  , id = ${defaultMap.id}  db name = ${defaultMap.dbName}"
-        )
         listOf(defaultMap)
     } else {
-        val storedMapList =
-            mapsDataJsonFile.reader().use { gson.fromJson<List<MapFile>>(it, MAP_FILES_TYPE_TOKEN) }
-
-        for (i in storedMapList) {
-            Log.d(
-                "wasd",
-                "initializeMapFiles: reader -> name =  ${i.name}  , id = ${i.id}  db name = ${i.dbName}"
-            )
-        }
-        storedMapList
+        mapsDataJsonFile.reader().use { gson.fromJson<List<MapFile>>(it, MAP_FILES_TYPE_TOKEN) }
     }
 
 
@@ -93,10 +80,14 @@ class MapFilesRepository(
         _mapFiles.accept(updatedResult)
     }
 
-    fun myUpdateMapFiles(updatedList: List<MapFile>, parent: AuthFragment) {
+    fun myUpdateMapFiles(
+        updatedList: List<MapFile>,
+        parent: AuthFragment,
+        defaultMapFileId: String
+    ) {
         try {
             Log.d("wasd", "updateMapFiles: start")
-            sharedPref.currentMapFileId = updatedList[0].id
+            sharedPref.currentMapFileId = defaultMapFileId
             mapsDataJsonFile.writer().use { gson.toJson(updatedList, MAP_FILES_TYPE_TOKEN, it) }
             val updatedResult =
                 mapsDataJsonFile.reader()
@@ -104,14 +95,15 @@ class MapFilesRepository(
             _mapFiles.accept(updatedResult)
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
-        }finally {
+        } finally {
             parent.currentContext.restartApp(parent.requireActivity()::class)
         }
     }
 
+
     companion object {
         private const val MAPS_DETAILS_FILE_NAME = "com_ibile_maps.json"
-        private const val DEFAULT_DB_NAME = "ibile-markers"
+        const val DEFAULT_DB_NAME = "ibile-markers"
         private val MAP_FILES_TYPE_TOKEN = object : TypeToken<List<MapFile>>() {}.type
     }
 

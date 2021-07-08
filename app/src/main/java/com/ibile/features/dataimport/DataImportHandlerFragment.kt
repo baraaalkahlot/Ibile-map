@@ -40,6 +40,7 @@ class DataImportHandlerFragment : BaseFragment() {
                     Log.d("AAA", "onViewCreated: stage 1 here")
                     navController.popBackStack()
                 }
+
             }
         }
     }

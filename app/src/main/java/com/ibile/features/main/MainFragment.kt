@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
@@ -13,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.ObservableField
 import androidx.lifecycle.observe
@@ -24,17 +26,27 @@ import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.Polygon
 import com.google.android.libraries.maps.model.Polyline
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.ibile.USERS_COLLECTION
+import com.ibile.USERS_MARKERS
 import com.ibile.core.MvRxEpoxyController
 import com.ibile.core.currentContext
 import com.ibile.core.simpleController
+import com.ibile.data.SharedPref
+import com.ibile.data.SharedPref.Companion.PREF_CURRENT_MAP_FILE_ID
+import com.ibile.data.database.entities.ConvertedFirebaseMarker
+import com.ibile.data.database.entities.Folder
 import com.ibile.data.database.entities.Marker
 import com.ibile.databinding.FragmentMainBinding
 import com.ibile.features.MarkerImagesPreviewFragment
+import com.ibile.features.auth.AuthViewModel
 import com.ibile.features.createimportedmarker.CreateImportedMarkerFragment
 import com.ibile.features.editmarker.EditMarkerDialogFragment
 import com.ibile.features.main.UIStateViewModel.Overlay
+import com.ibile.features.main.addfolder.AddFolderViewModel
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiDatabindingViewData
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiPresenter
 import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
@@ -61,8 +73,13 @@ import com.ibile.utils.extensions.navController
 import com.ibile.utils.extensions.runWithPermissions
 import com.ibile.utils.views.OptionWithIconArrayAdapter
 import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
 
 /**
  * Main Application Entry Screen.
@@ -92,6 +109,8 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
     private val fusedLocationClient: FusedLocationProviderClient by inject()
     internal lateinit var map: GoogleMap
     val db = Firebase.firestore.collection("users")
+
+    var index = 0
 
 
     private val drawerLayoutViewEpoxyController: MvRxEpoxyController by lazy {
@@ -134,9 +153,21 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
         MainPresenter(uiStateViewModel, fusedLocationClient)
     }
 
+    private val folderViewModel: AddFolderViewModel by fragmentViewModel()
+
+    private val authViewModel: AuthViewModel by fragmentViewModel()
+
+
     private val mapFilesViewModel: MapFilesViewModel by fragmentViewModel()
     private val mapFilesController: MapFilesController by lazy {
-        MapFilesController(this, mapFilesViewModel)
+        MapFilesController(
+            this,
+            mapFilesViewModel,
+            folderViewModel,
+            addMarkerPoiViewModel,
+            authViewModel,
+            requireContext()
+        )
     }
 
     override val mode: MarkerImagesPreviewFragment.Callback.Mode
@@ -152,6 +183,26 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
             Log.d("wasd", "onCreate: main in ")
             return
         } else {
+
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val delete = async {
+                    authViewModel.deleteTables()
+                }
+                delete.await()
+
+                val sharedPreferences: SharedPreferences =
+                    requireActivity().getSharedPreferences(
+                        SharedPref.SHARED_PREF_FILE_NAME,
+                        Context.MODE_PRIVATE
+                    )
+
+                val id = sharedPreferences.getString(PREF_CURRENT_MAP_FILE_ID, "")
+                Log.d("wasd", "onCreate: id = $id")
+                    getFoldersAndMarkersForCurrentFile(id!!)
+
+            }
+
             Log.d("wasd", "onCreate: main else ")
             val sharedPreferences: SharedPreferences =
                 requireActivity().getSharedPreferences("user_data", Context.MODE_PRIVATE)
@@ -665,6 +716,122 @@ class MainFragment : SubscriptionRequiredFragment(), MarkerImagesPreviewFragment
             remove<Long>(CreateImportedMarkerFragment.RESULT_KEY_CREATED_MARKER_ID)
         }
     }
+
+
+    private fun getFoldersAndMarkersForCurrentFile(MapFileId: String) {
+
+
+        val db = FirebaseFirestore.getInstance()
+
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        val folders = ArrayList<Folder>()
+
+
+        db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection(MapFileId)
+            .get()
+            .addOnCompleteListener { values ->
+                for (item: QueryDocumentSnapshot in values.result!!) {
+                    try {
+                        val folder = item.toObject(Folder::class.java)
+                        folders.add(folder)
+                        folderViewModel.addFolderToRoomOnly(folder)
+                    } catch (e: RuntimeException) {
+                        Log.e("wasd", "cloneDataFromFirebase: catch ${e.printStackTrace()}")
+                        e.printStackTrace()
+                    }
+                }
+
+                Log.d("wasd", "getFoldersAndMarkersForCurrentFile: size = ${folders.size}")
+                loopThrowFolders(folders, MapFileId)
+            }
+    }
+
+
+    private fun loopThrowFolders(
+        folders: ArrayList<Folder>, MapFileId: String
+    ) {
+
+        val db = FirebaseFirestore.getInstance()
+        val userEmail = requireContext().getSharedPreferences("user_data", Context.MODE_PRIVATE)
+            .getString("user_email", "empty")
+
+        val mainCollection = db.collection(USERS_COLLECTION)
+            .document(userEmail!!)
+            .collection(MapFileId)
+
+
+        if (index > folders.size - 1) {
+            index = 0
+            Toast.makeText(context, "Successful", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d(
+            "wasd",
+            "loopThrowFolders: start index = $index  folder id = ${folders[index].id}"
+        )
+
+        mainCollection
+            .document(folders[index].id.toString())
+            .collection(USERS_MARKERS)
+            .get()
+            .addOnCompleteListener { values ->
+                if (values.isSuccessful) {
+
+                    for (item: QueryDocumentSnapshot in values.result!!) {
+
+                        val marker = item.toObject(ConvertedFirebaseMarker::class.java)
+
+
+                        val arrayOfGeoPoint: ArrayList<LatLng> = arrayListOf()
+                        for (p in marker.points) {
+                            arrayOfGeoPoint.add(LatLng(p.latitude, p.longitude))
+                        }
+
+                        val arrayOfImagePath: ArrayList<Uri> = arrayListOf()
+                        for (i in marker.imageUris) {
+                            arrayOfImagePath.add(Uri.parse(i))
+                        }
+
+                        val roomMarker =
+                            Marker(
+                                id = marker.id!!,
+                                points = arrayOfGeoPoint,
+                                type = marker.type,
+                                createdAt = marker.createdAt,
+                                updatedAt = marker.updatedAt,
+                                description = marker.description,
+                                color = marker.color,
+                                icon = marker.icon?.let { it1 -> Marker.Icon(it1) },
+                                phoneNumber = marker.phoneNumber,
+                                imageUris = arrayOfImagePath,
+                                folderId = marker.folderId
+                            )
+
+                        Log.d(
+                            "wasd",
+                            "loopThrowFolders: point = ${marker.points[0]} and the icon  = ${marker.icon}"
+                        )
+                        addMarkerPoiViewModel.addMarkerToRoomOnly(roomMarker)
+                    }
+
+                    Log.d(
+                        "wasd",
+                        "loopThrowFolders: end index = $index  folder id = ${folders[index].id}"
+                    )
+
+                    index++
+                    loopThrowFolders(folders, MapFileId)
+
+                }
+
+            }
+    }
+
 
     companion object {
         const val BUNDLE_MAP_VIEW_KEY = "BUNDLE_MAP_VIEW_KEY"

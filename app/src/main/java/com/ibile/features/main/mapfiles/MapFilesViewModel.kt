@@ -1,18 +1,29 @@
 package com.ibile.features.main.mapfiles
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.airbnb.mvrx.*
+import com.google.android.libraries.maps.model.LatLng
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.ibile.R
 import com.ibile.USERS_COLLECTION
+import com.ibile.USERS_MARKERS
 import com.ibile.core.BaseViewModel
 import com.ibile.data.SharedPref
+import com.ibile.data.database.entities.ConvertedFirebaseMarker
+import com.ibile.data.database.entities.Folder
+import com.ibile.data.database.entities.Marker
 import com.ibile.data.repositiories.MapFile
 import com.ibile.data.repositiories.MapFilesRepository
 import com.ibile.features.auth.AuthFragment
+import com.ibile.features.main.addfolder.AddFolderViewModel
+import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
 import com.ibile.features.main.mapfiles.FileOptionsAndMapFilesArrayAdapter.MapFilesOptionsItem
+import com.ibile.features.main.markerslist.MarkersViewModel
 import com.ibile.utils.extensions.withDefaultScheduler
 import org.koin.android.ext.android.get
 import java.util.*
@@ -141,7 +152,7 @@ class MapFilesViewModel(
         when (optionIndex) {
             0 -> { // switch map file
                 currentMapFileId = mapFile.id
-                setState { copy(command = Command.MapFileChange) }
+                setState { copy(command=Command.MapFileChange) }
             }
             1 -> { // delete map file
                 setState { copy(command = Command.ShowMapFileDeleteConfirmation(mapFile)) }
@@ -150,9 +161,9 @@ class MapFilesViewModel(
     }
 
 
-    fun writeFilesToLocal(mapFiles: List<MapFile>, parent: AuthFragment) {
+    fun writeFilesToLocal(mapFiles: List<MapFile>, parent: AuthFragment, defaultMapFileId: String) {
         Log.d("wasd", "writeFilesToLocal: start")
-        mapFilesRepository.myUpdateMapFiles(mapFiles, parent)
+        mapFilesRepository.myUpdateMapFiles(mapFiles, parent, defaultMapFileId)
     }
 
 
@@ -200,7 +211,6 @@ class MapFilesViewModel(
             }
         }
     }
-
 
     fun onCancelMapsFilesAction() {
         setState { copy(command = null) }

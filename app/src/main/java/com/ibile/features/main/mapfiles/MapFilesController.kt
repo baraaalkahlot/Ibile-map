@@ -2,23 +2,44 @@ package com.ibile.features.main.mapfiles
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
+import android.net.Uri
+import android.util.Log
 import android.widget.EditText
+import android.widget.Toast
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.mvrx.UniqueOnly
-import com.ibile.R
+import com.google.android.libraries.maps.model.LatLng
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.ibile.*
 import com.ibile.core.currentContext
-import com.ibile.currentMapFileName
+import com.ibile.data.database.entities.ConvertedFirebaseMarker
+import com.ibile.data.database.entities.Folder
+import com.ibile.data.database.entities.Marker
+import com.ibile.features.auth.AuthViewModel
 import com.ibile.features.main.MainFragment
+import com.ibile.features.main.addfolder.AddFolderViewModel
+import com.ibile.features.main.addmarkerpoi.AddMarkerPoiViewModel
 import com.ibile.features.main.mapfiles.MapFilesViewModel.Command
-import com.ibile.markerFolderTitle
 import com.ibile.utils.extensions.restartApp
 import com.ibile.utils.views.OptionWithIconArrayAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import java.util.*
 
 class MapFilesController(
     private val parent: MainFragment,
-    private val viewModel: MapFilesViewModel
+    private val viewModel: MapFilesViewModel,
+    private val folderViewModel: AddFolderViewModel,
+    private val addMarkerPoiViewModel: AddMarkerPoiViewModel,
+    private val authViewModel: AuthViewModel,
+    private val context: Context
 ) : MapFilesOptionsContainerDialogFragment.Callback {
+
 
     private fun getDialogsContainer(name: String): MapFilesOptionsContainerDialogFragment {
         return parent.childFragmentManager.findFragmentByTag(name) as? MapFilesOptionsContainerDialogFragment
@@ -117,6 +138,8 @@ class MapFilesController(
                         OptionWithIconArrayAdapter(parent.currentContext, MAP_FILE_OPTIONS)
                     ) { _, which ->
                         viewModel.onSelectMapFileOption(which)
+                        Log.d("wasd", "getDialog_FileOptionsDialogFragment: map id = ${mapFile.id}")
+//                        Toast.makeText(context, "Loading...", Toast.LENGTH_LONG).show()
                     }
                     .setNegativeButton(R.string.text_cancel) { _, _ -> }
                     .create()
@@ -142,6 +165,8 @@ class MapFilesController(
     override fun onCancelDialog_FileOptionsDialogFragment() {
         viewModel.onCancelMapsFilesAction()
     }
+
+
 
     companion object {
         internal val MAP_FILE_OPTIONS = listOf(

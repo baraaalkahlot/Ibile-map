@@ -41,6 +41,11 @@ class EditFolderViewModel(
             .execute { copy(getFolderAsync = it) }
     }
 
+    fun getFolderById(folderId: Long) =
+        foldersRepository.getFolder(folderId).blockingFirst()
+
+
+
     fun updateFolder(folder: Folder) {
         foldersRepository
             .updateFolders(folder)

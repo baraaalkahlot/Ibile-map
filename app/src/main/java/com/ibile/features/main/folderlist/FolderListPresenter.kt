@@ -1,10 +1,10 @@
 package com.ibile.features.main.folderlist
 
+import android.util.Log
 import androidx.fragment.app.FragmentManager
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.mvrx.Success
 import com.ibile.*
-import com.ibile.data.database.entities.Folder
 import com.ibile.features.main.addfolder.AddFolderDialogFragment
 import com.ibile.features.main.editfolder.EditFolderDialogFragment
 import com.ibile.features.main.folderlist.FolderWithMarkersCount.Companion.toFolder
